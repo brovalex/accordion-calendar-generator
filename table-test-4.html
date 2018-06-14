@@ -1,69 +1,8 @@
-<!--
-
-Improve:
-- look into coding directly into Illustrator (?)
-- properly scale size, i.e. shrink horizontally
-- check if text alignment can be imported better
-- rotate month headers
-- add padding in between months (?)
-- add 5.5 x 3.5in box for guides (not very important, can multiply copy box in Ai)
-
-
-
--->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<style>
-div.day {
-	width: calc(550px/7);
-	height:100%;
-	display:inline-block;
-	border:1px solid black;
-	float:left;
-	padding:7px;
-	box-sizing: border-box;
-	text-align: right;
-	/*margin-right: -1px;*/
-}
-div.week {
-	/*margin-bottom: -1px;*/
-}
-div.week.height4 {
-	height: calc(350px/4);
-}
-div.week.height5 {
-	height: calc(350px/5);
-}
-/*div.week.height6 {
-	height: calc(350px/6);
-}*/
-div.month {
-	width:550px;
-	clear:both;
-	display:block;
-	float:left;
-
-	/*border-bottom: 5px solid red;*/
-}
-h1 {
-	position:absolute;
-	margin:0;padding:0;
-	opacity: 0.25;
-}
-/*div.day:nth-child(7n+1) {
-	clear:both;
-}*/
-/*div.day:nth-child(7n+1)::after {
-	content: ' ';
-	width:100%;
-	display:block;
-	height:0;
-	clear:both;
-}*/
-</style>
+	<script src="./date_fns.min.js"></script>
 </head>
-
 <body>
 <a href="#" id="link">Download</a>
 <div id="svgwrap"><svg id="mySVG" vertsion="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width:550px;height:2000px"/></svg></div>
@@ -111,6 +50,68 @@ h1 {
 	// }
 
 	// for (var i = 0, len = days.length; i < len; i++) document.write(days[i]);
+
+
+// all i really need tho is breakpoints, ie: 
+// get first $week_first_day of (get week of first day of $start_month)
+// for each week until get week of last day of $start_month+$number_of_months: 
+//   height = ... calculate number of rows (check week number difference between date and last date of month)
+//   for each row:
+//     get first day of week, put date numbers
+//     if new month put header else put (2nd week of month ?"Week":"") week number
+//     add line
+
+// or once the master array is made: 
+// put template
+// for each page:
+//   add header
+//   for each week:
+//     put text
+//     for each day of week: 
+//       put number
+//       put custom event if exists
+
+var calendar = {
+	start_month: "2017/12",
+	pages:
+		[
+			{
+				month: 12,
+				rows: [
+					{
+						number: 54,
+						days: [
+							{number: 4},
+							{number: 5, event:"Someone's birthday"},
+							// ... day
+						]
+					},
+					{
+						// ... row
+					}
+				]
+			},
+			{
+				// ... page
+			}
+		]
+}
+
+// INPUTS
+var start = {year: 2017, month: 12}
+// PREP
+var start_date = new Date(start.year, start.month-1, 1)
+// OUTPUT
+
+// for (let i=1;)
+
+// get first $week_first_day of (get week of first day of $start_month)
+// for each week until get week of last day of $start_month+$number_of_months: 
+//   height = ... calculate number of rows (check week number difference between date and last date of month)
+//   for each row:
+//     get first day of week, put date numbers
+//     if new month put header else put (2nd week of month ?"Week":"") week number
+//     add line
 
 	weeks = new Array();
 	while (days.length > 0)

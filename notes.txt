@@ -1,0 +1,29 @@
+Current issues: 
+
+
+Questions: 
+- the year does not appear anywhere: that ok? put it next to first month?
+- how will the lines on side appear?
+
+Current decisions: 
+- use date-fns for manipulations instead of writing my own functions
+   - e.g. for week number
+   - less likely to make mistakes
+   - easier to expand, e.g. other languages
+?- use an array with dates between date-fns and svg code
+   + structured around pages, e.g. no need to look forward to count number of rows
+   + work independently on SVG part, then rework the numbers part
+   + easier to access, e.g. page.weeks, week.number ...
+   + need to spit out a greedy object with all info
+   + easier to debug and remeber later how it works
+?- could work from dates directly
+   + do not need add to both SVG and numbers for e.g. "Week 52" vs "53" on 2nd and 3rd rows
+   + no need to rewrite numbers part after   
+   x vertical lines can be applied by month or in one piece
+   x same work if switch stack: need both numbers and SVG always anyway (lots of rewrite in both cases)
+   
+
+
+
+Ideas for future: 
+- consider locales: e.g. selecting language 
