@@ -1,5 +1,6 @@
-Current issues: 
-
+Todo: 
+- Make exception for very last week: need to remove month header + add back week number
+- Height of last month will be off by 1 week because it may include the first of the following month
 
 Questions: 
 - the year does not appear anywhere: that ok? put it next to first month?
@@ -21,6 +22,7 @@ Current decisions:
    + no need to rewrite numbers part after   
    x vertical lines can be applied by month or in one piece
    x same work if switch stack: need both numbers and SVG always anyway (lots of rewrite in both cases)
+- checking the ISO week of the given week's Thursday (not first day of week), this is consistent with ISO but could be misleading if someone relies on e.g. what ISO week is Monday or Sunday --- ask Russel
    
 
 

@@ -99,14 +99,36 @@ var calendar = {
 
 // INPUTS
 var start = {year: 2017, month: 12}
+var number_of_months = 14
 // PREP
 var start_date = new Date(start.year, start.month-1, 1)
+var end_date = dateFns.lastDayOfMonth(dateFns.addMonths(start_date,number_of_months-1))
+var weeks_total = 1+dateFns.differenceInCalendarWeeks(
+	end_date,
+  start_date,
+  {weekStartsOn:0}
+)
 // OUTPUT
+for (let i=0;i<weeks_total;i++) {
+	// height for page...
+	
 
-// for (let i=1;)
+	// prep
+	let first_day_i = dateFns.startOfWeek(dateFns.addWeeks(start_date,i),{weekStartsOn:1})
+	let days_i = dateFns.eachDay(first_day_i, dateFns.lastDayOfWeek(first_day_i,{weekStartsOn:1}))
+	// check if new month for header, make exception for very last week
+	let isFirstWeek = (dateFns.getMonth(days_i[0])!=dateFns.getMonth(days_i[6]) || dateFns.isFirstDayOfMonth(days_i[0])) && i<weeks_total-1
+	if (isFirstWeek) document.write(dateFns.format(days_i[6],'MMMM')+"<br/>")
+	// add week number if not first week
+	let isSecondWeek = dateFns.getMonth(dateFns.addWeeks(days_i[0],-1))!=dateFns.getMonth(dateFns.addWeeks(days_i[6],-1)) || dateFns.isFirstDayOfMonth(dateFns.addWeeks(days_i[0],-1))
+	if (!isFirstWeek) document.write( (isSecondWeek?"Week ":"") + dateFns.getISOWeek(days_i[3]) +": ")
+	// spit out row:
+	days_i.forEach((d)=>document.write(dateFns.format(d,'D')+" "))
+	document.write("<br/>")
+}
 
 // get first $week_first_day of (get week of first day of $start_month)
-// for each week until get week of last day of $start_month+$number_of_months: 
+// for each week until get number of weeks until last day of $start_month+$number_of_months: 
 //   height = ... calculate number of rows (check week number difference between date and last date of month)
 //   for each row:
 //     get first day of week, put date numbers
