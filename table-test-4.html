@@ -4,7 +4,7 @@
 	<script src="./date_fns.min.js"></script>
 </head>
 <body>
-<a href="#" id="link">Download</a>
+<a href="#" id="link" style="position:fixed;right:20px;top:20px;padding:8px 16px;background-color:navy;color:white;border-radius: 3px; text-decoration: none;">Download</a>
 <div id="svgwrap"><svg id="mySVG" vertsion="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width:550px;height:2000px"/></svg></div>
 <script>
 // svg stuff
@@ -14,6 +14,19 @@ page_w = 550
 page_h = 350
 padding_x = 5
 padding_y = 7
+// INPUTS
+var start = {year: 2017, month: 12}
+var number_of_months = 14
+var weekStartsOn = 1
+// PREP
+var start_date = new Date(start.year, start.month-1, 1)
+var end_date = dateFns.lastDayOfMonth(dateFns.addMonths(start_date,number_of_months-1))
+var weeks_total = 1+dateFns.differenceInCalendarWeeks(
+	end_date,
+  start_date,
+  {weekStartsOn:0}
+)
+var daysOfWeek = [...Array(7).keys()].map((d)=>{return dateFns.format(dateFns.addDays(dateFns.startOfWeek(start_date,{weekStartsOn:weekStartsOn}),d),'ddd')})
 // functions
 var writeDay = (d,x,y) => {
 	let dayText = document.createElementNS(svgNS,"text")
@@ -25,42 +38,44 @@ var writeDay = (d,x,y) => {
 	dayText.appendChild(textNode)
 	document.getElementById("mySVG").appendChild(dayText)
 }
-var writeDays = (days,i,h) => {
+var writeDays = (days,m,i,wks) => {
+	h = page_h / wks
 	days.forEach((d,j)=>{
 		writeDay(dateFns.format(d,'D'),(j+1)*page_w/7-padding_x,i*h+padding_y)
 	})
 }
-
-
-
-
-// INPUTS
-var start = {year: 2017, month: 12}
-var number_of_months = 14
-// PREP
-var start_date = new Date(start.year, start.month-1, 1)
-var end_date = dateFns.lastDayOfMonth(dateFns.addMonths(start_date,number_of_months-1))
-var weeks_total = 1+dateFns.differenceInCalendarWeeks(
-	end_date,
-  start_date,
-  {weekStartsOn:0}
-)
+var writeDaysOfWeek = (m) => {
+	daysOfWeek.forEach((d,j)=>{
+		let dayText = document.createElementNS(svgNS,"text")
+		dayText.setAttributeNS(null,"x",j*page_w/7+padding_x)
+		dayText.setAttributeNS(null,"y",m*page_h+padding_y+18) // manual adjustment for height of text
+		dayText.setAttributeNS(null,"text-anchor","start")
+		let textNode = document.createTextNode(d)
+		dayText.appendChild(textNode)
+		document.getElementById("mySVG").appendChild(dayText)
+	})
+}
 // OUTPUT
 for (let i=0;i<weeks_total;i++) {
-	// height for page...
-	h=100
 	// prep
-	let first_day_i = dateFns.startOfWeek(dateFns.addWeeks(start_date,i),{weekStartsOn:1})
-	let days_i = dateFns.eachDay(first_day_i, dateFns.lastDayOfWeek(first_day_i,{weekStartsOn:1}))
+	let first_day_i = dateFns.startOfWeek(dateFns.addWeeks(start_date,i),{weekStartsOn:weekStartsOn})
+	let days_i = dateFns.eachDay(first_day_i, dateFns.lastDayOfWeek(first_day_i,{weekStartsOn:weekStartsOn}))
+	let weeksCount_i = (i==0 || i==weeks_total-1)?1:0 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(days_i[6]),dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
+	console.log(dateFns.getMonth(days_i[6]),weeksCount_i)
+	let m_i = dateFns.differenceInMonths(days_i[6],start_date)
 	// check if new month for header, make exception for very last week
-	let isFirstWeek = (dateFns.getMonth(days_i[0])!=dateFns.getMonth(days_i[6]) || dateFns.isFirstDayOfMonth(days_i[0])) && i<weeks_total-1
-	if (isFirstWeek) document.write(dateFns.format(days_i[6],'MMMM')+"<br/>")
+	let isFirstWeek = dateFns.isFirstDayOfMonth(days_i[0]) || dateFns.getMonth(days_i[0])!=dateFns.getMonth(days_i[6]) && i<weeks_total-1
+	if (isFirstWeek) {
+		writeDaysOfWeek(m_i)
+		// write month header
+		document.write(dateFns.format(days_i[6],'MMMM')+"<br/>")
+	}
 	// add week number if not first week
 	let isSecondWeek = dateFns.getMonth(dateFns.addWeeks(days_i[0],-1))!=dateFns.getMonth(dateFns.addWeeks(days_i[6],-1)) || dateFns.isFirstDayOfMonth(dateFns.addWeeks(days_i[0],-1))
 	if (!isFirstWeek) document.write( (isSecondWeek?"Week ":"") + dateFns.getISOWeek(days_i[3]) +": ")
 	// spit out row:
 	// days_i.forEach((d)=>document.write(dateFns.format(d,'D')+" "))
-	writeDays(days_i,i,h)
+	writeDays(days_i,m_i,i,weeksCount_i)
 	document.write("<br/>")
 }
 </script>

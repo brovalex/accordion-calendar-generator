@@ -1,10 +1,12 @@
 Todo: 
 - Make exception for very last week: need to remove month header + add back week number
 - Height of last month will be off by 1 week because it may include the first of the following month
+- h needs to be adjusted because not static depending on number of weeks
 
 Questions: 
 - the year does not appear anywhere: that ok? put it next to first month?
 - how will the lines on side appear?
+- with current resolution, height division may lead to rounding errors where 1px is quite a bit in print
 
 Current decisions: 
 - use date-fns for manipulations instead of writing my own functions
