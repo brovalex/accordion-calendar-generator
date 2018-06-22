@@ -60,6 +60,7 @@ for (let i=0;i<weeks_total;i++) {
 	// prep
 	let first_day_i = dateFns.startOfWeek(dateFns.addWeeks(start_date,i),{weekStartsOn:weekStartsOn})
 	let days_i = dateFns.eachDay(first_day_i, dateFns.lastDayOfWeek(first_day_i,{weekStartsOn:weekStartsOn}))
+	// !!! here need to check not just first week_i but the whole month
 	let weeksCount_i = (i==0 || i==weeks_total-1)?1:0 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(days_i[6]),dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
 	console.log(dateFns.getMonth(days_i[6]),weeksCount_i)
 	let m_i = dateFns.differenceInMonths(days_i[6],start_date)
