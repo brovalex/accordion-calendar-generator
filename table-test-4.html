@@ -5,7 +5,7 @@
 </head>
 <body>
 <a href="#" id="link" style="position:fixed;right:20px;top:20px;padding:8px 16px;background-color:navy;color:white;border-radius: 3px; text-decoration: none;">Download</a>
-<div id="svgwrap"><svg id="mySVG" vertsion="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width:550px;height:2000px"/></svg></div>
+<div id="svgwrap"><svg id="mySVG" vertsion="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width:10px;height:10px"/></svg></div>
 <script>
 // svg stuff
 var svgNS = "http://www.w3.org/2000/svg"
@@ -13,72 +13,120 @@ var svgNS = "http://www.w3.org/2000/svg"
 page_w = 550
 page_h = 350
 padding_x = 5
-padding_y = 7
+padding_y = 6
 // INPUTS
-var start = {year: 2017, month: 12}
+var start = {year: 2018, month: 3}
 var number_of_months = 14
-var weekStartsOn = 1
+var weekStartsOn = 1 // Monday
 // PREP
 var start_date = new Date(start.year, start.month-1, 1)
 var end_date = dateFns.lastDayOfMonth(dateFns.addMonths(start_date,number_of_months-1))
 var weeks_total = 1+dateFns.differenceInCalendarWeeks(
 	end_date,
   start_date,
-  {weekStartsOn:0}
+  {weekStartsOn:weekStartsOn}
 )
+var getMonthTest = (d0,d6) => {
+		// if last week of month, give last day; flip arguments for reverse
+		return dateFns.getDate(d0) > dateFns.getDate(d6) ? d6 : d0
+}
 var daysOfWeek = [...Array(7).keys()].map((d)=>{return dateFns.format(dateFns.addDays(dateFns.startOfWeek(start_date,{weekStartsOn:weekStartsOn}),d),'ddd')})
+// var monthsOfYear = [...Array(12).keys()].map((m)=>{return dateFns.format(dateFns.addMonths(new Date(1988, 0, 21),m),'MMMM')})
+
+
 // functions
 var writeDay = (d,x,y) => {
-	let dayText = document.createElementNS(svgNS,"text")
+	let dayText = document.createElementNS(svgNS,'text')
 	dayText.setAttributeNS(null,"x",x)
-	dayText.setAttributeNS(null,"y",y+18) // manual adjustment for height of text
+	dayText.setAttributeNS(null,"y",y+12) // manual adjustment for height of text
 	dayText.setAttributeNS(null,"text-anchor","end")
 	// dayText.setAttributeNS(null,"alignment-baseline","hanging")
 	let textNode = document.createTextNode(d)
 	dayText.appendChild(textNode)
 	document.getElementById("mySVG").appendChild(dayText)
 }
-var writeDays = (days,m,i,wks) => {
+var writeDays = (days,m,n,wks) => {
 	h = page_h / wks
 	days.forEach((d,j)=>{
-		writeDay(dateFns.format(d,'D'),(j+1)*page_w/7-padding_x,i*h+padding_y)
+		writeDay(dateFns.format(d,'D'),(j+1)*page_w/7-padding_x,m*page_h+n*h+padding_y)
 	})
 }
 var writeDaysOfWeek = (m) => {
 	daysOfWeek.forEach((d,j)=>{
-		let dayText = document.createElementNS(svgNS,"text")
+		let dayText = document.createElementNS(svgNS,'text')
 		dayText.setAttributeNS(null,"x",j*page_w/7+padding_x)
-		dayText.setAttributeNS(null,"y",m*page_h+padding_y+18) // manual adjustment for height of text
+		dayText.setAttributeNS(null,"y",m*page_h+padding_y+12) // manual adjustment for height of text
 		dayText.setAttributeNS(null,"text-anchor","start")
 		let textNode = document.createTextNode(d)
 		dayText.appendChild(textNode)
 		document.getElementById("mySVG").appendChild(dayText)
 	})
 }
+var drawWeekline = (m,n,wks) => {
+	h = page_h / wks
+	let rect = document.createElementNS(svgNS,'rect')
+	rect.setAttributeNS(null, 'x', padding_x);
+	rect.setAttributeNS(null, 'y', m*page_h+(n+1)*h);
+	rect.setAttributeNS(null, 'height', '1');
+	rect.setAttributeNS(null, 'width', page_w);
+	rect.setAttributeNS(null, 'fill', n+1==wks?'pink':'grey')
+	document.getElementById("mySVG").appendChild(rect)
+}
+var writeMonthHeader = (m,mmmm,wks) => {
+	h = page_h / wks
+	let monthText = document.createElementNS(svgNS,'text')
+	monthText.setAttributeNS(null,"x",padding_x)
+	monthText.setAttributeNS(null,"y",m*page_h+h-padding_y) // manual adjustment for height of text
+	monthText.setAttributeNS(null,"text-anchor","start")
+	monthText.setAttributeNS(null,"font-size","36px")
+	let textNode = document.createTextNode(mmmm)
+	monthText.appendChild(textNode)
+	document.getElementById("mySVG").appendChild(monthText)
+}
+var writeWeekNumber = (w,m,n,wks) => {
+	h = page_h / wks
+	let weekText = document.createElementNS(svgNS,'text')
+		weekText.setAttributeNS(null,"x",padding_x)
+		weekText.setAttributeNS(null,"y",m*page_h+(n+1)*h-padding_y) // manual adjustment for height of text
+		weekText.setAttributeNS(null,"text-anchor","start")
+		let textNode = document.createTextNode( (n==1?"Week ":"") + w)
+		weekText.appendChild(textNode)
+		document.getElementById("mySVG").appendChild(weekText)
+}
 // OUTPUT
 for (let i=0;i<weeks_total;i++) {
 	// prep
 	let first_day_i = dateFns.startOfWeek(dateFns.addWeeks(start_date,i),{weekStartsOn:weekStartsOn})
 	let days_i = dateFns.eachDay(first_day_i, dateFns.lastDayOfWeek(first_day_i,{weekStartsOn:weekStartsOn}))
-	// !!! here need to check not just first week_i but the whole month
-	let weeksCount_i = (i==0 || i==weeks_total-1)?1:0 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(days_i[6]),dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
-	console.log(dateFns.getMonth(days_i[6]),weeksCount_i)
-	let m_i = dateFns.differenceInMonths(days_i[6],start_date)
-	// check if new month for header, make exception for very last week
-	let isFirstWeek = dateFns.isFirstDayOfMonth(days_i[0]) || dateFns.getMonth(days_i[0])!=dateFns.getMonth(days_i[6]) && i<weeks_total-1
-	if (isFirstWeek) {
-		writeDaysOfWeek(m_i)
-		// write month header
-		document.write(dateFns.format(days_i[6],'MMMM')+"<br/>")
+	let nWeekOfMonth = dateFns.differenceInCalendarWeeks(days_i[6],dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
+	let isLastMonth = dateFns.differenceInMonths(getMonthTest(days_i[6],days_i[0]), start_date) >= number_of_months-1
+	let isFirstMonth = dateFns.differenceInMonths(getMonthTest(days_i[0],days_i[6]), start_date) == 0
+	if ( isFirstMonth ) {
+		var weeksCount_i = 1 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(days_i[6]),dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
+		var m_i = 0
+	} else if ( isLastMonth ) {
+		// last MONTH
+		var weeksCount_i = 1 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(getMonthTest(days_i[6],days_i[0])),dateFns.startOfMonth(days_i[0]),{weekStartsOn:weekStartsOn})
+		var m_i = dateFns.differenceInMonths(end_date,start_date)
+	} else {
+		var weeksCount_i = dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(getMonthTest(days_i[0],days_i[6])),dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
+		var m_i = dateFns.differenceInMonths(days_i[6],start_date)
 	}
-	// add week number if not first week
-	let isSecondWeek = dateFns.getMonth(dateFns.addWeeks(days_i[0],-1))!=dateFns.getMonth(dateFns.addWeeks(days_i[6],-1)) || dateFns.isFirstDayOfMonth(dateFns.addWeeks(days_i[0],-1))
-	if (!isFirstWeek) document.write( (isSecondWeek?"Week ":"") + dateFns.getISOWeek(days_i[3]) +": ")
-	// spit out row:
-	// days_i.forEach((d)=>document.write(dateFns.format(d,'D')+" "))
-	writeDays(days_i,m_i,i,weeksCount_i)
-	document.write("<br/>")
+	// check if new month for header, make exception for very last week
+	if (nWeekOfMonth == 0) {
+		writeDaysOfWeek(m_i)
+		writeMonthHeader(m_i, dateFns.format(days_i[6],'MMMM'), weeksCount_i)
+	} else {
+		// add week number if not first week
+		writeWeekNumber(dateFns.getISOWeek(days_i[3]),m_i,nWeekOfMonth,weeksCount_i)
+	}
+	console.log({days_i,fd:days_i[0],m_i,nWeekOfMonth,weeksCount_i})
+	writeDays(days_i,m_i,nWeekOfMonth,weeksCount_i)
+	drawWeekline(m_i,nWeekOfMonth,weeksCount_i)
 }
+// formatting stuff
+document.getElementById("mySVG").style.width=page_w
+document.getElementById("mySVG").style.height=number_of_months*page_h
 </script>
 
 </body>

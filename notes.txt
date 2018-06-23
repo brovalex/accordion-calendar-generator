@@ -1,4 +1,5 @@
 Todo: 
+* weeks_count_i not calculating properly e.g. march 2018 too many, october 2018 too few
 - Make exception for very last week: need to remove month header + add back week number
 - Height of last month will be off by 1 week because it may include the first of the following month
 - h needs to be adjusted because not static depending on number of weeks
