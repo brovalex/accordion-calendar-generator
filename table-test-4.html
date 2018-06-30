@@ -4,7 +4,7 @@
 	<script src="./date_fns.min.js"></script>
 </head>
 <body>
-<a href="#" id="link" style="position:fixed;right:20px;top:20px;padding:8px 16px;background-color:navy;color:white;border-radius: 3px; text-decoration: none;">Download</a>
+<a href="#" download="file.svg" id="downloadLink" style="position:fixed;right:20px;top:20px;padding:8px 16px;background-color:navy;color:white;border-radius: 3px; text-decoration: none;">Download</a>
 <div id="svgwrap"><svg id="mySVG" vertsion="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width:10px;height:10px"/></svg></div>
 <script>
 // svg stuff
@@ -26,8 +26,9 @@ var weeks_total = 1+dateFns.differenceInCalendarWeeks(
   start_date,
   {weekStartsOn:weekStartsOn}
 )
-var getMonthTest = (d0,d6) => {
-		// if last week of month, give last day; flip arguments for reverse
+var lastWeekCheck = (d0,d6) => {
+		// if last week of month, give last day; else first day
+		// flip arguments for reverse: if last week give first day; else last day
 		return dateFns.getDate(d0) > dateFns.getDate(d6) ? d6 : d0
 }
 var daysOfWeek = [...Array(7).keys()].map((d)=>{return dateFns.format(dateFns.addDays(dateFns.startOfWeek(start_date,{weekStartsOn:weekStartsOn}),d),'ddd')})
@@ -99,34 +100,44 @@ for (let i=0;i<weeks_total;i++) {
 	let first_day_i = dateFns.startOfWeek(dateFns.addWeeks(start_date,i),{weekStartsOn:weekStartsOn})
 	let days_i = dateFns.eachDay(first_day_i, dateFns.lastDayOfWeek(first_day_i,{weekStartsOn:weekStartsOn}))
 	let nWeekOfMonth = dateFns.differenceInCalendarWeeks(days_i[6],dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
-	let isLastMonth = dateFns.differenceInMonths(getMonthTest(days_i[6],days_i[0]), start_date) >= number_of_months-1
-	let isFirstMonth = dateFns.differenceInMonths(getMonthTest(days_i[0],days_i[6]), start_date) == 0
+	let isLastMonth = dateFns.differenceInMonths(lastWeekCheck(days_i[6],days_i[0]), start_date) >= number_of_months-1
+	let isFirstMonth = dateFns.differenceInMonths(lastWeekCheck(days_i[0],days_i[6]), start_date) == 0
+	let dayOfThisMonth = lastWeekCheck(days_i[6],days_i[0])
 	if ( isFirstMonth ) {
-		var weeksCount_i = 1 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(days_i[6]),dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
+		var weeksCount_i = dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(days_i[6]),dateFns.startOfWeek(dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn}),{weekStartsOn:weekStartsOn})
 		var m_i = 0
 	} else if ( isLastMonth ) {
 		// last MONTH
-		var weeksCount_i = 1 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(getMonthTest(days_i[6],days_i[0])),dateFns.startOfMonth(days_i[0]),{weekStartsOn:weekStartsOn})
+		var weeksCount_i = Math.ceil((1+dateFns.differenceInDays(dateFns.lastDayOfMonth(dayOfThisMonth),dateFns.startOfMonth(dayOfThisMonth))+(7+dateFns.getDay(dateFns.startOfMonth(dayOfThisMonth))-weekStartsOn)%7)/7)
+		// var weeksCount_i = 1 + dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(lastWeekCheck(days_i[6],days_i[0])),dateFns.startOfMonth(days_i[0]),{weekStartsOn:weekStartsOn})
 		var m_i = dateFns.differenceInMonths(end_date,start_date)
+		if(i == weeks_total-1) {
+			nWeekOfMonth = dateFns.differenceInCalendarWeeks(dateFns.addWeeks(days_i[6],0),dateFns.startOfMonth(days_i[0]),{weekStartsOn:weekStartsOn})
+		}
 	} else {
-		var weeksCount_i = dateFns.differenceInCalendarWeeks(dateFns.lastDayOfMonth(getMonthTest(days_i[0],days_i[6])),dateFns.startOfMonth(days_i[6]),{weekStartsOn:weekStartsOn})
+		var weeksCount_i = Math.floor((1+dateFns.differenceInDays(dateFns.lastDayOfMonth(dayOfThisMonth),dateFns.startOfMonth(dayOfThisMonth))+(7+dateFns.getDay(dateFns.startOfMonth(dayOfThisMonth))-weekStartsOn)%7)/7)
 		var m_i = dateFns.differenceInMonths(days_i[6],start_date)
 	}
 	// check if new month for header, make exception for very last week
 	if (nWeekOfMonth == 0) {
 		writeDaysOfWeek(m_i)
-		writeMonthHeader(m_i, dateFns.format(days_i[6],'MMMM'), weeksCount_i)
+		if(i != weeks_total-1) {
+			writeMonthHeader(m_i, dateFns.format(days_i[6],'MMMM'), weeksCount_i)
+		}
 	} else {
 		// add week number if not first week
 		writeWeekNumber(dateFns.getISOWeek(days_i[3]),m_i,nWeekOfMonth,weeksCount_i)
 	}
-	console.log({days_i,fd:days_i[0],m_i,nWeekOfMonth,weeksCount_i})
+	// console.log({isLastMonth,days_i,fd:days_i[0],m_i,nWeekOfMonth,weeksCount_i})
 	writeDays(days_i,m_i,nWeekOfMonth,weeksCount_i)
 	drawWeekline(m_i,nWeekOfMonth,weeksCount_i)
 }
 // formatting stuff
 document.getElementById("mySVG").style.width=page_w
-document.getElementById("mySVG").style.height=number_of_months*page_h
+document.getElementById("mySVG").style.height=number_of_months*page_h+1
+//
+var svgSrc = new XMLSerializer().serializeToString(document.getElementsByTagName( 'svg' )[ 0 ]);
+document.getElementById("downloadLink").setAttribute('href', 'data:image/svg+xml;utf8,' + encodeURIComponent(svgSrc));
 </script>
 
 </body>
