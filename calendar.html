@@ -15,12 +15,49 @@ page_h = 350
 padding_x = 5
 padding_y = 6
 // INPUTS
-var start = {year: 2018, month: 3}
+var start = {year: 2018, month: 12} // 1 = january
 var number_of_months = 14
 var weekStartsOn = 1 // Monday
 // PREP
 var start_date = new Date(start.year, start.month-1, 1)
 var end_date = dateFns.lastDayOfMonth(dateFns.addMonths(start_date,number_of_months-1))
+
+
+// NEW OUTPUT
+var calStart = dateFns.startOfWeek(start_date,{weekStartsOn:weekStartsOn})
+var calEnd   = dateFns.endOfWeek(end_date,{weekStartsOn:weekStartsOn})
+
+var calDays = dateFns.eachDay(calStart, calEnd)
+var calWeeks = ((days) => {
+	calWeeks = []
+	while (days.length) {
+		calWeeks.push(days.splice(0, 7));
+	}
+	return calWeeks
+})(calDays)
+var calPages = ((weeks) => {
+	calPages = []
+	calPages[0] = []
+	var i = 0, j=0
+	while (i < weeks.length) {
+		// if day0 > day6 (e.g. 28 > 4) then it's last week of month which is carried over to next month
+		isLastWeek = dateFns.getDate(weeks[i][0]) > dateFns.getDate(weeks[i][6])
+		// if day0 is on 1st OR if last week but not first or last week then next page
+		if(dateFns.isFirstDayOfMonth(weeks[i][0]) || (isLastWeek && i!=0 && i!=weeks.length-1)) {
+			j+=1
+			calPages[j]=[]
+		}
+		calPages[j].push(weeks[i])
+		i++
+	}
+	return calPages
+})(calWeeks)
+
+console.log(calPages)
+
+
+// OLD
+
 var weeks_total = 1+dateFns.differenceInCalendarWeeks(
 	end_date,
   start_date,
