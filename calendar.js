@@ -67,10 +67,10 @@ var dataSVG = ((calendar) => {
 
     var main = draw.group()
 
-    var rect = draw.rect(cal.paper_margin*72+page_w+2*bleed,maxPages*page_h+2*bleed).fill('blue').move(-bleed,-bleed)
-    var clip = draw.clip().add(rect)
+    var clipRect = draw.rect(cal.paper_margin*72+page_w+2*bleed,maxPages*page_h+2*bleed).fill('blue').move(-bleed,-bleed)
+    var clip = draw.clip().add(clipRect)
 
-    var group = main.group().clipWith(clip)
+    var group = main.group()
     var margins = main.group()
     
     // FUNCTIONS
@@ -149,6 +149,15 @@ var dataSVG = ((calendar) => {
 
         var bottomRight = margins.use(cropMark).rotate(180,0,0).move(-cal_w, -maxPages*page_h)
         var bottomLeft = margins.use(cropMark).rotate(270,0,0).move(-maxPages*page_h, 0)
+
+        var lip1 = margins.rect(36, 1).attr({ 
+            x: -42, 
+            y: maxPages*page_h+4/16*72
+        }).fill('grey')
+        var lip1 = margins.rect(36, 1).attr({ 
+            x: cal_w+bleed-3,
+            y: maxPages*page_h+4/16*72
+        }).fill('grey')
     }
     // Helpers
     var writeDays = (days,m,n,wks) => {
@@ -178,6 +187,12 @@ var dataSVG = ((calendar) => {
         writeMonthHeader(p, dateFns.format(page[0][6],'MMMM'), page.length)
         writeDaysOfWeek(p)
     }
+    group.clipWith(clip)
+
+    //moving for next pages
+    group.move(page_hPadding,-2*page_h)
+    clipRect.move(0,2*page_h-bleed)
+
     // get your svg as string
     // console.log(draw.svg())
     // or
