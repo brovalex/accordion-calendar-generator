@@ -1,9 +1,34 @@
+====
+OLD NOTES
+
+
+Open ended: 
+- Restructure code to split by week/month 2D nestled array
+   - Why?
+     • need to make sure print files are bullet-proof for scaling
+     • don't quite understand my own first/last week detection
+
+========
+TODOS 
+
+*Visual*
+[ ] weekend grey strips
+[ ] day vertical lines?
+[ ] lhs thin month strips
+[ ] typefaces (serif and sans)
+*Print*
+[ ] add bleed to overflow areas (if applicable)
+[ ] add cutting lines
+[ ] splitting the print file into the rigth number of pieces
+[ ] create outlined files (lines and text, if necessary)
+
 Todo: 
 * weeks_count_i not calculating properly e.g. march 2018 too many, october 2018 too few
 - Make exception for very last week: need to remove month header + add back week number
 - Height of last month will be off by 1 week because it may include the first of the following month
 - h needs to be adjusted because not static depending on number of weeks
 
+========
 Questions: 
 - the year does not appear anywhere: that ok? put it next to first month?
 - how will the lines on side appear?

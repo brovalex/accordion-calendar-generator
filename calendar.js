@@ -1,19 +1,21 @@
 //TODO:
+//- [ ] day numbers are not properly aligned to right
 //- [ ] weekend block is drawn on 6th day, need to make dynamic based on day
-//- [ ] add CMYK colours, e.g. fill="#CD853F device-cmyk(0.11, 0.48, 0.83, 0.00)"
+//- [ ] add CMYK colours, e.g. fill="#CD853F device-cmyk(0.11, 0.48, 0.83, 0.00)", 
+//      in SVGtoPDF there is an option colorCallback [function] = function called to get color, making mapping to CMYK possible
 //- [ ] make line adjustment dynamic or try baseline: anchor: Anchor of object in coordinate. (default: 'left baseline') ... (left, center, right) + (baseline, top, middle, bottom)
 //- [ ] set colours: grey,pink,lightgrey,black,very light grey (#eeeeee)
 // settings:
-cal_w = 550
+cal_w = 5.5*72
 page_hPadding = 3/16*72
 page_w = cal_w-2*page_hPadding
-page_h = 350
+page_h = 3.5*72
 bleed = 1/8*72
 padding_x = 1/16*72
 padding_y = 1/16*72
 var cal = {
     paper_w: 8.5,
-    paper_h: 11,
+    paper_h: 11, //26
     paper_margin: 0.5
 }
 
@@ -29,13 +31,14 @@ var fs = require('fs'),
     PDFDocument = require('pdfkit'),
     SVGtoPDF = require('svg-to-pdfkit');
 var doc = new PDFDocument({
-    size: [cal.paper_w*72, cal.paper_h*72]
+    size: [cal.paper_w*72, cal.paper_h*72],
+    autoFirstPage: false,
   }),
     stream = fs.createWriteStream('file.pdf')
 
 // outlining
 const TextToSVG = require('text-to-svg');
-const textToSVG = TextToSVG.loadSync();
+const textToSVG = TextToSVG.loadSync('ProximaNova-Regular.otf');
 
 // INPUTS
 var start = {year: 2018, month: 12} // 1 = january
@@ -76,7 +79,7 @@ var calPages = ((weeks) => {
 })(calWeeks)
 
 // MAKE SVG
-var dataSVG = ((calendar) => {
+var dataSVG = (page_i,calendar=calPages) => {
     // create svg.js instance
     const draw = SVG(document.documentElement)//.size(300,300)
 
@@ -91,33 +94,39 @@ var dataSVG = ((calendar) => {
     // FUNCTIONS
     // Drawing
     var writeDay = (d,x,y) => {
-        options = {anchor: 'right baseline', fontSize: 12}
+        options = {anchor: 'left baseline', fontSize: 12}
         adjustment=textToSVG.getMetrics(d, options)
+        // console.log(adjustment)
         var day = group.path(textToSVG.getD(d, options))
-                    .attr(x, y+12-adjustment.height)
+                    .move(x+padding_x, y+padding_y)//y-adjustment.height+18+padding_y)
+    }
+    var writeDays = (days,m,n,wks) => {
+        h = page_h / wks
+        days.forEach((d,j)=>{
+            writeDay(dateFns.format(d,'D'),(j)*page_w/7,m*page_h+n*h+(n==0?12:0))//+padding_y
+        })
     }
     var writeDaysOfWeek = (m) => {
         options = {fontSize: 12}
         daysOfWeek.forEach((d,j)=>{
             adjustment=textToSVG.getMetrics(d.toUpperCase(), options)
             var wDay = group.path(textToSVG.getD(d.toUpperCase(), options))
-                        .move(j*page_w/7+padding_x, m*page_h-adjustment.height+18+padding_y)
+                        .move(j*page_w/7+padding_x, m*page_h+padding_y)//m*page_h-adjustment.height+18+padding_y)
         })
     }
     var writeMonthHeader = (m,mmmm,wks) => {
         h = page_h / wks
-        options = {fontSize: 24};
+        options = {fontSize: 24}
         adjustment=textToSVG.getMetrics(mmmm, options)
         var month = group.path(textToSVG.getD(mmmm, options))
-                    .move(padding_x, m*page_h+h-adjustment.height)
-                    .fill('black')
+                    .move(padding_x, m*page_h+h-padding_y-adjustment.ascender)
     }
     var writeWeekNumber = (w,m,n,wks) => {
         h = page_h / wks
-        var week = group.plain((n==1?"Week ":"") + w).attr({ 
-            x: padding_x, 
-            y: m*page_h+(n+1)*h-padding_y
-         }).font({anchor: 'start', size: '8px'})
+        options = {fontSize: 8}
+        adjustment=textToSVG.getMetrics((n==1?"Week ":"") + w, options)
+        var week = group.path(textToSVG.getD((n==1?"Week ":"") + w, options))
+            .move(padding_x, m*page_h+(n+1)*h-padding_y-adjustment.ascender)
     }
     var drawWeekline = (m,n,wks) => {
         h = page_h / wks
@@ -174,13 +183,6 @@ var dataSVG = ((calendar) => {
             y: maxPages*page_h+4/16*72
         }).fill('grey')
     }
-    // Helpers
-    var writeDays = (days,m,n,wks) => {
-        h = page_h / wks
-        days.forEach((d,j)=>{
-            writeDay(dateFns.format(d,'D'),(j+1)*page_w/7-padding_x,m*page_h+n*h+padding_y)
-        })
-    }
 
     // SET UP FILE  
     main.move(cal.paper_margin*72,cal.paper_margin*72)
@@ -205,45 +207,47 @@ var dataSVG = ((calendar) => {
     group.clipWith(clip)
 
     //moving for next pages
-    group.move(page_hPadding,-2*page_h)
-    clipRect.move(0,2*page_h-bleed)
+    group.move(page_hPadding,-page_i*maxPages*page_h)
+    clipRect.move(0,page_i*maxPages*page_h-bleed)
 
     // get your svg as string
     // console.log(draw.svg())
     // or
     // console.log(draw.node.outerHTML)
 
-    //for debug
-    fs.writeFile("test.svg", draw.node.outerHTML, function(err) {
-        if(err) {
-            return console.log(err);
-        }    
-        console.log("Also made you a svg <3");
-    }); 
+    // for debug
+    // fs.writeFile("test"+page_i+".svg", draw.node.outerHTML, function(err) {
+    //     if(err) {
+    //         return console.log(err);
+    //     }    
+    //     console.log("Also made you a svg <3");
+    // }); 
 
-    return draw.node.outerHTML
-})(calPages)
+    var cleanSVG = (data) => {
+        var returndata = data.replace(/(<svg.*?>)<svg.*?>(.*?)<\/svg>/g, '$1')
+        main.clear()
+        return returndata
+    }
+    return cleanSVG(draw.node.outerHTML)
+}
 
-var cleanSVG = ((data) => {
-    return data.replace(/(<svg.*?>)<svg.*?>(.*?)<\/svg>/g, '$1')
-})(dataSVG)
+
 // console.log(cleanSVG)
-
-// Embed a font, set the font size, and render some text
-// doc.font('fonts/PalatinoBold.ttf')
-//    .fontSize(25)
-//    .text('Some text with an embedded font!', 100, 100)
 
 PDFDocument.prototype.addSVG = function(svg, x, y, options) {
     return SVGtoPDF(this, svg, x, y, options), this;
     };
 
-doc.addSVG(cleanSVG, 0*cal.paper_margin*72, 0*cal.paper_margin*72);
-doc.addPage().addSVG(cleanSVG, 0*cal.paper_margin*72, 0*cal.paper_margin*72);
+for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
+    // if(page_i>0) doc.addPage()//.addSVG(cleanSVG, 0*cal.paper_margin*72, 0*cal.paper_margin*72);
+    console.log("Page "+(page_i+1)+" of "+Math.ceil(number_of_months/maxPages))
+    doc.addPage()
+    doc.addSVG(dataSVG(page_i), 0*cal.paper_margin*72, 0*cal.paper_margin*72, {assumePt: true});
+}
 
 stream.on('finish', function() {
   console.log(fs.readFileSync('calendar.pdf'))
-});
+})
 
-doc.pipe(stream);
-doc.end();
+doc.pipe(stream)
+doc.end()
