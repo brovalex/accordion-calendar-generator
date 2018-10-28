@@ -1,14 +1,8 @@
-const dateFns = require('date-fns');
-
-// returns a window with a document and an svg root node
-const window   = require('svgdom')
-const SVG      = require('svg.js')(window)
-const document = window.document
-
 //TODO:
 //- [ ] weekend block is drawn on 6th day, need to make dynamic based on day
-//colors:
-// grey,pink,lightgrey,black,very light grey (#eeeeee)
+//- [ ] add CMYK colours, e.g. fill="#CD853F device-cmyk(0.11, 0.48, 0.83, 0.00)"
+//- [ ] make line adjustment dynamic or try baseline: anchor: Anchor of object in coordinate. (default: 'left baseline') ... (left, center, right) + (baseline, top, middle, bottom)
+//- [ ] set colours: grey,pink,lightgrey,black,very light grey (#eeeeee)
 // settings:
 cal_w = 550
 page_hPadding = 3/16*72
@@ -22,6 +16,27 @@ var cal = {
     paper_h: 11,
     paper_margin: 0.5
 }
+
+const dateFns = require('date-fns');
+
+// returns a window with a document and an svg root node
+const window   = require('svgdom')
+const SVG      = require('svg.js')(window)
+const document = window.document
+
+// pdf
+var fs = require('fs'),
+    PDFDocument = require('pdfkit'),
+    SVGtoPDF = require('svg-to-pdfkit');
+var doc = new PDFDocument({
+    size: [cal.paper_w*72, cal.paper_h*72]
+  }),
+    stream = fs.createWriteStream('file.pdf')
+
+// outlining
+const TextToSVG = require('text-to-svg');
+const textToSVG = TextToSVG.loadSync();
+
 // INPUTS
 var start = {year: 2018, month: 12} // 1 = january
 var number_of_months = 14
@@ -76,26 +91,26 @@ var dataSVG = ((calendar) => {
     // FUNCTIONS
     // Drawing
     var writeDay = (d,x,y) => {
-        var day = group.plain(d).attr({ 
-                   x: x, 
-                   y: y+12 // manual adjustment for height of text
-                }).font({anchor: 'end'})
-        // dayText.setAttributeNS(null,"text-anchor","end")
+        options = {anchor: 'right baseline', fontSize: 12}
+        adjustment=textToSVG.getMetrics(d, options)
+        var day = group.path(textToSVG.getD(d, options))
+                    .attr(x, y+12-adjustment.height)
     }
     var writeDaysOfWeek = (m) => {
+        options = {fontSize: 12}
         daysOfWeek.forEach((d,j)=>{
-            var wDay = group.plain(d.toUpperCase()).attr({ 
-                        x: j*page_w/7+padding_x, 
-                        y: m*page_h+padding_y+12 // manual adjustment for height of text
-             }).font({anchor: 'start', size: '12px'})
+            adjustment=textToSVG.getMetrics(d.toUpperCase(), options)
+            var wDay = group.path(textToSVG.getD(d.toUpperCase(), options))
+                        .move(j*page_w/7+padding_x, m*page_h-adjustment.height+18+padding_y)
         })
     }
     var writeMonthHeader = (m,mmmm,wks) => {
         h = page_h / wks
-        var month = group.plain(mmmm).attr({ 
-            x: padding_x, 
-            y: m*page_h+h-padding_y
-         }).font({anchor: 'start', size: '24px'})
+        options = {fontSize: 24};
+        adjustment=textToSVG.getMetrics(mmmm, options)
+        var month = group.path(textToSVG.getD(mmmm, options))
+                    .move(padding_x, m*page_h+h-adjustment.height)
+                    .fill('black')
     }
     var writeWeekNumber = (w,m,n,wks) => {
         h = page_h / wks
@@ -197,23 +212,34 @@ var dataSVG = ((calendar) => {
     // console.log(draw.svg())
     // or
     // console.log(draw.node.outerHTML)
+
+    //for debug
+    fs.writeFile("test.svg", draw.node.outerHTML, function(err) {
+        if(err) {
+            return console.log(err);
+        }    
+        console.log("Also made you a svg <3");
+    }); 
+
     return draw.node.outerHTML
 })(calPages)
-
-var fs = require('fs'),
-    PDFDocument = require('pdfkit'),
-    SVGtoPDF = require('svg-to-pdfkit');
-
-var doc = new PDFDocument({
-    size: [cal.paper_w*72, cal.paper_h*72]
-  }),
-    stream = fs.createWriteStream('file.pdf')
 
 var cleanSVG = ((data) => {
     return data.replace(/(<svg.*?>)<svg.*?>(.*?)<\/svg>/g, '$1')
 })(dataSVG)
 // console.log(cleanSVG)
-SVGtoPDF(doc, cleanSVG, 0*cal.paper_margin*72, 0*cal.paper_margin*72);
+
+// Embed a font, set the font size, and render some text
+// doc.font('fonts/PalatinoBold.ttf')
+//    .fontSize(25)
+//    .text('Some text with an embedded font!', 100, 100)
+
+PDFDocument.prototype.addSVG = function(svg, x, y, options) {
+    return SVGtoPDF(this, svg, x, y, options), this;
+    };
+
+doc.addSVG(cleanSVG, 0*cal.paper_margin*72, 0*cal.paper_margin*72);
+doc.addPage().addSVG(cleanSVG, 0*cal.paper_margin*72, 0*cal.paper_margin*72);
 
 stream.on('finish', function() {
   console.log(fs.readFileSync('calendar.pdf'))
