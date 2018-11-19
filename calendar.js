@@ -9,13 +9,13 @@
 cal_w = 5.5*72
 page_hPadding = 3/16*72
 page_w = cal_w-2*page_hPadding
-page_h = 3.5*72
+page_h = 3.375*72
 bleed = 1/8*72
 padding_x = 1/16*72
 padding_y = 1/16*72
 var cal = {
-    paper_w: 8.5,
-    paper_h: 11, //26
+    paper_w: 8.5,//13,
+    paper_h: 11,//19, //26
     paper_margin: 0.5
 }
 
@@ -38,7 +38,10 @@ var doc = new PDFDocument({
 
 // outlining
 const TextToSVG = require('text-to-svg');
-const textToSVG = TextToSVG.loadSync('ProximaNova-Regular.otf');
+const textToSVG = TextToSVG.loadSync('fonts/nimbus mono d7dfb1f6-0918-41e9-a9d2-bf7241c11fae.ttf');
+const monthToSVG = TextToSVG.loadSync('fonts/nimbus 1 - dc9d32c4-6c53-4bb1-8bef-4cd396bee3ce.ttf');
+const digitsToSVG = TextToSVG.loadSync('fonts/nimbus mono d7dfb1f6-0918-41e9-a9d2-bf7241c11fae.ttf');
+const weeksToSVG = TextToSVG.loadSync('fonts/nimbus italic 940b0050-c3b7-41ea-af4b-857bc9e8313d.ttf');
 
 // INPUTS
 var start = {year: 2018, month: 12} // 1 = january
@@ -52,7 +55,7 @@ var end_date = dateFns.lastDayOfMonth(dateFns.addMonths(start_date,number_of_mon
 // CREATE CALENDAR DATA
 var calStart = dateFns.startOfWeek(start_date,{weekStartsOn:weekStartsOn})
 var calEnd   = dateFns.endOfWeek(end_date,{weekStartsOn:weekStartsOn})
-var daysOfWeek = [...Array(7).keys()].map((d)=>{return dateFns.format(dateFns.addDays(dateFns.startOfWeek(start_date,{weekStartsOn:weekStartsOn}),d),'ddd')})
+var daysOfWeek = [...Array(7).keys()].map((d)=>{return dateFns.format(dateFns.addDays(dateFns.startOfWeek(start_date,{weekStartsOn:weekStartsOn}),d),'ddd')})//.charAt(0)
 var calDays = dateFns.eachDay(calStart, calEnd)
 var calWeeks = ((days) => {
 	calWeeks = []
@@ -95,38 +98,41 @@ var dataSVG = (page_i,calendar=calPages) => {
     // Drawing
     var writeDay = (d,x,y) => {
         options = {anchor: 'left baseline', fontSize: 12}
-        adjustment=textToSVG.getMetrics(d, options)
+        adjustment=digitsToSVG.getMetrics(d, options)
         // console.log(adjustment)
-        var day = group.path(textToSVG.getD(d, options))
+        var day = group.path(digitsToSVG.getD(d, options))
                     .move(x+padding_x, y+padding_y)//y-adjustment.height+18+padding_y)
     }
     var writeDays = (days,m,n,wks) => {
         h = page_h / wks
         days.forEach((d,j)=>{
-            writeDay(dateFns.format(d,'D'),(j)*page_w/7,m*page_h+n*h+(n==0?12:0))//+padding_y
+            writeDay(dateFns.format(d,'D'),(j)*page_w/7,m*page_h+n*h+(n==0?6*0:0))//+padding_y
         })
     }
     var writeDaysOfWeek = (m) => {
-        options = {fontSize: 12}
+        options = {anchor: 'right baseline', fontSize: 6}
         daysOfWeek.forEach((d,j)=>{
             adjustment=textToSVG.getMetrics(d.toUpperCase(), options)
             var wDay = group.path(textToSVG.getD(d.toUpperCase(), options))
-                        .move(j*page_w/7+padding_x, m*page_h+padding_y)//m*page_h-adjustment.height+18+padding_y)
+                        .move((j+1)*page_w/7-padding_x-adjustment.width+2, m*page_h+padding_y)//m*page_h-adjustment.height+18+padding_y)
+                        .fill('grey')
         })
     }
     var writeMonthHeader = (m,mmmm,wks) => {
         h = page_h / wks
-        options = {fontSize: 24}
-        adjustment=textToSVG.getMetrics(mmmm, options)
-        var month = group.path(textToSVG.getD(mmmm, options))
-                    .move(padding_x, m*page_h+h-padding_y-adjustment.ascender)
+        options = {fontSize: 18}
+        adjustment=monthToSVG.getMetrics(mmmm, options)
+        var month = group.path(monthToSVG.getD(mmmm, options))
+                    .move(padding_x, m*page_h+h-adjustment.ascender+2)
+                    .fill('lightgrey')
     }
     var writeWeekNumber = (w,m,n,wks) => {
         h = page_h / wks
-        options = {fontSize: 8}
-        adjustment=textToSVG.getMetrics((n==1?"Week ":"") + w, options)
-        var week = group.path(textToSVG.getD((n==1?"Week ":"") + w, options))
-            .move(padding_x, m*page_h+(n+1)*h-padding_y-adjustment.ascender)
+        options = {fontSize: 6}
+        adjustment=weeksToSVG.getMetrics((n==1?"Week ":"") + w, options)
+        var week = group.path(weeksToSVG.getD((n==1?"Week ":"") + w, options))
+            .move(padding_x, m*page_h+(n+1)*h-adjustment.ascender+adjustment.descender)
+            .fill('grey')
     }
     var drawWeekline = (m,n,wks) => {
         h = page_h / wks
@@ -134,11 +140,11 @@ var dataSVG = (page_i,calendar=calPages) => {
         var rect = group.rect(page_w-2*(padding_x-tip), 1).attr({ 
             x: padding_x-tip, 
             y: m*page_h+(n+1)*h
-         }).fill(n+1==wks?'pink':'grey')
+         }).fill('pink') //n+1==wks?'pink':'grey'
     }
     var drawDayLine = (d) => {
         var h = group
-                .rect(1, page_h*number_of_months+2*bleed)
+                .rect(0.5, page_h*number_of_months+2*bleed)
                 .move(d*page_w/7,-bleed)
                 .fill('lightgrey')
     }
