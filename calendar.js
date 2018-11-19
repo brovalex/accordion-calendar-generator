@@ -5,6 +5,7 @@
 //      in SVGtoPDF there is an option colorCallback [function] = function called to get color, making mapping to CMYK possible
 //- [ ] make line adjustment dynamic or try baseline: anchor: Anchor of object in coordinate. (default: 'left baseline') ... (left, center, right) + (baseline, top, middle, bottom)
 //- [ ] set colours: grey,pink,lightgrey,black,very light grey (#eeeeee)
+//- [ ] need to argument passed to tracker to take into account weekStartsOn
 // settings:
 cal_w = 5.5*72
 page_hPadding = 3/16*72
@@ -15,7 +16,7 @@ padding_x = 1/16*72
 padding_y = 1/16*72
 var cal = {
     paper_w: 8.5,//13,
-    paper_h: 11,//19, //26
+    paper_h: 54,//19, //26
     paper_margin: 0.5
 }
 
@@ -93,6 +94,7 @@ var dataSVG = (page_i,calendar=calPages) => {
 
     var group = main.group()
     var margins = main.group()
+    var tracker = main.group()
     
     // FUNCTIONS
     // Drawing
@@ -189,6 +191,17 @@ var dataSVG = (page_i,calendar=calPages) => {
             y: maxPages*page_h+4/16*72
         }).fill('grey')
     }
+    var drawMonthTracker = (m,n1,n2,wks1,wks2) => {
+        // returns e.g. monday = 1, which is ok if week starts on monday, but needs to be adjusted otherwise
+        top = (n1-1) * page_h / wks1 / 7
+        top_next = (n2-1) * page_h / wks2 / 7
+        height = page_h-top+(page_h/wks2-top_next)
+        width = 1/8*72+bleed //in inches
+
+        var rect = tracker.rect(width-bleed, height)
+            .move(-0*bleed,m*page_h+top)    
+            .fill('lightgrey')
+    }
 
     // SET UP FILE  
     main.move(cal.paper_margin*72,cal.paper_margin*72)
@@ -209,6 +222,13 @@ var dataSVG = (page_i,calendar=calPages) => {
         // write these after to be on top
         writeMonthHeader(p, dateFns.format(page[0][6],'MMMM'), page.length)
         writeDaysOfWeek(p)
+        drawMonthTracker(
+            p,
+            dateFns.getDay(dateFns.startOfMonth(page[0][6])),
+            dateFns.getDay(dateFns.addMonths(dateFns.startOfMonth(page[0][6]),1)),
+            page.length,
+            calendar[Math.min(p+1,calendar.length-1)].length
+            )
     }
     group.clipWith(clip)
 
