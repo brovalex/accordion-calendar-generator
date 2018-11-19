@@ -120,7 +120,7 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     var writeMonthHeader = (m,mmmm,wks) => {
         h = page_h / wks
-        options = {fontSize: 18}
+        options = {fontSize: 24}
         adjustment=monthToSVG.getMetrics(mmmm, options)
         var month = group.path(monthToSVG.getD(mmmm, options))
                     .move(padding_x, m*page_h+h-adjustment.ascender+2)
