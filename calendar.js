@@ -6,6 +6,7 @@
 //- [ ] make line adjustment dynamic or try baseline: anchor: Anchor of object in coordinate. (default: 'left baseline') ... (left, center, right) + (baseline, top, middle, bottom)
 //- [ ] set colours: grey,pink,lightgrey,black,very light grey (#eeeeee)
 //- [ ] need to argument passed to tracker to take into account weekStartsOn
+//- [ ] top crop lines don't align
 // settings:
 cal_w = 5.5*72
 page_hPadding = 3/16*72
@@ -15,8 +16,12 @@ bleed = 1/8*72
 padding_x = 1/16*72
 padding_y = 1/16*72
 var cal = {
-    paper_w: 8.5,//13,
-    paper_h: 54,//19, //26
+    // max digital print: 13x19
+    // 14 months: 54 long
+    // paper_w: 13,
+    // paper_h: 19,
+    paper_w: 8.5,
+    paper_h: 2*3.375+2*0.5,
     paper_margin: 0.5
 }
 
@@ -93,8 +98,8 @@ var dataSVG = (page_i,calendar=calPages) => {
     var clip = draw.clip().add(clipRect)
 
     var group = main.group()
-    var margins = main.group()
     var tracker = main.group()
+    var margins = main.group()
     
     // FUNCTIONS
     // Drawing
@@ -138,11 +143,11 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     var drawWeekline = (m,n,wks) => {
         h = page_h / wks
+        thickness = 1
         tip = 1/16*72
-        var rect = group.rect(page_w-2*(padding_x-tip), 1).attr({ 
-            x: padding_x-tip, 
-            y: m*page_h+(n+1)*h
-         }).fill('pink') //n+1==wks?'pink':'grey'
+        var rect = group.rect(page_w-2*(padding_x-tip), thickness)
+            .move(padding_x-tip, m*page_h+(n+1)*h)
+            .fill('pink') //n+1==wks?'pink':'grey'
     }
     var drawDayLine = (d) => {
         var h = group
@@ -194,13 +199,19 @@ var dataSVG = (page_i,calendar=calPages) => {
     var drawMonthTracker = (m,n1,n2,wks1,wks2) => {
         // returns e.g. monday = 1, which is ok if week starts on monday, but needs to be adjusted otherwise
         top = (n1-1) * page_h / wks1 / 7
-        top_next = (n2-1) * page_h / wks2 / 7
-        height = page_h-top+(page_h/wks2-top_next)
-        width = 1/8*72+bleed //in inches
+        top_next = (Math.max(n2-1-1,0)) * page_h / wks2 / 7
+        height = page_h-top+top_next
+        width = 1/8*72 //in inches
 
-        var rect = tracker.rect(width-bleed, height)
-            .move(-0*bleed,m*page_h+top)    
-            .fill('lightgrey')
+        if(p==0) {
+            var rect0 = tracker.rect(width+bleed, top-page_h/wks1/7+bleed)
+            .move(-bleed,-bleed)    
+            .fill('#eeeeee')
+        }
+
+        var rect = tracker.rect(width+bleed, height)
+            .move(-bleed,m*page_h+top)    
+            .fill('#eeeeee')
     }
 
     // SET UP FILE  
@@ -230,11 +241,12 @@ var dataSVG = (page_i,calendar=calPages) => {
             calendar[Math.min(p+1,calendar.length-1)].length
             )
     }
-    group.clipWith(clip)
+    // group.clipWith(clip)
+    // tracker.clipWith(clip)
 
     //moving for next pages
     group.move(page_hPadding,-page_i*maxPages*page_h)
-    clipRect.move(0,page_i*maxPages*page_h-bleed)
+    clipRect.move(-bleed,page_i*maxPages*page_h-bleed)
 
     // get your svg as string
     // console.log(draw.svg())
@@ -242,12 +254,12 @@ var dataSVG = (page_i,calendar=calPages) => {
     // console.log(draw.node.outerHTML)
 
     // for debug
-    // fs.writeFile("test"+page_i+".svg", draw.node.outerHTML, function(err) {
-    //     if(err) {
-    //         return console.log(err);
-    //     }    
-    //     console.log("Also made you a svg <3");
-    // }); 
+    fs.writeFile("test"+page_i+".svg", draw.node.outerHTML, function(err) {
+        if(err) {
+            return console.log(err);
+        }    
+        console.log("Also made you a svg <3");
+    }); 
 
     var cleanSVG = (data) => {
         var returndata = data.replace(/(<svg.*?>)<svg.*?>(.*?)<\/svg>/g, '$1')
