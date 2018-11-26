@@ -1,12 +1,19 @@
 //TODO:
-//- [ ] day numbers are not properly aligned to right
+//- [ ] last month month tracker does not end at right place
+//- [ ] errors in month tracker on last months
+//FUTURE WORK:
+//- [ ] need to argument passed to month tracker to take into account weekStartsOn
 //- [ ] weekend block is drawn on 6th day, need to make dynamic based on day
-//- [ ] add CMYK colours, e.g. fill="#CD853F device-cmyk(0.11, 0.48, 0.83, 0.00)", 
+//- [ ] remove clip if not used
+//OLD:
+//- [x] crop marks not on right place if last page not full
+//- [x] day numbers are not properly aligned to right
+//- [x] add CMYK colours, e.g. fill="#CD853F device-cmyk(0.11, 0.48, 0.83, 0.00)", 
 //      in SVGtoPDF there is an option colorCallback [function] = function called to get color, making mapping to CMYK possible
-//- [ ] make line adjustment dynamic or try baseline: anchor: Anchor of object in coordinate. (default: 'left baseline') ... (left, center, right) + (baseline, top, middle, bottom)
+//- [x] make line adjustment dynamic or try baseline: anchor: Anchor of object in coordinate. (default: 'left baseline') ... (left, center, right) + (baseline, top, middle, bottom)
 //- [x] set colours: ...,,,,,
-//- [ ] need to argument passed to tracker to take into account weekStartsOn
-//- [ ] top crop lines don't align
+
+//- [x] top crop lines don't align
 // settings:
 cal_w = 5.5*72
 page_hPadding = 3/16*72
@@ -19,11 +26,15 @@ padding_y = 1/16*72
 var cal = {
     // max digital print: 13x19
     // 14 months: 54 long
+    
     // paper_w: 13,
     // paper_h: 19,
+
     paper_w: 8.5,
-    // paper_h: 2*3.375+2*0.5,
-    paper_h: 54,
+    paper_h: 2*3.375+2*0.5,
+    
+    // paper_h: 54,
+    
     paper_margin: 0.5
 }
 
@@ -42,7 +53,7 @@ var doc = new PDFDocument({
     size: [cal.paper_w*72, cal.paper_h*72],
     autoFirstPage: false,
   }),
-    stream = fs.createWriteStream('file.pdf')
+    stream = fs.createWriteStream('calendar.pdf')
 
 // outlining
 const TextToSVG = require('text-to-svg');
@@ -196,16 +207,18 @@ var dataSVG = (page_i,calendar=calPages) => {
         var topLeft = margins.use(cropMark).move(0, 1/2)
         var topRight = margins.use(cropMark).rotate(90,0,0).move(1/2, -cal_w)
 
-        var bottomRight = margins.use(cropMark).rotate(180,0,0).move(-cal_w, -maxPages*page_h+1/2)
-        var bottomLeft = margins.use(cropMark).rotate(270,0,0).move(-maxPages*page_h-1/2, 0)
+        // number_of_months/maxPages, eg 2.8 ---- 
+        var pL =  Math.min(number_of_months-(page_i)*maxPages,maxPages)
+        var bottomRight = margins.use(cropMark).rotate(180,0,0).move(-cal_w, -pL*page_h+1/2)
+        var bottomLeft = margins.use(cropMark).rotate(270,0,0).move(-pL*page_h-1/2, 0)
 
         var lip1 = margins.rect(36, 1).attr({ 
             x: -42, 
-            y: maxPages*page_h+4/16*72
+            y: pL*page_h+4/16*72
         }).fill('grey')
         var lip1 = margins.rect(36, 1).attr({ 
             x: cal_w+bleed-3,
-            y: maxPages*page_h+4/16*72
+            y: pL*page_h+4/16*72
         }).fill('grey')
     }
     var drawMonthTracker = (m,n1,n2,wks1,wks2) => {
@@ -213,7 +226,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         top = (n1) * page_h / wks1 / 7
         top_next = (n2-1) * page_h / wks2 / 7
         height = page_h-top+top_next
-        // console.log({m,n2, page_h, wks2,top_next})
+        console.log({m,n2,top_next})
         width = 1/8*72 //in inches
 
         if(p==0) {
