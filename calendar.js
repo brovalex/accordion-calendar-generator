@@ -22,7 +22,8 @@ var cal = {
     // paper_w: 13,
     // paper_h: 19,
     paper_w: 8.5,
-    paper_h: 2*3.375+2*0.5,
+    // paper_h: 2*3.375+2*0.5,
+    paper_h: 54,
     paper_margin: 0.5
 }
 
@@ -87,6 +88,14 @@ var calPages = ((weeks) => {
 	}
 	return calPages
 })(calWeeks)
+var mapDayNumber = (d) => {
+    switch(d) {
+        case 0:
+            return 7
+        default:
+            return d
+    }
+}
 
 // MAKE SVG
 var dataSVG = (page_i,calendar=calPages) => {
@@ -119,7 +128,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         })
     }
     var writeDaysOfWeek = (m) => {
-        options = {anchor: 'right baseline', fontSize: 5}
+        options = {anchor: 'right baseline', fontSize: 6}
         daysOfWeek.forEach((d,j)=>{
             adjustment=textToSVG.getMetrics(d.toUpperCase(), options)
             var wDay = group.path(textToSVG.getD(d.toUpperCase(), options))
@@ -132,15 +141,15 @@ var dataSVG = (page_i,calendar=calPages) => {
         options = {fontSize: 25}
         adjustment=monthToSVG.getMetrics(mmmm, options)
         var month = group.path(monthToSVG.getD(mmmm, options))
-                    .move(padding_x, m*page_h+h-adjustment.ascender+2)
+                    .move(padding_x, m*page_h+h-adjustment.ascender+4)
                     .fill('lightgrey')
     }
     var writeWeekNumber = (w,m,n,wks) => {
         h = page_h / wks
-        options = {fontSize: 5}
+        options = {fontSize: 6}
         adjustment=weeksToSVG.getMetrics((n==1?"Week ":"") + w, options)
         var week = group.path(weeksToSVG.getD((n==1?"Week ":"") + w, options))
-            .move(padding_x, m*page_h+(n+1)*h-adjustment.ascender+adjustment.descender)
+            .move(padding_x, m*page_h+(n+1)*h-adjustment.ascender+adjustment.descender-1)
             .fill('grey')
     }
     var drawWeekline = (m,n,wks) => {
@@ -201,9 +210,10 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     var drawMonthTracker = (m,n1,n2,wks1,wks2) => {
         // returns e.g. monday = 1, which is ok if week starts on monday, but needs to be adjusted otherwise
-        top = (n1-1) * page_h / wks1 / 7
-        top_next = (Math.max(n2-1-1,0)) * page_h / wks2 / 7
+        top = (n1) * page_h / wks1 / 7
+        top_next = (n2-1) * page_h / wks2 / 7
         height = page_h-top+top_next
+        // console.log({m,n2, page_h, wks2,top_next})
         width = 1/8*72 //in inches
 
         if(p==0) {
@@ -213,7 +223,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         }
 
         var rect = tracker.rect(width+bleed, height)
-            .move(-bleed,m*page_h+top)    
+            .move(-bleed,m*page_h+top)
             .fill('aliceblue')
     }
 
@@ -238,8 +248,8 @@ var dataSVG = (page_i,calendar=calPages) => {
         writeDaysOfWeek(p)
         drawMonthTracker(
             p,
-            dateFns.getDay(dateFns.startOfMonth(page[0][6])),
-            dateFns.getDay(dateFns.addMonths(dateFns.startOfMonth(page[0][6]),1)),
+            mapDayNumber(dateFns.getDay(dateFns.startOfMonth(page[0][6]))),
+            mapDayNumber(dateFns.getDay(dateFns.startOfMonth(dateFns.addMonths(page[0][6],1)))),
             page.length,
             calendar[Math.min(p+1,calendar.length-1)].length
             )
