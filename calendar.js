@@ -160,7 +160,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         options = {fontSize: 6}
         adjustment=weeksToSVG.getMetrics((n==1?"Week ":"") + w, options)
         var week = group.path(weeksToSVG.getD((n==1?"Week ":"") + w, options))
-            .move(padding_x, m*page_h+(n+1)*h-adjustment.ascender+adjustment.descender-1)
+            .move(padding_x, m*page_h+(n+1)*h-adjustment.ascender+adjustment.descender)
             .fill('grey')
     }
     var drawWeekline = (m,n,wks) => {
