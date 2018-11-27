@@ -226,23 +226,32 @@ var dataSVG = (page_i,calendar=calPages) => {
         top = (n1) * page_h / wks1 / 7
         top_next = (n2-1) * page_h / wks2 / 7
         height = page_h-top+top_next
-        console.log({m,n2,top_next})
+        if(p==calendar.length-1) {
+            height = page_h-top-(page_h/wks1-top_next)-page_h/wks1/7
+        }
         width = 1/8*72 //in inches
 
         if(p==0) {
             var rect0 = tracker.rect(width+bleed, top-page_h/wks1/7+bleed)
-            .move(-bleed,-bleed)    
+            .move(-bleed,-bleed)
             .fill('aliceblue')
         }
 
         var rect = tracker.rect(width+bleed, height)
             .move(-bleed,m*page_h+top)
             .fill('aliceblue')
+
+        if(p==calendar.length-1) {
+            var rect2 = tracker.rect(width+bleed, page_h/wks1-top_next+bleed)
+            .move(-bleed,(m+1)*page_h-page_h/wks1+top_next)
+            .fill('aliceblue')
+        }
     }
 
     // SET UP FILE  
     main.move(cal.paper_margin*72,cal.paper_margin*72)
-    group.move(page_hPadding+page_hShift,0)
+    group.move(0,0)
+    tracker.move(page_hPadding+page_hShift,0)
     drawCropMarks()
     drawWeekend()
     for(i=1;i<7;i++) drawDayLine(i)
@@ -259,12 +268,13 @@ var dataSVG = (page_i,calendar=calPages) => {
         // write these after to be on top
         writeMonthHeader(p, dateFns.format(page[0][6],'MMMM'), page.length)
         writeDaysOfWeek(p)
+        // console.log(dateFns.format(page[0][6],'MMM'),page[0][6],mapDayNumber(dateFns.getDay(dateFns.startOfMonth(page[0][6]))))
         drawMonthTracker(
             p,
             mapDayNumber(dateFns.getDay(dateFns.startOfMonth(page[0][6]))),
             mapDayNumber(dateFns.getDay(dateFns.startOfMonth(dateFns.addMonths(page[0][6],1)))),
             page.length,
-            calendar[Math.min(p+1,calendar.length-1)].length
+            calendar[(p==calendar.length-1)?p:p+1].length
             )
     }
     // group.clipWith(clip)
@@ -272,6 +282,7 @@ var dataSVG = (page_i,calendar=calPages) => {
 
     //moving for next pages
     group.move(page_hPadding+page_hShift,-page_i*maxPages*page_h)
+    tracker.move(0,-page_i*maxPages*page_h)
     clipRect.move(-bleed,page_i*maxPages*page_h-bleed)
 
     // get your svg as string
