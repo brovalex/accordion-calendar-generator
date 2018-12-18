@@ -183,7 +183,7 @@ var dataSVG = (page_i,calendar=calPages) => {
                 .move(5*page_w/7,-bleed)
                 .fill('aliceblue')
     }
-    var drawCropMarks = () => {
+    var drawCropMarks = (firstPage = false) => {
         var cropMark = draw.symbol()
         var h1 = cropMark.rect(36, 1).attr({ 
             x: -42, 
@@ -193,6 +193,17 @@ var dataSVG = (page_i,calendar=calPages) => {
             x: -1, 
             y: -42
         }).fill('black')
+
+        if(!firstPage) {
+            var h_sub1 = margins.rect(36, 1/2).attr({ 
+                x: -42, 
+                y: -0.5+3/64*72
+            }).fill('lightgrey')
+            var h_sub2 = margins.rect(36, 1/2).attr({ 
+                x: cal_w+6, 
+                y: -0.5+3/64*72
+            }).fill('lightgrey')
+        }
        
         // var test = margins.rect(1, 360).attr({ 
         //     x: cal_w, 
@@ -252,7 +263,7 @@ var dataSVG = (page_i,calendar=calPages) => {
     main.move(cal.paper_margin*72,cal.paper_margin*72)
     group.move(0,0)
     tracker.move(page_hPadding+page_hShift,0)
-    drawCropMarks()
+    drawCropMarks(page_i==0)
     drawWeekend()
     for(i=1;i<7;i++) drawDayLine(i)
     // GENERATE ALL THE THINGS
