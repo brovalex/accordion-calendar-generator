@@ -186,6 +186,14 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     var drawCropMarks = (firstPage = false) => {
         var cropMark = draw.symbol()
+        var h1_2 = cropMark.rect(42, 1).attr({ 
+            x: -42, 
+            y: -1-1/8*72
+        }).fill('pink')
+        var v1_2 = cropMark.rect(1, 42).attr({ 
+            x: -1-1/8*72, 
+            y: -42
+        }).fill('pink')
         var h1 = cropMark.rect(36, 1).attr({ 
             x: -42, 
             y: -1
@@ -194,14 +202,6 @@ var dataSVG = (page_i,calendar=calPages) => {
             x: -1, 
             y: -42
         }).fill('black')
-        var h1_2 = cropMark.rect(42, 1).attr({ 
-            x: -42, 
-            y: -1-1/8*72
-        }).fill('blue')
-        var v1_2 = cropMark.rect(1, 42).attr({ 
-            x: -1-1/8*72, 
-            y: -42
-        }).fill('blue')
 
         if(!firstPage) {
             var h_sub1 = margins.rect(36, 1/2).attr({ 
@@ -210,7 +210,7 @@ var dataSVG = (page_i,calendar=calPages) => {
             }).fill('grey')
             var h_sub2 = margins.rect(36, 1/2).attr({ 
                 x: cal_w+6, 
-                y: -0.5+2/64*72
+                y: -0.5+3/128*72
             }).fill('grey')
         }
        
