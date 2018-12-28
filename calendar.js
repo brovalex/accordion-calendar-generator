@@ -204,13 +204,14 @@ var dataSVG = (page_i,calendar=calPages) => {
         }).fill('black')
 
         if(!firstPage) {
+            var sub_margin = 3/128*72
             var h_sub1 = margins.rect(36, 1/2).attr({ 
                 x: -42, 
-                y: -0.5+2/64*72
+                y: -0.5+sub_margin
             }).fill('grey')
             var h_sub2 = margins.rect(36, 1/2).attr({ 
                 x: cal_w+6, 
-                y: -0.5+3/128*72
+                y: -0.5+sub_margin
             }).fill('grey')
         }
        
