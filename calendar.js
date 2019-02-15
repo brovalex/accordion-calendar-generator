@@ -156,6 +156,15 @@ var dataSVG = (page_i,calendar=calPages) => {
                     .move(padding_x, m*page_h+h-adjustment.ascender+4)
                     .fill('lightgrey')
     }
+    var drawMonthFoldLine = (m) => {
+        thickness = 1
+        var rect1 = margins.rect(0.25*72, thickness)
+            .move(-(1/4+1/8-1/16)*72, m*page_h-thickness/2)
+            .fill('grey')
+        var rect2 = margins.rect(0.25*72, thickness)
+            .move( (1/2-1/16)*72+page_w, m*page_h-thickness/2)
+            .fill('grey')
+    }
     var writeWeekNumber = (w,m,n,wks) => {
         h = page_h / wks
         options = {fontSize: 6}
@@ -169,7 +178,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         thickness = 1
         tip = 1/16*72
         var rect = group.rect(page_w-2*(padding_x-tip), thickness)
-            .move(padding_x-tip, m*page_h+(n+1)*h)
+            .move(padding_x-tip, m*page_h+(n+1)*h-thickness/2)
             .fill('pink') //n+1==wks?'pink':'grey'
     }
     var drawDayLine = (d) => {
@@ -273,13 +282,13 @@ var dataSVG = (page_i,calendar=calPages) => {
     main.move(cal.paper_margin*72,cal.paper_margin*72)
     group.move(0,0)
     tracker.move(page_hPadding+page_hShift,0)
-    drawCropMarks(page_i==0)
     drawWeekend()
     for(i=1;i<7;i++) drawDayLine(i)
     // GENERATE ALL THE THINGS
     for(var p=0; p < calendar.length; p++) {
         page = calendar[p]
         // for each week in page _p_
+        drawMonthFoldLine(p)
         for(var w=0; w < page.length; w++) {
             week = page[w]
             drawWeekline(p,w,page.length)
@@ -297,6 +306,7 @@ var dataSVG = (page_i,calendar=calPages) => {
             page.length,
             calendar[(p==calendar.length-1)?p:p+1].length
             )
+        drawCropMarks(page_i==0)
     }
     // group.clipWith(clip)
     // tracker.clipWith(clip)
