@@ -27,8 +27,8 @@ var cal = {
     // max digital print: 13x19
     // 14 months: 54 long
     
-    paper_w: 13,
-    paper_h: 19,
+    paper_w: 38,
+    paper_h: 26,
     // paper_h: 18,
 
     // paper_w: 8.5,

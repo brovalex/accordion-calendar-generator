@@ -64,7 +64,7 @@ const digitsToSVG = TextToSVG.loadSync('fonts/nimbus mono d7dfb1f6-0918-41e9-a9d
 const weeksToSVG = TextToSVG.loadSync('fonts/nimbus regular a70c1179-4a1d-4887-8eb1-d4f6ce17cfb4.ttf');
 
 // INPUTS
-var start = {year: 2019, month: 12} // 1 = january
+var start = {year: 2018, month: 4} // 1 = january
 var number_of_months = 14
 var weekStartsOn = 1 // Monday
 // PREP
@@ -126,7 +126,7 @@ var dataSVG = (page_i,calendar=calPages) => {
     // FUNCTIONS
     // Drawing
     var writeDay = (d,x,y) => {
-        options = {anchor: 'left baseline', fontSize: 12}
+        options = {anchor: 'left baseline', fontSize: 20}
         adjustment=digitsToSVG.getMetrics(d, options)
         // console.log(adjustment)
         var day = group.path(digitsToSVG.getD(d, options))
@@ -140,7 +140,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         })
     }
     var writeDaysOfWeek = (m) => {
-        options = {anchor: 'right baseline', fontSize: 6}
+        options = {anchor: 'right baseline', fontSize: 8}
         daysOfWeek.forEach((d,j)=>{
             adjustment=textToSVG.getMetrics(d.toUpperCase(), options)
             var wDay = group.path(textToSVG.getD(d.toUpperCase(), options))
@@ -150,7 +150,7 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     var writeMonthHeader = (m,mmmm,wks) => {
         h = page_h / wks
-        options = {fontSize: 25}
+        options = {fontSize: 24}
         adjustment=monthToSVG.getMetrics(mmmm, options)
         var month = group.path(monthToSVG.getD(mmmm, options))
                     .move(padding_x, m*page_h+h-adjustment.ascender+4)
@@ -167,7 +167,7 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     var writeWeekNumber = (w,m,n,wks) => {
         h = page_h / wks
-        options = {fontSize: 6}
+        options = {fontSize: 8}
         adjustment=weeksToSVG.getMetrics((n==1?"Week ":"") + w, options)
         var week = group.path(weeksToSVG.getD((n==1?"Week ":"") + w, options))
             .move(padding_x, m*page_h+(n+1)*h-adjustment.ascender+adjustment.descender)
@@ -339,12 +339,6 @@ var dataSVG = (page_i,calendar=calPages) => {
 
 
 // console.log(cleanSVG)
-fs.writeFile("svg-only.txt", dataSVG(page_i), function(err) {
-    if(err) {
-        return console.log(err);
-    }
-    console.log("The file was saved!");
-}); 
 
 PDFDocument.prototype.addSVG = function(svg, x, y, options) {
     return SVGtoPDF(this, svg, x, y, options), this;
@@ -396,9 +390,9 @@ for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
                 }
             }
         });
-
+        
         // double up for wide sheet
-        if(cal.paper_w*72>=3*36+2*cal_w-1/16*72) {
+        if(!false && cal.paper_w*72>=3*36+2*cal_w-1/16*72) {
         doc.addSVG(
             dataSVG(page_i), 
             1*cal.paper_margin*72+cal_w+bleed, 
@@ -445,7 +439,7 @@ for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
 }
 
 stream.on('finish', function() {
-  console.log(fs.readFileSync('calendar.pdf'))
+  console.log(fs.readFileSync('calendar-Andrea.pdf'))
 })
 
 doc.pipe(stream)

@@ -15,11 +15,11 @@
 
 //- [x] top crop lines don't align
 // settings:
-cal_w = 5.5*72
+cal_w = 8.27*72
 page_hPadding = 3/16*72
 page_hShift = 1/16*72
 page_w = cal_w-2*page_hPadding
-page_h = 3.375*72
+page_h = 5.11*72
 bleed = 1/8*72
 padding_x = 1/16*72
 padding_y = 1/16*72
@@ -54,7 +54,7 @@ var doc = new PDFDocument({
     size: [cal.paper_w*72, cal.paper_h*72],
     autoFirstPage: false,
   }),
-    stream = fs.createWriteStream('calendar.pdf')
+    stream = fs.createWriteStream('calendar-large.pdf')
 
 // outlining
 const TextToSVG = require('text-to-svg');
@@ -126,7 +126,7 @@ var dataSVG = (page_i,calendar=calPages) => {
     // FUNCTIONS
     // Drawing
     var writeDay = (d,x,y) => {
-        options = {anchor: 'left baseline', fontSize: 12}
+        options = {anchor: 'left baseline', fontSize: 16}
         adjustment=digitsToSVG.getMetrics(d, options)
         // console.log(adjustment)
         var day = group.path(digitsToSVG.getD(d, options))
@@ -140,7 +140,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         })
     }
     var writeDaysOfWeek = (m) => {
-        options = {anchor: 'right baseline', fontSize: 6}
+        options = {anchor: 'right baseline', fontSize: 8}
         daysOfWeek.forEach((d,j)=>{
             adjustment=textToSVG.getMetrics(d.toUpperCase(), options)
             var wDay = group.path(textToSVG.getD(d.toUpperCase(), options))
@@ -444,9 +444,9 @@ for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
             }//end if check if double up
 }
 
-stream.on('finish', function() {
-  console.log(fs.readFileSync('calendar.pdf'))
-})
+// stream.on('finish', function() {
+//   console.log(fs.readFileSync('calendar.pdf'))
+// })
 
 doc.pipe(stream)
 doc.end()
