@@ -1,19 +1,3 @@
-//TODO:
-//- [ ] last month month tracker does not end at right place
-//- [ ] errors in month tracker on last months
-//FUTURE WORK:
-//- [ ] need to argument passed to month tracker to take into account weekStartsOn
-//- [ ] weekend block is drawn on 6th day, need to make dynamic based on day
-//- [ ] remove clip if not used
-//OLD:
-//- [x] crop marks not on right place if last page not full
-//- [x] day numbers are not properly aligned to right
-//- [x] add CMYK colours, e.g. fill="#CD853F device-cmyk(0.11, 0.48, 0.83, 0.00)", 
-//      in SVGtoPDF there is an option colorCallback [function] = function called to get color, making mapping to CMYK possible
-//- [x] make line adjustment dynamic or try baseline: anchor: Anchor of object in coordinate. (default: 'left baseline') ... (left, center, right) + (baseline, top, middle, bottom)
-//- [x] set colours: ...,,,,,
-
-//- [x] top crop lines don't align
 // settings:
 cal_w = 5.5*72
 page_hPadding = 3/16*72
@@ -25,17 +9,9 @@ padding_x = 1/16*72
 padding_y = 1/16*72
 var cal = {
     // max digital print: 13x19
-    // 14 months: 54 long
-    
+    // 14 months: 54in long
     paper_w: 13,
-    paper_h: 19,
-    // paper_h: 18,
-
-    // paper_w: 8.5,
-    // paper_h: 2*3.375+2*0.5,
-    
-    // paper_h: 54,
-    
+    paper_h: 19,    
     paper_margin: 0.5
 }
 
@@ -64,7 +40,7 @@ const digitsToSVG = TextToSVG.loadSync('fonts/nimbus mono d7dfb1f6-0918-41e9-a9d
 const weeksToSVG = TextToSVG.loadSync('fonts/nimbus regular a70c1179-4a1d-4887-8eb1-d4f6ce17cfb4.ttf');
 
 // INPUTS
-var start = {year: 2019, month: 12} // 1 = january
+var start = {year: 2020, month: 12} // 1 = january, I usually start on December the year before, and end on the January the year after
 var number_of_months = 14
 var weekStartsOn = 1 // Monday
 // PREP
@@ -112,7 +88,7 @@ var mapDayNumber = (d) => {
 // MAKE SVG
 var dataSVG = (page_i,calendar=calPages) => {
     // create svg.js instance
-    const draw = SVG(document.documentElement)//.size(300,300)
+    const draw = SVG(document.documentElement)
 
     var main = draw.group()
 
@@ -223,15 +199,6 @@ var dataSVG = (page_i,calendar=calPages) => {
                 y: -0.5+sub_margin
             }).fill('grey')
         }
-       
-        // var test = margins.rect(1, 360).attr({ 
-        //     x: cal_w, 
-        //     y: 0
-        // }).fill('red')
-        // var test = margins.rect(1, 360).attr({ 
-        //     x: -1, 
-        //     y: 0
-        // }).fill('red')
         
         // 1/2 is adjustment for thickness of crop line to center it
         var topLeft = margins.use(cropMark).move(0, 1/2)
@@ -308,26 +275,11 @@ var dataSVG = (page_i,calendar=calPages) => {
             )
         drawCropMarks(page_i==0)
     }
-    // group.clipWith(clip)
-    // tracker.clipWith(clip)
 
     //moving for next pages
     group.move(page_hPadding+page_hShift,-page_i*maxPages*page_h)
     tracker.move(0,-page_i*maxPages*page_h)
     clipRect.move(-bleed,page_i*maxPages*page_h-bleed)
-
-    // get your svg as string
-    // console.log(draw.svg())
-    // or
-    // console.log(draw.node.outerHTML)
-
-    // // for debug
-    // fs.writeFile("test"+page_i+".svg", draw.node.outerHTML, function(err) {
-    //     if(err) {
-    //         return console.log(err);
-    //     }    
-    //     console.log("Also made you a svg <3");
-    // }); 
 
     var cleanSVG = (data) => {
         var returndata = data.replace(/(<svg.*?>)<svg.*?>(.*?)<\/svg>/g, '$1')
@@ -336,7 +288,6 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     return cleanSVG(draw.node.outerHTML)
 }
-
 
 // console.log(cleanSVG)
 fs.writeFile("svg-only.txt", dataSVG(page_i), function(err) {
@@ -351,7 +302,6 @@ PDFDocument.prototype.addSVG = function(svg, x, y, options) {
     };
 
 for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
-    // if(page_i>0) doc.addPage()//.addSVG(cleanSVG, 0*cal.paper_margin*72, 0*cal.paper_margin*72);
     console.log("Page "+(page_i+1)+" of "+Math.ceil(number_of_months/maxPages))
     doc.addPage()
     doc.addSVG(
