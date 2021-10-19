@@ -10,10 +10,16 @@ padding_y = 1/16*72
 var cal = {
     // max digital print: 13x19
     // 14 months: 54in long
-    paper_w: 13,
-    paper_h: 19,    
+    // new printer: 7x42, only 12 (see below)
+    paper_w: 7,
+    paper_h: 42,    
     paper_margin: 0.5
 }
+// INPUTS
+var start = {year: 2022, month: 1} // 1 = january, I usually start on December the year before, and end on the January the year after
+var number_of_months = 12
+var weekStartsOn = 7 // 1 = Monday, 7 = Sunday
+var showMonthTracker = false
 
 const dateFns = require('date-fns');
 
@@ -39,10 +45,6 @@ const monthToSVG = TextToSVG.loadSync('fonts/nimbus 1 - dc9d32c4-6c53-4bb1-8bef-
 const digitsToSVG = TextToSVG.loadSync('fonts/nimbus mono d7dfb1f6-0918-41e9-a9d2-bf7241c11fae.ttf');
 const weeksToSVG = TextToSVG.loadSync('fonts/nimbus regular a70c1179-4a1d-4887-8eb1-d4f6ce17cfb4.ttf');
 
-// INPUTS
-var start = {year: 2020, month: 12} // 1 = january, I usually start on December the year before, and end on the January the year after
-var number_of_months = 14
-var weekStartsOn = 1 // Monday
 // PREP
 var maxPages = Math.floor((cal.paper_h-cal.paper_margin*2)*72/page_h)
 var start_date = new Date(start.year, start.month-1, 1)
@@ -164,10 +166,18 @@ var dataSVG = (page_i,calendar=calPages) => {
                 .fill('lightgrey')
     }
     var drawWeekend = () => {
+        colW = (weekStartsOn<7) ? 2 : 1
         var h = group
-                .rect(2*page_w/7+page_hPadding+bleed, page_h*number_of_months+2*bleed)
-                .move(5*page_w/7,-bleed)
+                .rect(colW*page_w/7+page_hPadding+bleed, page_h*number_of_months+2*bleed)
+                .move((7+6-weekStartsOn)%7*page_w/7,-bleed)
                 .fill('aliceblue')
+        if (colW == 1) {
+            var h2 = group
+                .rect(colW*page_w/7+page_hPadding+bleed, page_h*number_of_months+2*bleed)
+                .move((7-weekStartsOn)%7*page_w/7-page_hPadding-bleed,-bleed)
+                .fill('aliceblue')   
+        }
+
     }
     var drawCropMarks = (firstPage = false) => {
         var cropMark = draw.symbol()
@@ -266,7 +276,7 @@ var dataSVG = (page_i,calendar=calPages) => {
         writeMonthHeader(p, dateFns.format(page[0][6],'MMMM'), page.length)
         writeDaysOfWeek(p)
         // console.log(dateFns.format(page[0][6],'MMM'),page[0][6],mapDayNumber(dateFns.getDay(dateFns.startOfMonth(page[0][6]))))
-        drawMonthTracker(
+        if(showMonthTracker) drawMonthTracker(
             p,
             mapDayNumber(dateFns.getDay(dateFns.startOfMonth(page[0][6]))),
             mapDayNumber(dateFns.getDay(dateFns.startOfMonth(dateFns.addMonths(page[0][6],1)))),
