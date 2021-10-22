@@ -19,7 +19,7 @@ var cal = {
 var start = {year: 2022, month: 1} // 1 = january, I usually start on December the year before, and end on the January the year after
 var number_of_months = 12
 var weekStartsOn = 7 // 1 = Monday, 7 = Sunday
-var showMonthTracker = false
+var showMonthTracker = (weekStartsOn == 1) ? true : false
 
 const dateFns = require('date-fns');
 
@@ -287,7 +287,7 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
 
     //moving for next pages
-    group.move(page_hPadding+page_hShift,-page_i*maxPages*page_h)
+    group.move(page_hPadding+page_hShift*(showMonthTracker?1:0),-page_i*maxPages*page_h)
     tracker.move(0,-page_i*maxPages*page_h)
     clipRect.move(-bleed,page_i*maxPages*page_h-bleed)
 
