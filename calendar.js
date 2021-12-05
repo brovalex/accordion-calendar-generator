@@ -341,9 +341,9 @@ for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
                     return [[0,0,0,25],1]
                     return color
                 } 
-                // fake alice blue 240,248,255 for #eeeee very light grey 
+                // fake aliceblue 240,248,255 for #eeeee very light grey 
                 else if( color[0][0]==240 && color[0][1]==248 && color[0][2]==255 ) {
-                    return [[0,0,0,10],1]
+                    return [[0,0,0,3],1]
                     return color
                 } 
                 // fake aqua 0,255,255 for charcoal 
@@ -358,50 +358,50 @@ for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
         });
 
         // double up for wide sheet
-        if(cal.paper_w*72>=3*36+2*cal_w-1/16*72) {
-        doc.addSVG(
-            dataSVG(page_i), 
-            1*cal.paper_margin*72+cal_w+bleed, 
-            0*cal.paper_margin*72, 
-            {
-                assumePt: true,
-                colorCallback: function(color) {
-                    // pink
-                    if( color[0][0]==255 && color[0][1]==192 && color[0][2]==203 ) {
-                        return [[0,100,0,0],1]
-                        return color
-                    }
-                    // black
-                    else if( color[0][0]==0 && color[0][1]==0 && color[0][2]==0 ) {
-                        return [[0,0,0,100],1]
-                        return color
-                    } 
-                    // grey
-                    else if( color[0][0]==128 && color[0][1]==128 && color[0][2]==128 ) {
-                        return [[0,0,0,50],1]
-                        return color
-                    } 
-                    // lightgrey
-                    else if( color[0][0]==211 && color[0][1]==211 && color[0][2]==211 ) {
-                        return [[0,0,0,25],1]
-                        return color
-                    } 
-                    // fake alice blue 240,248,255 for #eeeee very light grey 
-                    else if( color[0][0]==240 && color[0][1]==248 && color[0][2]==255 ) {
-                        return [[0,0,0,10],1]
-                        return color
-                    } 
-                    // fake aqua 0,255,255 for charcoal 
-                    else if( color[0][0]==0 && color[0][1]==255 && color[0][2]==255 ) {
-                        return [[0,0,0,75],1]
-                        return color
-                    } 
-                    else {
-                        return color
-                    }
-                }
-            });
-            }//end if check if double up
+        // if(cal.paper_w*72>=3*36+2*cal_w-1/16*72) {
+        // doc.addSVG(
+        //     dataSVG(page_i), 
+        //     1*cal.paper_margin*72+cal_w+bleed, 
+        //     0*cal.paper_margin*72, 
+        //     {
+        //         assumePt: true,
+        //         colorCallback: function(color) {
+        //             // pink
+        //             if( color[0][0]==255 && color[0][1]==192 && color[0][2]==203 ) {
+        //                 return [[0,100,0,0],1]
+        //                 return color
+        //             }
+        //             // black
+        //             else if( color[0][0]==0 && color[0][1]==0 && color[0][2]==0 ) {
+        //                 return [[0,0,0,100],1]
+        //                 return color
+        //             } 
+        //             // grey
+        //             else if( color[0][0]==128 && color[0][1]==128 && color[0][2]==128 ) {
+        //                 return [[0,0,0,50],1]
+        //                 return color
+        //             } 
+        //             // lightgrey
+        //             else if( color[0][0]==211 && color[0][1]==211 && color[0][2]==211 ) {
+        //                 return [[0,0,0,25],1]
+        //                 return color
+        //             } 
+        //             // fake aliceblue 240,248,255 for #eeeee very light grey 
+        //             // else if( color[0][0]==240 && color[0][1]==248 && color[0][2]==255 ) {
+        //             //     return [[0,0,0,10],1]
+        //             //     return color
+        //             // } 
+        //             // fake aqua 0,255,255 for charcoal 
+        //             else if( color[0][0]==0 && color[0][1]==255 && color[0][2]==255 ) {
+        //                 return [[0,0,0,75],1]
+        //                 return color
+        //             } 
+        //             else {
+        //                 return color
+        //             }
+        //         }
+        //     });
+        //     }//end if check if double up
 }
 
 stream.on('finish', function() {
