@@ -18,7 +18,7 @@ var cal = {
 // INPUTS
 var start = {year: 2022, month: 1} // 1 = january, I usually start on December the year before, and end on the January the year after
 var number_of_months = 12
-var weekStartsOn = 7 // 1 = Monday, 7 = Sunday
+var weekStartsOn = 1 // 1 = Monday, 7 = Sunday
 var showMonthTracker = (weekStartsOn == 1) ? true : false
 
 const dateFns = require('date-fns');
