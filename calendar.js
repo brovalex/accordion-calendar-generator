@@ -300,12 +300,12 @@ var dataSVG = (page_i,calendar=calPages) => {
 }
 
 // console.log(cleanSVG)
-fs.writeFile("svg-only.txt", dataSVG(page_i), function(err) {
-    if(err) {
-        return console.log(err);
-    }
-    console.log("The file was saved!");
-}); 
+// fs.writeFile("svg-only.txt", dataSVG(page_i), function(err) {
+//     if(err) {
+//         return console.log(err);
+//     }
+//     console.log("The file was saved!");
+// }); 
 
 PDFDocument.prototype.addSVG = function(svg, x, y, options) {
     return SVGtoPDF(this, svg, x, y, options), this;
