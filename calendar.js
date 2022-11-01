@@ -16,7 +16,7 @@ var cal = {
     paper_margin: 0.5
 }
 // INPUTS
-var start = {year: 2022, month: 1} // 1 = january, I usually start on December the year before, and end on the January the year after
+var start = {year: 2023, month: 1} // 1 = january, I usually start on December the year before, and end on the January the year after
 var number_of_months = 12
 var weekStartsOn = 1 // 1 = Monday, 7 = Sunday
 var showMonthTracker = (weekStartsOn == 1) ? true : false
@@ -69,7 +69,7 @@ var calPages = ((weeks) => {
 		// if day0 > day6 (e.g. 28 > 4) then it's last week of month which is carried over to next month
 		isLastWeek = dateFns.getDate(weeks[i][0]) > dateFns.getDate(weeks[i][6])
 		// if day0 is on 1st OR if last week but not first or last week then next page
-		if(dateFns.isFirstDayOfMonth(weeks[i][0]) || (isLastWeek && i!=0 && i!=weeks.length-1)) {
+		if( (j!=0?dateFns.isFirstDayOfMonth(weeks[i][0]):false) || (isLastWeek && i!=0 && i!=weeks.length-1)) {
 			j+=1
 			calPages[j]=[]
 		}
