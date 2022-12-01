@@ -1,9 +1,9 @@
 // settings:
-cal_w = 5.5*72
+cal_w = 8.25*72//5.5*72
 page_hPadding = 3/16*72
 page_hShift = 1/16*72
 page_w = cal_w-2*page_hPadding
-page_h = 3.375*72
+page_h = (5.75-1/8)*72//3.375*72
 bleed = 1/8*72
 padding_x = 1/16*72
 padding_y = 1/16*72
@@ -11,8 +11,8 @@ var cal = {
     // max digital print: 13x19
     // 14 months: 54in long
     // new printer: 7x42, only 12 (see below)
-    paper_w: 7,
-    paper_h: 42,    
+    paper_w: 11,//12,//7,
+    paper_h: 8.5,//page_h/72*12+1,//42,    
     paper_margin: 0.5
 }
 // INPUTS
@@ -136,11 +136,15 @@ var dataSVG = (page_i,calendar=calPages) => {
     }
     var drawMonthFoldLine = (m) => {
         thickness = 1
-        var rect1 = margins.rect(0.25*72, thickness)
-            .move(-(1/4+1/8-1/16)*72, m*page_h-thickness/2)
+        var rect1 = margins.rect(0.5*72, thickness)
+            .move(-(0.5+1/8-1/16)*72, m*page_h-thickness/2)
             .fill('grey')
         var rect2 = margins.rect(0.25*72, thickness)
             .move( (1/2-1/16)*72+page_w, m*page_h-thickness/2)
+            .fill('grey')
+        // extra line on paper edge on rigth to make scoring easier
+        var rect3 = margins.rect(0.25*72, thickness)
+            .move( cal.paper_w*72-(1-0.25)*72, m*page_h-thickness/2)
             .fill('grey')
     }
     var writeWeekNumber = (w,m,n,wks) => {
