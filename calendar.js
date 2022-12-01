@@ -11,8 +11,8 @@ var cal = {
     // max digital print: 13x19
     // 14 months: 54in long
     // new printer: 7x42, only 12 (see below)
-    paper_w: 11,//12,//7,
-    paper_h: 8.5,//page_h/72*12+1,//42,    
+    paper_w: 12,//7,
+    paper_h: page_h/72*12+1,//42,    
     paper_margin: 0.5
 }
 // INPUTS
