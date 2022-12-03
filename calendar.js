@@ -1,9 +1,54 @@
+const myArgs = process.argv.slice(2);
+switch (myArgs[0]) {
+    case 'biggin':
+        var template = "biggin"
+        break;
+    case 'pocket':
+        var template = "pocket"
+        break;
+    default:
+        console.log('⚠️  Error: No template specified. Add template name as first argument. ');
+        process.exit()
+  }
+switch (myArgs[1]) {
+    case 'monday':
+        var weekStartsOn = 1 // 1 = Monday, 7 = Sunday
+        break;
+    case 'sunday':
+        var weekStartsOn = 7 // 1 = Monday, 7 = Sunday
+        break;
+    default:
+        console.log('⚠️  Error: No day of the week to start on specified.  ');
+        process.exit()
+  }
+
+//templates in inches
+var templates = {
+    biggin: {
+        width: 8.25, 
+        height: 5.75-1/8,
+        paper_w: 12.5,
+        paper_h: "roll"
+    },
+    pocket: {
+        width: 5.5, 
+        height: 3.5-1/8,
+        paper_w: 7,
+        paper_h: 42
+    }
+}
+
+// INPUTS
+var start = {year: 2023, month: 1} // 1 = january, I usually start on December the year before, and end on the January the year after
+var number_of_months = 12
+var showMonthTracker = (weekStartsOn == 1) ? true : false
+
 // settings:
-cal_w = 8.25*72//5.5*72
+cal_w = templates[template].width*72
 page_hPadding = 3/16*72
 page_hShift = 1/16*72
 page_w = cal_w-2*page_hPadding
-page_h = (5.75-1/8)*72//3.375*72
+page_h = templates[template].height*72
 bleed = 1/8*72
 padding_x = 1/16*72
 padding_y = 1/16*72
@@ -11,15 +56,10 @@ var cal = {
     // max digital print: 13x19
     // 14 months: 54in long
     // new printer: 7x42, only 12 (see below)
-    paper_w: 12,//7,
-    paper_h: page_h/72*12+1,//42,    
-    paper_margin: 0.5
+    paper_margin: 0.5,
+    paper_w: templates[template].paper_w,
+    paper_h: (templates[template].paper_h=="roll") ? page_h/72*number_of_months+2*paper_margin : templates[template].paper_h
 }
-// INPUTS
-var start = {year: 2023, month: 1} // 1 = january, I usually start on December the year before, and end on the January the year after
-var number_of_months = 12
-var weekStartsOn = 1 // 1 = Monday, 7 = Sunday
-var showMonthTracker = (weekStartsOn == 1) ? true : false
 
 const dateFns = require('date-fns');
 
@@ -35,8 +75,7 @@ var fs = require('fs'),
 var doc = new PDFDocument({
     size: [cal.paper_w*72, cal.paper_h*72],
     autoFirstPage: false,
-  }),
-    stream = fs.createWriteStream('calendar.pdf')
+  })
 
 // outlining
 const TextToSVG = require('text-to-svg');
@@ -407,6 +446,8 @@ for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
         //     });
         //     }//end if check if double up
 }
+
+stream = fs.createWriteStream('calendar-'+template+'-'+start.year+'-'+daysOfWeek[(weekStartsOn==7)?0:weekStartsOn-1]+'.pdf')
 
 stream.on('finish', function() {
   console.log(fs.readFileSync('calendar.pdf'))
