@@ -29,6 +29,8 @@ var templates = {
         height: 5.75-1/8,
         paper_w: 12.5,
         paper_h: "roll"
+        // paper_w: 11,
+        // paper_h: 8.5
     },
     pocket: {
         width: 5.5, 
@@ -52,14 +54,10 @@ page_h = templates[template].height*72
 bleed = 1/8*72
 padding_x = 1/16*72
 padding_y = 1/16*72
-var cal = {
-    // max digital print: 13x19
-    // 14 months: 54in long
-    // new printer: 7x42, only 12 (see below)
-    paper_margin: 0.5,
-    paper_w: templates[template].paper_w,
-    paper_h: (templates[template].paper_h=="roll") ? page_h/72*number_of_months+2*paper_margin : templates[template].paper_h
-}
+var cal = {}
+    cal.paper_margin = 0.5
+    cal.paper_w = templates[template].paper_w
+    cal.paper_h = (templates[template].paper_h=="roll") ? page_h/72*number_of_months+2*cal.paper_margin : templates[template].paper_h
 
 const dateFns = require('date-fns');
 
@@ -447,10 +445,11 @@ for(var page_i=0; page_i < Math.ceil(number_of_months/maxPages); page_i++) {
         //     }//end if check if double up
 }
 
-stream = fs.createWriteStream('calendar-'+template+'-'+start.year+'-'+daysOfWeek[(weekStartsOn==7)?0:weekStartsOn-1]+'.pdf')
+var filename = 'calendar-'+template+'-'+start.year+'-'+daysOfWeek[(weekStartsOn==7)?0:weekStartsOn-1]+'-'+cal.paper_w+'x'+cal.paper_h+'.pdf'
+stream = fs.createWriteStream(filename)
 
 stream.on('finish', function() {
-  console.log(fs.readFileSync('calendar.pdf'))
+    console.log('Created file '+filename)
 })
 
 doc.pipe(stream)
