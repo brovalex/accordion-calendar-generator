@@ -1,4 +1,7 @@
-module.exports = class SVGCalendar {
+import { createSVGWindow } from 'svgdom'
+import { SVG, registerWindow } from '@svgdotjs/svg.js'
+
+export default class SVGCalendar {
     // intention: object containing printable pages (not calendar pages)
     // I'm combining calendar pages with printed pages because of bleed
 
@@ -7,11 +10,14 @@ module.exports = class SVGCalendar {
         // Settings specfic to visual design
         this.padding_x = 1/16
         // padding_y = 1/16
-        
-        // initiates drawing
-        const window   = require('svgdom')
-        const SVG      = require('svg.js')(window)
+
+        const window = createSVGWindow()
         const document = window.document
+        
+        // register window and document
+        registerWindow(window, document)
+        
+        // create canvas
         const draw = SVG(document.documentElement)
         
         calData.pages.forEach( (page,p) => {

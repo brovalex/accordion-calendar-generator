@@ -1,8 +1,8 @@
 // Main file for re-structured code
 
-var Settings = require('./Classes/settings.js')
-var CalendarData = require('./Classes/calendarData.js')
-var SVGCalendar = require('./Classes/svgCalendar.js')
+import Settings from './Classes/settings.js'
+import CalendarData from './Classes/calendarData.js'
+import SVGCalendar from './Classes/svgCalendar.js'
 
 // TODO major
 // - [ ] Making the SVGs... not sure how to structure right now
@@ -32,7 +32,7 @@ var SVGCalendar = require('./Classes/svgCalendar.js')
 
 function init() {
     if (process.argv.length == 8) { // node file.js ... + [0...5]
-        settings = new Settings(process.argv.slice(2))
+        var settings = new Settings(process.argv.slice(2))
         console.log("Year to start on: ", settings.start,                   // myArgs[0]
                     "\nMonth to start on: ", settings.start,                // myArgs[1]
                     "\nNumber of months: ", settings.number_of_months,      // myArgs[2]
@@ -43,8 +43,9 @@ function init() {
     } else {
         throw new Error('Arguments missing, please use start_year start_month number_of_months template week_starts_on paper_size');
     }
-    myCalendarData = new CalendarData(settings)
-    myCalendar = new SVGCalendar(myCalendarData, settings.template)
+    const myCalendarData = new CalendarData(settings)
+    console.log(settings.template)
+    const myCalendar = new SVGCalendar(myCalendarData, settings.template)
     
     
     // console.log(myCalendar.pages)

@@ -1,14 +1,15 @@
-module.exports = class CalendarData {
+import * as dateFns from 'date-fns'
+
+export default class CalendarData {
     // raw calendar _data_
     // ... dateFns
     constructor (settings) {
         // private date crunching
-        const dateFns = require('date-fns');
         var start_date = new Date(settings.start.year, settings.start.month-1, 1)
         var end_date = dateFns.lastDayOfMonth(dateFns.addMonths(start_date,settings.number_of_months-1))
         var calStart = dateFns.startOfWeek(start_date,{weekStartsOn:settings.week_starts_on})
         var calEnd = dateFns.endOfWeek(end_date,{weekStartsOn:settings.week_starts_on})
-        var calDays = dateFns.eachDay(calStart, calEnd)
+        var calDays = dateFns.eachDayOfInterval({start: calStart, end: calEnd})
         var calWeeks = ((days) => {
             calWeeks = []
             while (days.length) {

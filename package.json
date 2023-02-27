@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "@svgdotjs/svg.js": "^3.1.2",
+    "date-fns": "^2.29.3",
+    "express": "^4.18.2",
+    "svg.js": "^2.7.1",
+    "svgdom": "^0.1.13"
+  },
+  "name": "calendar-svg",
+  "description": "Run `node calendar.js` and this will create a `calendar.pdf` print-ready file in the same folder.",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "testing-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/brovalex/calendar-svg.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://bitbucket.org/brovalex/calendar-svg/issues"
+  },
+  "homepage": "https://bitbucket.org/brovalex/calendar-svg#readme"
+}

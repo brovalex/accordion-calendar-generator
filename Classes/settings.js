@@ -1,4 +1,4 @@
-module.exports = class Settings {
+export default class Settings {
     // node calendar.js start_year start_month number_of_months template week_starts_on paperSize
     // node index-structure.js 2023 1 12 pocket 1 letter
     // eventually replace with API request parameters
