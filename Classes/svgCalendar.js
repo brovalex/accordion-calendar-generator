@@ -30,8 +30,9 @@ export default class SVGCalendar {
             })
             pageGroup.move( 0, this.inch(this.template.height*p) )
         })
-         
-        console.log("SVG for this page: ", draw.node.outerHTML)
+        
+        this.SVGcode = draw.node.outerHTML
+        // console.log("SVG for this page: ", this.SVGcode)
     }
     inch = (x) => {
         return x*72
@@ -45,8 +46,6 @@ export default class SVGCalendar {
         .move( this.inch(this.padding_x-tip), this.inch((n+1)*h - thickness/2) )
         .fill('pink') //n+1==wks?'pink':'grey'
     }
-    
-    
     
     // separate to mechanicals:
     // for each page

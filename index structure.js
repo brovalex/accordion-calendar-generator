@@ -44,9 +44,7 @@ function init() {
         throw new Error('Arguments missing, please use start_year start_month number_of_months template week_starts_on paper_size');
     }
     const myCalendarData = new CalendarData(settings)
-    console.log(settings.template)
     const myCalendar = new SVGCalendar(myCalendarData, settings.template)
-    
     
     // console.log(myCalendar.pages)
     // console.log("test\n--------\n", myCalendar)
