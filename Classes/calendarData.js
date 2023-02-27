@@ -37,7 +37,7 @@ module.exports = class CalendarData {
             return calPages
         })(calWeeks)
         // public values
-        this.weeks = calWeeks
+        this.weeks = calWeeks // TODO not sure if weeks is needed as public value
         this.daysOfWeek = daysOfWeek
         this.pages = calPages
     }

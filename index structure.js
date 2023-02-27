@@ -2,6 +2,7 @@
 
 var Settings = require('./Classes/settings.js')
 var CalendarData = require('./Classes/calendarData.js')
+var SVGCalendar = require('./Classes/svgCalendar.js')
 
 // TODO major
 // - [ ] Making the SVGs... not sure how to structure right now
@@ -9,7 +10,9 @@ var CalendarData = require('./Classes/calendarData.js')
 // - [ ] Clean up variable names, e.g. camelCase vs underscores, etc.
 
 // QUESTIONS/FEEDBACK
+// - ( ) Case and naming suggestions needed for files, folders, variable names in different places...
 // - ( ) I'm not super keen on how settings for templates/paper and dates are together. I don't anticipate the library/API to be used to generate just calendar data by week, but it doesn't feel great to have it all together. 
+// - ( ) this. ... are looking messy in svgCalendar
 
 // function SVGRenderer() {
 //     //... generate SVG
@@ -27,22 +30,11 @@ var CalendarData = require('./Classes/calendarData.js')
 //     //?
 // }
 
-
-
-
-// not sure if focus on SVG part or "designer"
-class Calendar {
-    constructor (calendar, template) {
-        // pages should be an array
-        // for every page, create a SVG page
-    }
-}
-
 function init() {
     if (process.argv.length == 8) { // node file.js ... + [0...5]
         settings = new Settings(process.argv.slice(2))
         console.log("Year to start on: ", settings.start,                   // myArgs[0]
-                    "Month to start on: ", settings.start,                  // myArgs[1]
+                    "\nMonth to start on: ", settings.start,                // myArgs[1]
                     "\nNumber of months: ", settings.number_of_months,      // myArgs[2]
                     "\nTemplate: ", settings.template,                      // myArgs[3]
                     "\nWeek starts on: ", settings.week_starts_on,          // myArgs[4]
@@ -52,11 +44,11 @@ function init() {
         throw new Error('Arguments missing, please use start_year start_month number_of_months template week_starts_on paper_size');
     }
     myCalendarData = new CalendarData(settings)
+    myCalendar = new SVGCalendar(myCalendarData, settings.template)
+    
+    
     // console.log(myCalendar.pages)
-
-    myCalendar = new Calendar(myCalendarData, settings.template)
-
-    console.log("test\n--------\n", settings)
+    // console.log("test\n--------\n", myCalendar)
     // myDocument = new Document(myCalendar, settings.paper)
 
     // SVG data

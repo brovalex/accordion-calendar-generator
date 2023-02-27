@@ -31,6 +31,7 @@ module.exports = class Settings {
         this.template = templates[myArgs[3]]
         this.paper = paperSizes[myArgs[5]]
         this.paper.margin = 0.5
+        this.paper.bleed = 0.125
         this.paper.availHeight = this.paper.height-2*this.paper.margin
         this.paper.availWidth = this.paper.height-2*this.paper.margin
         this.start = {year: myArgs[0], month: myArgs[1]} // 1 = january, I usually start on December the year before, and end on the January the year after
