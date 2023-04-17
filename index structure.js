@@ -6,6 +6,9 @@ import SVGCalendar from './Classes/svgCalendar.js'
 
 // TODO major
 // - [ ] Making the SVGs... not sure how to structure right now
+// - [ ] Rewrite with factory functions instead of classes (better fit for JS)
+//       https://www.freecodecamp.org/news/class-vs-factory-function-exploring-the-way-forward-73258b6a8d15
+//       https://www.freecodecamp.org/news/removing-javascripts-this-keyword-makes-it-a-better-language-here-s-why-db28060cc086/
 // TODO minor
 // - [ ] Clean up variable names, e.g. camelCase vs underscores, etc.
 
