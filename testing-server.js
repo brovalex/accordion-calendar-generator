@@ -1,3 +1,7 @@
+// run: 
+// nodemon start
+// for hot reloading on node v20+
+
 import express from "express"
 const app = express()
 
@@ -6,7 +10,7 @@ import CalendarData from './Classes/calendarData.js'
 import SVGCalendar from './Classes/svgCalendar.js'
 
 app.listen(3000, () => {
-  console.log("Application started and Listening on port 3000");
+  console.log("Application started and Listening on port 3000\nhttp:\/\/localhost:3000");
 });
 
 app.get("/", (req, res) => {
@@ -17,6 +21,6 @@ app.get("/", (req, res) => {
   // console.log(settings.template)
   const myCalendar = new SVGCalendar(myCalendarData, settings.template)
 
-  res.send("<style>svg {width:396px;height:2916px;}</style>"+myCalendar.SVGcode);
+  res.send("<html><body><style>body {margin:0} svg {width:396px;height:2916px;border:10px solid aqua;}</style></body></html>"+myCalendar.SVGcode);
   // res.send("hello");
 });

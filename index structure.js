@@ -11,6 +11,7 @@ import SVGCalendar from './Classes/svgCalendar.js'
 //       https://www.freecodecamp.org/news/removing-javascripts-this-keyword-makes-it-a-better-language-here-s-why-db28060cc086/
 // TODO minor
 // - [ ] Clean up variable names, e.g. camelCase vs underscores, etc.
+// - [ ] Catch errors eg template not found
 
 // QUESTIONS/FEEDBACK
 // - ( ) Case and naming suggestions needed for files, folders, variable names in different places...
@@ -44,7 +45,7 @@ function init() {
                     "\nPaper: ", settings.paper                             // myArgs[5]
                     )
     } else {
-        throw new Error('Arguments missing, please use start_year start_month number_of_months template week_starts_on paper_size');
+        throw new Error('Arguments missing, please use start_year start_month number_of_months template week_starts_on paper_size \n for example: \n node index\ structure.js 2023 1 12 pocket 1 strip');
     }
     const myCalendarData = new CalendarData(settings)
     const myCalendar = new SVGCalendar(myCalendarData, settings.template)

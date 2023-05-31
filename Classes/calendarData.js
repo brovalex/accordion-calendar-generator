@@ -27,7 +27,7 @@ export default class CalendarData {
             while (i < weeks.length) {
                 // if day0 > day6 (e.g. 28 > 4) then it's last week of month which is carried over to next month
                 var isLastWeek = dateFns.getDate(weeks[i][0]) > dateFns.getDate(weeks[i][6])
-                // if day0 is on 1st OR if last week but not first or last week then next page
+                // if day0 is on 1st, OR if last week but not first or last week... then next page
                 if( (j!=0?dateFns.isFirstDayOfMonth(weeks[i][0]):false) || (isLastWeek && i!=0 && i!=weeks.length-1)) {
                     j+=1
                     calPages[j]=[]
