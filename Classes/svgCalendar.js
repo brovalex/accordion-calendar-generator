@@ -29,7 +29,9 @@ export default class SVGCalendar {
         
         // create canvas
         const draw = SVG(document.documentElement)
-        
+
+        // note: elements order in svg follows the order they appear in the document
+        this.drawDayLines(draw, calData.pages.length)
         calData.pages.forEach( (page,p) => {
             const pageGroup = draw.group()
 
@@ -42,8 +44,8 @@ export default class SVGCalendar {
             page.forEach( (week, w) => {
                 // week = page[w]
                 // drawWeekline(p,w,page.length)
-                this.writeDays(week, pageGroup, w, page.length)
                 this.drawWeekline(pageGroup, w, page.length)
+                this.writeDays(week, pageGroup, w, page.length)
                 // this.writeWeekNumber(pageGroup,w,n,wk)
                 this.writeWeekNumber(pageGroup, p, dateFns.getISOWeek(week[3]), w, page.length)
             })
@@ -64,6 +66,18 @@ export default class SVGCalendar {
                     .rect( this.inch(this.template.width - 2*(this.padding_x)), this.inch(thickness) )
                     .move( this.inch(this.padding_x), this.inch((n+1)*h - thickness/2) )
                     .fill('pink') //n+1==wks?'pink':'grey'
+    }
+    drawDayLines = (svg, pagesCount) => {
+        var drawDayLine = (d) => {
+            var rect = svg
+                        .rect(0.5, pagesCount * this.inch(this.template.height) )
+                        .move(d*this.inch(this.template.width)/7, 0)
+                        .fill('lightgrey')
+        }
+        [...Array(7)].forEach( (_,d) => {
+            drawDayLine(d)
+        })
+
     }
     writeWeekNumber = (pG, p, w, n, wks) => {
         const h = this.template.height / wks // todo: this is repeated, could be isolated
