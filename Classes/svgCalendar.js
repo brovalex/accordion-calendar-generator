@@ -58,26 +58,26 @@ export default class SVGCalendar {
     inch = (x) => {
         return x*72
     }
+    drawDayLines = (svg, pagesCount) => {
+        var drawDayLine = (d) => {
+            var rect = svg
+                        .rect(0.5, pagesCount * this.inch(this.template.height) )
+                        .move(this.inch(this.padding_x) + d*this.inch(this.template.width-2*this.padding_x)/7, 0)
+                        .fill('lightgrey')
+        }
+        [...Array(6)].forEach( (_,d) => {
+            drawDayLine(d+1)
+        })
+
+    }
     drawWeekline = (pG, n, wks) => {
         const h = this.template.height / wks
         const thickness = 1/72
         // const tip = 1/16 //not sure why needed
         var rect = pG
-                    .rect( this.inch(this.template.width - 2*(this.padding_x)), this.inch(thickness) )
+                    .rect( this.inch(this.template.width - 2*this.padding_x), this.inch(thickness) )
                     .move( this.inch(this.padding_x), this.inch((n+1)*h - thickness/2) )
                     .fill('pink') //n+1==wks?'pink':'grey'
-    }
-    drawDayLines = (svg, pagesCount) => {
-        var drawDayLine = (d) => {
-            var rect = svg
-                        .rect(0.5, pagesCount * this.inch(this.template.height) )
-                        .move(d*this.inch(this.template.width)/7, 0)
-                        .fill('lightgrey')
-        }
-        [...Array(7)].forEach( (_,d) => {
-            drawDayLine(d)
-        })
-
     }
     writeWeekNumber = (pG, p, w, n, wks) => {
         const h = this.template.height / wks // todo: this is repeated, could be isolated
@@ -96,14 +96,14 @@ export default class SVGCalendar {
             // var adjustment = this.digitsToSVG.getMetrics(d, options)
             var day = pG
                         .path(this.digitsToSVG.getD(d, options))
-                        .move( x+this.inch(this.padding_x)*1.5, y+this.inch(this.padding_y) )
+                        .move( x+this.inch(this.padding_x)/2, y+this.inch(this.padding_y) )
                         .fill('aqua')
         }
         days.forEach((d,j)=>{
             // console.log(wks)
             writeDay(
                 dateFns.format(d,'d'),
-                (j)*this.inch(this.template.width)/7,
+                this.inch(this.padding_x)+(j)*this.inch(this.template.width-2*this.padding_x)/7,
                 this.inch(this.template.height)/wks*n
                 )
         })
