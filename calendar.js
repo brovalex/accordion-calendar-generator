@@ -1,5 +1,6 @@
 // usage example
 // node calendar.js pocket monday
+
 const myArgs = process.argv.slice(2);
 switch (myArgs[0]) {
     case 'biggin':
