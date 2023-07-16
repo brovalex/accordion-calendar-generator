@@ -2,6 +2,7 @@ import { createSVGWindow } from 'svgdom'
 import { SVG, registerWindow } from '@svgdotjs/svg.js'
 import * as dateFns from 'date-fns'
 import TextToSVG from 'text-to-svg'
+import MyColors from './myColors.js'
 
 console.log("-------------------------------------------")
 
@@ -21,6 +22,7 @@ export default class SVGCalendar {
         this.digitsToSVG = TextToSVG.loadSync('fonts/nimbus mono d7dfb1f6-0918-41e9-a9d2-bf7241c11fae.ttf');
         this.weeksToSVG = TextToSVG.loadSync('fonts/nimbus regular a70c1179-4a1d-4887-8eb1-d4f6ce17cfb4.ttf');
 
+        this.colors = new MyColors()
         const window = createSVGWindow()
         const document = window.document
         
@@ -39,7 +41,7 @@ export default class SVGCalendar {
             var homeCoord = pageGroup
             .rect( 0,0 )
             .move( 0,0 )
-            .fill('pink') //n+1==wks?'pink':'grey'
+            .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
             //
             page.forEach( (week, w) => {
                 // week = page[w]
@@ -63,7 +65,7 @@ export default class SVGCalendar {
             var rect = svg
                         .rect(0.5, pagesCount * this.inch(this.template.height) )
                         .move(this.inch(this.padding_x) + d*this.inch(this.template.width-2*this.padding_x)/7, 0)
-                        .fill('lightgrey')
+                        .fill( this.colors.lightgray.toRgb() )
         }
         [...Array(6)].forEach( (_,d) => {
             drawDayLine(d+1)
@@ -77,7 +79,7 @@ export default class SVGCalendar {
         var rect = pG
                     .rect( this.inch(this.template.width - 2*this.padding_x), this.inch(thickness) )
                     .move( this.inch(this.padding_x), this.inch((n+1)*h - thickness/2) )
-                    .fill('pink') //n+1==wks?'pink':'grey'
+                    .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
     }
     writeWeekNumber = (pG, p, w, n, wks) => {
         const h = this.template.height / wks // todo: this is repeated, could be isolated
@@ -88,7 +90,7 @@ export default class SVGCalendar {
         var week = pG
                     .path(this.weeksToSVG.getD(weekString, options))
                     .move( this.inch(this.padding_x)*1.5, this.inch( (n+1)*h)-adjustment.ascender-this.inch(this.padding_y)/2)
-                    .fill('grey')
+                    .fill( this.colors.gray.toRgb() )
     }
     writeDays = (days,pG,n,wks) => {
         var writeDay = (d,x,y) => {
@@ -97,7 +99,7 @@ export default class SVGCalendar {
             var day = pG
                         .path(this.digitsToSVG.getD(d, options))
                         .move( x+this.inch(this.padding_x)/2, y+this.inch(this.padding_y) )
-                        .fill('aqua')
+                        .fill( this.colors.darkgray.toRgb() )
         }
         days.forEach((d,j)=>{
             // console.log(wks)
