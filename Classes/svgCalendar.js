@@ -49,7 +49,8 @@ export default class SVGCalendar {
                 this.drawWeekline(pageGroup, w, page.length)
                 this.writeDays(pageGroup, week, w, page.length)
                 this.writeWeekNumber(pageGroup, dateFns.getISOWeek(week[3]), w, page.length)
-                this.writeDaysOfWeek(pageGroup, calData.daysOfWeek, p)
+                this.writeDaysOfWeek(pageGroup, calData.daysOfWeek)
+                this.writeMonthHeader(pageGroup, dateFns.format(week[6],'MMMM'), page.length)
             })
             pageGroup.move( 0, this.inch(this.template.height*p) )
         })
@@ -84,11 +85,11 @@ export default class SVGCalendar {
     writeWeekNumber = (pG, w, n, wks) => {
         const h = this.template.height / wks // todo: this is repeated, could be isolated
         var options = {fontSize: 6}
-        var weekString = (n==1?"Week ":"") + w
+        var weekString = (n==0?"": ((n==1?"Week ":"") + w) )
         // + "---" + [pG, p, w, n, wks].map(e => `${e}`).join(',')
         var adjustment = this.weeksToSVG.getMetrics(weekString, options)
         var week = pG
-                    .path(this.weeksToSVG.getD(weekString, options))
+                    .path( this.weeksToSVG.getD(weekString, options) )
                     .move( this.inch(this.padding_x)*1.5, this.inch( (n+1)*h)-adjustment.ascender-this.inch(this.padding_y)/2)
                     .fill( this.colors.gray.toRgb() )
     }
@@ -102,7 +103,6 @@ export default class SVGCalendar {
                         .fill( this.colors.darkgray.toRgb() )
         }
         days.forEach((d,j)=>{
-            // console.log(wks)
             writeDay(
                 dateFns.format(d,'d'),
                 this.inch(this.padding_x)+(j)*this.inch(this.template.width-2*this.padding_x)/7,
@@ -110,7 +110,7 @@ export default class SVGCalendar {
                 )
         })
     }
-    writeDaysOfWeek = (pG, daysOfWeek, p) => {
+    writeDaysOfWeek = (pG, daysOfWeek) => {
         var options = {anchor: 'right baseline', fontSize: 6}
         daysOfWeek.forEach((d,j)=>{
             var text = d.toUpperCase()
@@ -121,6 +121,17 @@ export default class SVGCalendar {
                         .move( this.inch( (j+1)*(this.template.width-2*this.padding_x)/7 + this.padding_x - this.padding_x/2 ) - textMetrics.width , this.inch( this.padding_y ) )
                         .fill( this.colors.lightgray.toRgb() )
         })
+    }
+    writeMonthHeader = (pG, mmmm, wks) => {
+        var options = {fontSize: 25}
+        var text = mmmm
+        var textSVG = this.monthToSVG.getD(text, options)
+        var textMetrics = this.monthToSVG.getMetrics(text, options)
+        var month = pG
+                    .path( textSVG )
+                    //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
+                    .move( this.inch( this.padding_x+this.padding_x/2 ) , this.inch( this.template.height / wks ) - textMetrics.ascender + 5 )
+                    .fill( this.colors.lightgray.toRgb() )
     }
     
     // separate to mechanicals:
