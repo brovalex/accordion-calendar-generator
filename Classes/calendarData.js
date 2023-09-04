@@ -40,6 +40,7 @@ export default class CalendarData {
         // public values
         this.weeks = calWeeks // TODO not sure if weeks is needed as public value
         this.daysOfWeek = daysOfWeek
+        this.weekStartsOn = settings.week_starts_on
         this.pages = calPages
     }
 }
