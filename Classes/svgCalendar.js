@@ -47,9 +47,9 @@ export default class SVGCalendar {
                 // week = page[w]
                 // drawWeekline(p,w,page.length)
                 this.drawWeekline(pageGroup, w, page.length)
-                this.writeDays(week, pageGroup, w, page.length)
-                // this.writeWeekNumber(pageGroup,w,n,wk)
-                this.writeWeekNumber(pageGroup, p, dateFns.getISOWeek(week[3]), w, page.length)
+                this.writeDays(pageGroup, week, w, page.length)
+                this.writeWeekNumber(pageGroup, dateFns.getISOWeek(week[3]), w, page.length)
+                this.writeDaysOfWeek(pageGroup, calData.daysOfWeek, p)
             })
             pageGroup.move( 0, this.inch(this.template.height*p) )
         })
@@ -81,7 +81,7 @@ export default class SVGCalendar {
                     .move( this.inch(this.padding_x), this.inch((n+1)*h - thickness/2) )
                     .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
     }
-    writeWeekNumber = (pG, p, w, n, wks) => {
+    writeWeekNumber = (pG, w, n, wks) => {
         const h = this.template.height / wks // todo: this is repeated, could be isolated
         var options = {fontSize: 6}
         var weekString = (n==1?"Week ":"") + w
@@ -92,7 +92,7 @@ export default class SVGCalendar {
                     .move( this.inch(this.padding_x)*1.5, this.inch( (n+1)*h)-adjustment.ascender-this.inch(this.padding_y)/2)
                     .fill( this.colors.gray.toRgb() )
     }
-    writeDays = (days,pG,n,wks) => {
+    writeDays = (pG,days,n,wks) => {
         var writeDay = (d,x,y) => {
             var options = {anchor: 'left baseline', fontSize: 12}
             // var adjustment = this.digitsToSVG.getMetrics(d, options)
@@ -108,6 +108,18 @@ export default class SVGCalendar {
                 this.inch(this.padding_x)+(j)*this.inch(this.template.width-2*this.padding_x)/7,
                 this.inch(this.template.height)/wks*n
                 )
+        })
+    }
+    writeDaysOfWeek = (pG, daysOfWeek, p) => {
+        var options = {anchor: 'right baseline', fontSize: 6}
+        daysOfWeek.forEach((d,j)=>{
+            var text = d.toUpperCase()
+            var textSVG = this.textToSVG.getD(text, options)
+            var textMetrics = this.textToSVG.getMetrics(text, options)
+            var wDay = pG
+                        .path( textSVG )
+                        .move( this.inch( (j+1)*(this.template.width-2*this.padding_x)/7 + this.padding_x - this.padding_x/2 ) - textMetrics.width , this.inch( this.padding_y ) )
+                        .fill( this.colors.lightgray.toRgb() )
         })
     }
     
