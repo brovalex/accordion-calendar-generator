@@ -15,6 +15,7 @@ export default class SVGCalendar {
         // Settings specfic to visual design
         this.padding_x = 1/8
         this.padding_y = 1/16
+        this.paper = calData.paper
 
         // outlining fonts
         this.textToSVG = TextToSVG.loadSync('fonts/nimbus bold 724726a7-b3d6-4c01-ac68-73ef3673e3e1.ttf');
@@ -36,7 +37,7 @@ export default class SVGCalendar {
         // note: elements order in svg follows the order they appear in the document
         this.drawWeekend(mainGroup, calData.weekStartsOn, calData.pages.length)
         this.drawDayLines(mainGroup, calData.pages.length)
-        
+
         calData.pages.forEach( (page,p) => {
             const pageGroup = mainGroup.group()
 
@@ -74,13 +75,13 @@ export default class SVGCalendar {
         var dayW = this.inch(this.template.width-2*this.padding_x)/7
         var h = svg
                 //todo add bleed
-                .rect( colW * dayW + this.inch(this.padding_x), pagesCount * this.inch(this.template.height))
-                .move( (7+6-weekStartsOn)%7 * dayW + this.inch(this.padding_x) , 0 )
+                .rect( colW * dayW + this.inch(this.padding_x) + this.inch(this.paper.bleed), pagesCount * this.inch(this.template.height) + 2*this.inch(this.paper.bleed))
+                .move( (7+6-weekStartsOn)%7 * dayW + this.inch(this.padding_x), -this.inch(this.paper.bleed))
                 .fill( this.colors.verylightgray.toRgb() )
         if (colW == 1) {
             var h2 = svg
-                .rect( colW * dayW + this.inch(this.padding_x), pagesCount * this.inch(this.template.height))
-                .move( (7-weekStartsOn)%7 * dayW , 0 )
+                .rect( colW * dayW + this.inch(this.padding_x) + this.inch(this.paper.bleed), pagesCount * this.inch(this.template.height) + 2*this.inch(this.paper.bleed))
+                .move( (7-weekStartsOn)%7 * dayW -this.inch(this.paper.bleed), -this.inch(this.paper.bleed) )
                 .fill( this.colors.verylightgray.toRgb() )
         }
     }
