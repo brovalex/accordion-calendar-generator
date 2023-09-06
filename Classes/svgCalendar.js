@@ -62,6 +62,22 @@ export default class SVGCalendar {
     inch = (x) => {
         return x*72
     }
+    drawWeekend = (svg, weekStartsOn, pagesCount) => {
+        var colW = (weekStartsOn>0) ? 2 : 1
+        //todo this should be reusable, many other places use this
+        var dayW = this.inch(this.template.width-2*this.padding_x)/7
+        var h = svg
+                //todo add bleed
+                .rect( colW * dayW + this.inch(this.padding_x), pagesCount * this.inch(this.template.height))
+                .move( (7+6-weekStartsOn)%7 * dayW + this.inch(this.padding_x) , 0 )
+                .fill( this.colors.verylightgray.toRgb() )
+        if (colW == 1) {
+            var h2 = svg
+                .rect( colW * dayW + this.inch(this.padding_x), pagesCount * this.inch(this.template.height))
+                .move( (7-weekStartsOn)%7 * dayW , 0 )
+                .fill( this.colors.verylightgray.toRgb() )
+        }
+    }
     drawDayLines = (svg, pagesCount) => {
         var drawDayLine = (d) => {
             var rect = svg
@@ -72,22 +88,6 @@ export default class SVGCalendar {
         [...Array(6)].forEach( (_,d) => {
             drawDayLine(d+1)
         })
-    }
-    drawWeekend = (svg, weekStartsOn, pagesCount) => {
-        var colW = (weekStartsOn<7) ? 2 : 1
-        //todo this should be reusable, many other places use this
-        var dayW = this.inch(this.template.width-2*this.padding_x)/7
-        var h = svg
-                //todo add bleed
-                .rect( colW * dayW + this.inch(this.padding_x), pagesCount * this.inch(this.template.height))
-                .move( (7+6-weekStartsOn)%7 * dayW + this.inch(this.padding_x) , 0 )
-                .fill( this.colors.verylightgray.toRgb() )
-        // if (colW == 1) {
-        //     var h2 = group
-        //         .rect(colW*page_w/7+page_hPadding+bleed, page_h*number_of_months+2*bleed)
-        //         .move((7-weekStartsOn)%7*page_w/7-page_hPadding-bleed,-bleed)
-        //         .fill('aliceblue')   
-        // }
     }
     drawWeekline = (pG, n, wks) => {
         const h = this.template.height / wks

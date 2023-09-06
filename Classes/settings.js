@@ -36,7 +36,7 @@ export default class Settings {
         this.paper.availWidth = this.paper.height-2*this.paper.margin
         this.start = {year: myArgs[0], month: myArgs[1]} // 1 = january, I usually start on December the year before, and end on the January the year after
         this.number_of_months = myArgs[2]
-        this.week_starts_on = myArgs[4] //1 = Monday, 7 = Sunday
+        this.week_starts_on = (7%myArgs[4]) //1 = Monday, 7 = Sunday
         this.showMonthTracker = (this.week_starts_on == 1) ? true : false
     }
 }
