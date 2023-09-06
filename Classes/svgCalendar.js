@@ -31,12 +31,14 @@ export default class SVGCalendar {
         
         // create canvas
         const draw = SVG(document.documentElement)
+        const mainGroup = draw.group()
 
         // note: elements order in svg follows the order they appear in the document
-        this.drawWeekend(draw, calData.weekStartsOn, calData.pages.length)
-        this.drawDayLines(draw, calData.pages.length)
+        this.drawWeekend(mainGroup, calData.weekStartsOn, calData.pages.length)
+        this.drawDayLines(mainGroup, calData.pages.length)
+        
         calData.pages.forEach( (page,p) => {
-            const pageGroup = draw.group()
+            const pageGroup = mainGroup.group()
 
             //TODO fix this otherwise
             var homeCoord = pageGroup
@@ -59,6 +61,7 @@ export default class SVGCalendar {
             pageGroup.move( 0, this.inch(this.template.height*p) )
         })
         
+        mainGroup.move( this.inch(calData.paper.margin), this.inch(calData.paper.margin))
         this.SVGcode = draw.node.outerHTML
         // console.log("SVG for this page: ", this.SVGcode)
     }

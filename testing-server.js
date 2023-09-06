@@ -15,12 +15,12 @@ app.listen(3000, () => {
 
 app.get("/", (req, res) => {
 
-  var settings = new Settings(["2023","1","12","pocket","1","letter"])
+  var settings = new Settings(["2023","1","12","pocket","1","roll"])
 
   const myCalendarData = new CalendarData(settings)
   // console.log(settings.template)
   const myCalendar = new SVGCalendar(myCalendarData, settings.template)
 
-  res.send("<html><body><style>body {margin:0} svg {width:396px;height:2916px;border:10px solid aqua;}</style></body></html>"+myCalendar.SVGcode);
+  res.send("<html><body><style>body {margin:0} svg {width:"+(settings.paper.width+2*settings.paper.margin)*72+"px;height:"+(settings.paper.height+2*settings.paper.margin)*72+"px;border:10px solid aqua;}</style></body></html>"+myCalendar.SVGcode);
   // res.send("hello");
 });

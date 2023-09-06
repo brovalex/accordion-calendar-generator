@@ -23,20 +23,21 @@ export default class Settings {
                 height: 42
             },
             letter: {
-                width: 11,
-                height: 8.5
+                width: 8.5,
+                height: 11
             }
         }
         // todo: catch errors, eg template name not found
+        this.start = {year: myArgs[0], month: myArgs[1]} // 1 = january, I usually start on December the year before, and end on the January the year after
+        this.number_of_months = myArgs[2]        
+        this.week_starts_on = (myArgs[4]%7) //1 = Monday, 7 = Sunday
+        this.showMonthTracker = (this.week_starts_on == 1) ? true : false
         this.template = templates[myArgs[3]]
         this.paper = paperSizes[myArgs[5]]
+        if (isNaN(this.paper.height)) this.paper.height = this.template.height*this.number_of_months
         this.paper.margin = 0.5
         this.paper.bleed = 0.125
         this.paper.availHeight = this.paper.height-2*this.paper.margin
         this.paper.availWidth = this.paper.height-2*this.paper.margin
-        this.start = {year: myArgs[0], month: myArgs[1]} // 1 = january, I usually start on December the year before, and end on the January the year after
-        this.number_of_months = myArgs[2]
-        this.week_starts_on = (myArgs[4]%7) //1 = Monday, 7 = Sunday
-        this.showMonthTracker = (this.week_starts_on == 1) ? true : false
     }
 }
