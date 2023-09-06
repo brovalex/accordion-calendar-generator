@@ -44,14 +44,17 @@ export default class SVGCalendar {
             .move( 0,0 )
             .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
             //
+            //per page stuff
+            this.writeMonthHeader(pageGroup, dateFns.format(page[0][6],'MMMM'), page.length)
+            this.writeDaysOfWeek(pageGroup, calData.daysOfWeek)
+
+            //per week stuff
             page.forEach( (week, w) => {
                 // week = page[w]
                 // drawWeekline(p,w,page.length)
                 this.drawWeekline(pageGroup, w, page.length)
                 this.writeDays(pageGroup, week, w, page.length)
                 this.writeWeekNumber(pageGroup, dateFns.getISOWeek(week[3]), w, page.length)
-                this.writeDaysOfWeek(pageGroup, calData.daysOfWeek)
-                this.writeMonthHeader(pageGroup, dateFns.format(week[6],'MMMM'), page.length)
             })
             pageGroup.move( 0, this.inch(this.template.height*p) )
         })
