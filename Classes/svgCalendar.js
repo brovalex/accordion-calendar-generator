@@ -64,6 +64,7 @@ export default class SVGCalendar {
         })
         
         mainGroup.move( this.inch(calData.paper.margin), this.inch(calData.paper.margin))
+        this.drawFoldLines(printerMarks, calData.pages.length)
         this.drawCropMarks(printerMarks, mainGroup.width(), mainGroup.height())
         this.SVGcode = draw.node.outerHTML
         // console.log("SVG for this page: ", this.SVGcode)
@@ -160,7 +161,6 @@ export default class SVGCalendar {
     }
     drawCropMarks = (svg, svgW, svgH) => {
             const l=this.inch(1/2-this.paper.bleed-1/16)
-            const box=this.inch(1/2)
             const zeroH= this.inch(this.paper.margin)
             const zeroY= this.inch(this.paper.margin)
             const t=1
@@ -179,11 +179,28 @@ export default class SVGCalendar {
                     y: zeroY + c[1]*svgH + vectorV*l - t/2
                     }).fill('black')
             })
-        
-        // 1/2 is adjustment for thickness of crop line to center it
-        // var topLeft = svg.use(cropMark).move(0, 1/2)
-        // var topLeft = svg.use(cropMark).move(this.inch( this.paper.margin + this.paper.bleed ), this.inch( this.paper.margin + this.paper.bleed ) )
-        // var topRight = svg.use(cropMark).rotate(90,0,0).move(1/2, -this.template.width)
+    }
+    drawFoldLines = (svg, pagesCount) => {
+        [...Array(pagesCount+1)].forEach((_,i) => {
+            const l=this.inch(1/2-this.paper.bleed-1/16)
+            const zeroH= this.inch(this.paper.margin)
+            const zeroY= this.inch(this.paper.margin)
+            const t=1
+            const y=zeroY + i*this.inch(this.template.height) + this.inch(this.paper.bleed) - t/2
+
+            var h1 = svg.rect(l, t).attr({ 
+                x: zeroH - l,
+                y: y
+                }).fill('grey')
+            var h2 = svg.rect(l, t).attr({ 
+                x: zeroH + this.inch(this.template.width) + 2*this.inch(this.paper.bleed),
+                y: y
+                }).fill('grey')
+            var h3 = svg.rect(l, t).attr({ 
+                x: this.inch(this.paper.width)-l,
+                y: y
+                }).fill('grey')
+        })
     }
     
     // separate to mechanicals:

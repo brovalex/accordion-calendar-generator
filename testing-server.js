@@ -21,6 +21,6 @@ app.get("/", (req, res) => {
   // console.log(settings.template)
   const myCalendar = new SVGCalendar(myCalendarData, settings.template)
 
-  res.send("<html><body><style>body {margin:0} svg {width:"+(settings.paper.width+2*settings.paper.margin)*72+"px;height:"+(settings.paper.height+2*settings.paper.margin)*72+"px;border:10px solid aqua;}</style></body></html>"+myCalendar.SVGcode);
+  res.send("<html><body><style>body {margin:0} svg {width:"+(settings.paper.width)*72+"px;height:"+(settings.paper.height+2*settings.paper.margin)*72+"px;border:10px solid aqua;}</style></body></html>"+myCalendar.SVGcode);
   // res.send("hello");
 });
