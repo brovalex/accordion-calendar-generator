@@ -15,7 +15,7 @@ app.listen(3000, () => {
 
 app.get("/", (req, res) => {
 
-  var settings = new Settings(["2023","1","12","pocket","7","roll"])
+  var settings = new Settings(["2023","1","12","pocket","1","roll"])
 
   const myCalendarData = new CalendarData(settings)
   // console.log(settings.template)

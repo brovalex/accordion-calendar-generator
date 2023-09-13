@@ -73,6 +73,12 @@ export default class SVGCalendar {
         return x*72
     }
     drawWeekend = (svg, weekStartsOn, pagesCount) => {
+        //TODO fix this otherwise
+        var homeCoord = svg
+        .rect( 0,0 )
+        .move( -this.inch(this.paper.bleed),0 )
+        .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
+
         var colW = (weekStartsOn>0) ? 2 : 1
         //todo this should be reusable, many other places use this
         var dayW = this.inch(this.template.width-2*this.padding_x)/7
