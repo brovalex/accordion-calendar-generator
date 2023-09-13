@@ -33,6 +33,7 @@ export default class SVGCalendar {
         // create canvas
         const draw = SVG(document.documentElement)
         const mainGroup = draw.group()
+        const printerMarks = draw.group()
 
         // note: elements order in svg follows the order they appear in the document
         this.drawWeekend(mainGroup, calData.weekStartsOn, calData.pages.length)
@@ -63,6 +64,7 @@ export default class SVGCalendar {
         })
         
         mainGroup.move( this.inch(calData.paper.margin), this.inch(calData.paper.margin))
+        this.drawCropMarks(printerMarks, mainGroup.width(), mainGroup.height())
         this.SVGcode = draw.node.outerHTML
         // console.log("SVG for this page: ", this.SVGcode)
     }
@@ -155,6 +157,33 @@ export default class SVGCalendar {
                     //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
                     .move( this.inch( this.padding_x+this.padding_x/2 ) , this.inch( this.template.height / wks ) - textMetrics.ascender + 5 )
                     .fill( this.colors.lightgray.toRgb() )
+    }
+    drawCropMarks = (svg, svgW, svgH) => {
+            const l=this.inch(1/2-this.paper.bleed-1/16)
+            const box=this.inch(1/2)
+            const zeroH= this.inch(this.paper.margin)
+            const zeroY= this.inch(this.paper.margin)
+            const t=1
+            const corners = [[ 1, 0],[ 0, 0],[ 0, 1],[ 1, 1]]
+            const bleed =   [[-1, 1],[ 1, 1],[ 1,-1],[-1,-1]]
+
+            corners.forEach((c,i) => {
+                var vectorH = c[0]*svgW/svgW-1
+                var vectorV = c[1]*svgH/svgH-1
+                var h = svg.rect(l, t).attr({ 
+                    x: zeroH + c[0]*svgW + vectorH*l,
+                    y: zeroY + c[1]*svgH + bleed[i][1]*this.inch(this.paper.bleed) - t/2
+                    }).fill('black')
+                var v = svg.rect(t, l).attr({ 
+                    x: zeroH + c[0]*svgW + bleed[i][0]*this.inch(this.paper.bleed), 
+                    y: zeroY + c[1]*svgH + vectorV*l - t/2
+                    }).fill('black')
+            })
+        
+        // 1/2 is adjustment for thickness of crop line to center it
+        // var topLeft = svg.use(cropMark).move(0, 1/2)
+        // var topLeft = svg.use(cropMark).move(this.inch( this.paper.margin + this.paper.bleed ), this.inch( this.paper.margin + this.paper.bleed ) )
+        // var topRight = svg.use(cropMark).rotate(90,0,0).move(1/2, -this.template.width)
     }
     
     // separate to mechanicals:
