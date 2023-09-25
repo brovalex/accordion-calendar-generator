@@ -16,6 +16,7 @@ export default class SVGCalendar {
         this.padding_x = 1/8
         this.padding_y = 1/16
         this.paper = calData.paper
+        this.effectiveWidth = this.template.width-2*this.padding_x
 
         // outlining fonts
         this.textToSVG = TextToSVG.loadSync('fonts/nimbus bold 724726a7-b3d6-4c01-ac68-73ef3673e3e1.ttf');
@@ -78,21 +79,20 @@ export default class SVGCalendar {
 
         var colW = (weekStartsOn>0) ? 2 : 1
         //TODO this should be reusable, many other places use this
-        var dayW = this.inchToPx(this.template.width-2*this.padding_x)/7
-        var h = svg
-                //todo add bleed
+        var dayW = this.inchToPx(this.effectiveWidth)/7
+            svg
                 .rect( colW * dayW + this.inchToPx(this.padding_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
                 .move( (7+6-weekStartsOn)%7 * dayW + this.inchToPx(this.padding_x), -this.inchToPx(this.paper.bleed))
                 .fill( this.colors.verylightgray.toRgb() )
         if (colW == 1) {
-            var h2 = svg
+            svg
                 .rect( colW * dayW + this.inchToPx(this.padding_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
                 .move( (7-weekStartsOn)%7 * dayW -this.inchToPx(this.paper.bleed), -this.inchToPx(this.paper.bleed) )
                 .fill( this.colors.verylightgray.toRgb() )
         }
         // left "tracker" on Monday starts
         if (colW == 2) {
-            var h2 = svg
+            svg
                 .rect( this.inchToPx(this.padding_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
                 .move( -this.inchToPx(this.paper.bleed), -this.inchToPx(this.paper.bleed) )
                 .fill( this.colors.verylightgray.toRgb() )
@@ -100,10 +100,10 @@ export default class SVGCalendar {
     }
     drawDayLines = (svg, pagesCount) => {
         var drawDayLine = (d) => {
-            var rect = svg
-                        .rect(0.5, pagesCount * this.inchToPx(this.template.height) )
-                        .move(this.inchToPx(this.padding_x) + d*this.inchToPx(this.template.width-2*this.padding_x)/7, 0)
-                        .fill( this.colors.lightgray.toRgb() )
+            svg
+                .rect(0.5, pagesCount * this.inchToPx(this.template.height) )
+                .move(this.inchToPx(this.padding_x) + d*this.inchToPx(this.effectiveWidth)/7, 0)
+                .fill( this.colors.lightgray.toRgb() )
         }
         [...Array(6)].forEach( (_,d) => {
             drawDayLine(d+1)
@@ -112,10 +112,10 @@ export default class SVGCalendar {
     drawWeekline = (pG, n, wks) => {
         const h = this.template.height / wks
         const thickness = 1/72
-        var rect = pG
-                    .rect( this.inchToPx(this.template.width - 2*this.padding_x), this.inchToPx(thickness) )
-                    .move( this.inchToPx(this.padding_x), this.inchToPx((n+1)*h - thickness/2) )
-                    .fill( this.colors.magenta.toRgb() )
+        pG
+            .rect( this.inchToPx(this.template.width - 2*this.padding_x), this.inchToPx(thickness) )
+            .move( this.inchToPx(this.padding_x), this.inchToPx((n+1)*h - thickness/2) )
+            .fill( this.colors.magenta.toRgb() )
     }
     writeWeekNumber = (pG, w, n, wks) => {
         const h = this.template.height / wks // TODO: this is repeated, could be isolated
@@ -123,23 +123,23 @@ export default class SVGCalendar {
         var weekString = (n==0?"": ((n==1?"Week ":"") + w) )
 
         var adjustment = this.weeksToSVG.getMetrics(weekString, options)
-        var week = pG
-                    .path( this.weeksToSVG.getD(weekString, options) )
-                    .move( this.inchToPx(this.padding_x)*1.5, this.inchToPx( (n+1)*h)-adjustment.ascender-this.inchToPx(this.padding_y)/2)
-                    .fill( this.colors.gray.toRgb() )
+        pG
+            .path( this.weeksToSVG.getD(weekString, options) )
+            .move( this.inchToPx(this.padding_x)*1.5, this.inchToPx( (n+1)*h)-adjustment.ascender-this.inchToPx(this.padding_y)/2)
+            .fill( this.colors.gray.toRgb() )
     }
     writeDays = (pG,days,n,wks) => {
         var writeDay = (d,x,y) => {
             var options = {anchor: 'left baseline', fontSize: 12}
-            var day = pG
-                        .path(this.digitsToSVG.getD(d, options))
-                        .move( x+this.inchToPx(this.padding_x)/2, y+this.inchToPx(this.padding_y) )
-                        .fill( this.colors.darkgray.toRgb() )
+            pG
+                .path(this.digitsToSVG.getD(d, options))
+                .move( x+this.inchToPx(this.padding_x)/2, y+this.inchToPx(this.padding_y) )
+                .fill( this.colors.darkgray.toRgb() )
         }
         days.forEach((d,j)=>{
             writeDay(
                 dateFns.format(d,'d'),
-                this.inchToPx(this.padding_x)+(j)*this.inchToPx(this.template.width-2*this.padding_x)/7,
+                this.inchToPx(this.padding_x)+(j)*this.inchToPx(this.effectiveWidth)/7,
                 this.inchToPx(this.template.height)/wks*n
                 )
         })
@@ -150,10 +150,10 @@ export default class SVGCalendar {
             var text = d.toUpperCase()
             var textSVG = this.textToSVG.getD(text, options)
             var textMetrics = this.textToSVG.getMetrics(text, options)
-            var wDay = pG
-                        .path( textSVG )
-                        .move( this.inchToPx( (j+1)*(this.template.width-2*this.padding_x)/7 + this.padding_x - this.padding_x/2 ) - textMetrics.width , this.inchToPx( this.padding_y ) )
-                        .fill( this.colors.lightgray.toRgb() )
+            pG
+                .path( textSVG )
+                .move( this.inchToPx( (j+1)*(this.effectiveWidth)/7 + this.padding_x - this.padding_x/2 ) - textMetrics.width , this.inchToPx( this.padding_y ) )
+                .fill( this.colors.lightgray.toRgb() )
         })
     }
     writeMonthHeader = (pG, mmmm, wks) => {
@@ -161,11 +161,11 @@ export default class SVGCalendar {
         var text = mmmm
         var textSVG = this.monthToSVG.getD(text, options)
         var textMetrics = this.monthToSVG.getMetrics(text, options)
-        var month = pG
-                    .path( textSVG )
-                    //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
-                    .move( this.inchToPx( this.padding_x+this.padding_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + 5 )
-                    .fill( this.colors.lightgray.toRgb() )
+        pG
+            .path( textSVG )
+            //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
+            .move( this.inchToPx( this.padding_x+this.padding_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + 5 )
+            .fill( this.colors.lightgray.toRgb() )
     }
     drawCropMarks = (svg, svgW, svgH) => {
             const l=this.inchToPx(1/2-this.paper.bleed-1/16)
@@ -178,11 +178,11 @@ export default class SVGCalendar {
             corners.forEach((c,i) => {
                 var vectorH = c[0]*svgW/svgW-1
                 var vectorV = c[1]*svgH/svgH-1
-                var h = svg.rect(l, t).attr({ 
+                svg.rect(l, t).attr({ 
                     x: zeroH + c[0]*svgW + vectorH*l,
                     y: zeroY + c[1]*svgH + bleed[i][1]*this.inchToPx(this.paper.bleed) - t/2
                     }).fill('black')
-                var v = svg.rect(t, l).attr({ 
+                svg.rect(t, l).attr({ 
                     x: zeroH + c[0]*svgW + bleed[i][0]*this.inchToPx(this.paper.bleed), 
                     y: zeroY + c[1]*svgH + vectorV*l - t/2
                     }).fill('black')
@@ -196,15 +196,15 @@ export default class SVGCalendar {
             const t=1
             const y=zeroY + i*this.inchToPx(this.template.height) + this.inchToPx(this.paper.bleed) - t/2
 
-            var h1 = svg.rect(l, t).attr({ 
+            svg.rect(l, t).attr({ 
                 x: zeroH - l,
                 y: y
                 }).fill('grey')
-            var h2 = svg.rect(l, t).attr({ 
+            svg.rect(l, t).attr({ 
                 x: zeroH + this.inchToPx(this.template.width) + 2*this.inchToPx(this.paper.bleed),
                 y: y
                 }).fill('grey')
-            var h3 = svg.rect(l, t).attr({ 
+            svg.rect(l, t).attr({ 
                 x: this.inchToPx(this.paper.width)-l,
                 y: y
                 }).fill('grey')
