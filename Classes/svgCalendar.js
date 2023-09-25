@@ -13,8 +13,9 @@ export default class SVGCalendar {
     constructor (calData, template) {
         this.template = template
         // Settings specfic to visual design
-        this.padding_x = 1/8
-        this.padding_y = 1/16
+        this.spacing_x = 1/8 //default spacing
+        this.spacing_y = 1/16
+        this.padding_x = 2*this.spacing_x //margins in the design
         this.paper = calData.paper
         this.effectiveWidth = this.template.width-2*this.padding_x
 
@@ -93,7 +94,7 @@ export default class SVGCalendar {
         // left "tracker" on Monday starts
         if (colW == 2) {
             svg
-                .rect( this.inchToPx(this.padding_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
+                .rect( this.inchToPx(this.spacing_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
                 .move( -this.inchToPx(this.paper.bleed), -this.inchToPx(this.paper.bleed) )
                 .fill( this.colors.verylightgray.toRgb() )
         }
@@ -125,7 +126,7 @@ export default class SVGCalendar {
         var adjustment = this.weeksToSVG.getMetrics(weekString, options)
         pG
             .path( this.weeksToSVG.getD(weekString, options) )
-            .move( this.inchToPx(this.padding_x)*1.5, this.inchToPx( (n+1)*h)-adjustment.ascender-this.inchToPx(this.padding_y)/2)
+            .move( this.inchToPx(this.padding_x+this.spacing_x/2), this.inchToPx( (n+1)*h)-adjustment.ascender-this.inchToPx(this.spacing_y)/2)
             .fill( this.colors.gray.toRgb() )
     }
     writeDays = (pG,days,n,wks) => {
@@ -133,7 +134,7 @@ export default class SVGCalendar {
             var options = {anchor: 'left baseline', fontSize: 12}
             pG
                 .path(this.digitsToSVG.getD(d, options))
-                .move( x+this.inchToPx(this.padding_x)/2, y+this.inchToPx(this.padding_y) )
+                .move( x+this.inchToPx(this.spacing_x)/2, y+this.inchToPx(this.spacing_y) )
                 .fill( this.colors.darkgray.toRgb() )
         }
         days.forEach((d,j)=>{
@@ -152,7 +153,7 @@ export default class SVGCalendar {
             var textMetrics = this.textToSVG.getMetrics(text, options)
             pG
                 .path( textSVG )
-                .move( this.inchToPx( (j+1)*(this.effectiveWidth)/7 + this.padding_x - this.padding_x/2 ) - textMetrics.width , this.inchToPx( this.padding_y ) )
+                .move( this.inchToPx( (j+1)*(this.effectiveWidth)/7 + this.padding_x - this.spacing_x/2 ) - textMetrics.width , this.inchToPx( this.spacing_y ) )
                 .fill( this.colors.lightgray.toRgb() )
         })
     }
@@ -164,7 +165,7 @@ export default class SVGCalendar {
         pG
             .path( textSVG )
             //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
-            .move( this.inchToPx( this.padding_x+this.padding_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + 5 )
+            .move( this.inchToPx( this.padding_x+this.spacing_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + 5 )
             .fill( this.colors.lightgray.toRgb() )
     }
     drawCropMarks = (svg, svgW, svgH) => {
