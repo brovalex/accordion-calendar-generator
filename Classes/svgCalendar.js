@@ -60,52 +60,52 @@ export default class SVGCalendar {
                 this.writeDays(pageGroup, week, w, page.length)
                 this.writeWeekNumber(pageGroup, dateFns.getISOWeek(week[3]), w, page.length)
             })
-            pageGroup.move( 0, this.inch(this.template.height*p) )
+            pageGroup.move( 0, this.inchToPx(this.template.height*p) )
         })
         
-        mainGroup.move( this.inch(calData.paper.margin), this.inch(calData.paper.margin))
+        mainGroup.move( this.inchToPx(calData.paper.margin), this.inchToPx(calData.paper.margin))
         this.drawFoldLines(printerMarks, calData.pages.length)
         this.drawCropMarks(printerMarks, mainGroup.width(), mainGroup.height())
         this.SVGcode = draw.node.outerHTML
         // console.log("SVG for this page: ", this.SVGcode)
     }
-    inch = (x) => {
+    inchToPx = (x) => {
         return x*72
     }
     drawWeekend = (svg, weekStartsOn, pagesCount) => {
         //TODO fix this otherwise
         var homeCoord = svg
         .rect( 0,0 )
-        .move( -this.inch(this.paper.bleed),0 )
+        .move( -this.inchToPx(this.paper.bleed),0 )
         .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
 
         var colW = (weekStartsOn>0) ? 2 : 1
         //todo this should be reusable, many other places use this
-        var dayW = this.inch(this.template.width-2*this.padding_x)/7
+        var dayW = this.inchToPx(this.template.width-2*this.padding_x)/7
         var h = svg
                 //todo add bleed
-                .rect( colW * dayW + this.inch(this.padding_x) + this.inch(this.paper.bleed), pagesCount * this.inch(this.template.height) + 2*this.inch(this.paper.bleed))
-                .move( (7+6-weekStartsOn)%7 * dayW + this.inch(this.padding_x), -this.inch(this.paper.bleed))
+                .rect( colW * dayW + this.inchToPx(this.padding_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
+                .move( (7+6-weekStartsOn)%7 * dayW + this.inchToPx(this.padding_x), -this.inchToPx(this.paper.bleed))
                 .fill( this.colors.verylightgray.toRgb() )
         if (colW == 1) {
             var h2 = svg
-                .rect( colW * dayW + this.inch(this.padding_x) + this.inch(this.paper.bleed), pagesCount * this.inch(this.template.height) + 2*this.inch(this.paper.bleed))
-                .move( (7-weekStartsOn)%7 * dayW -this.inch(this.paper.bleed), -this.inch(this.paper.bleed) )
+                .rect( colW * dayW + this.inchToPx(this.padding_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
+                .move( (7-weekStartsOn)%7 * dayW -this.inchToPx(this.paper.bleed), -this.inchToPx(this.paper.bleed) )
                 .fill( this.colors.verylightgray.toRgb() )
         }
         // left "tracker" on Monday starts
         if (colW == 2) {
             var h2 = svg
-                .rect( this.inch(this.padding_x) + this.inch(this.paper.bleed), pagesCount * this.inch(this.template.height) + 2*this.inch(this.paper.bleed))
-                .move( -this.inch(this.paper.bleed), -this.inch(this.paper.bleed) )
+                .rect( this.inchToPx(this.padding_x) + this.inchToPx(this.paper.bleed), pagesCount * this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed))
+                .move( -this.inchToPx(this.paper.bleed), -this.inchToPx(this.paper.bleed) )
                 .fill( this.colors.verylightgray.toRgb() )
         }
     }
     drawDayLines = (svg, pagesCount) => {
         var drawDayLine = (d) => {
             var rect = svg
-                        .rect(0.5, pagesCount * this.inch(this.template.height) )
-                        .move(this.inch(this.padding_x) + d*this.inch(this.template.width-2*this.padding_x)/7, 0)
+                        .rect(0.5, pagesCount * this.inchToPx(this.template.height) )
+                        .move(this.inchToPx(this.padding_x) + d*this.inchToPx(this.template.width-2*this.padding_x)/7, 0)
                         .fill( this.colors.lightgray.toRgb() )
         }
         [...Array(6)].forEach( (_,d) => {
@@ -117,8 +117,8 @@ export default class SVGCalendar {
         const thickness = 1/72
         // const tip = 1/16 //not sure why needed
         var rect = pG
-                    .rect( this.inch(this.template.width - 2*this.padding_x), this.inch(thickness) )
-                    .move( this.inch(this.padding_x), this.inch((n+1)*h - thickness/2) )
+                    .rect( this.inchToPx(this.template.width - 2*this.padding_x), this.inchToPx(thickness) )
+                    .move( this.inchToPx(this.padding_x), this.inchToPx((n+1)*h - thickness/2) )
                     .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
     }
     writeWeekNumber = (pG, w, n, wks) => {
@@ -129,7 +129,7 @@ export default class SVGCalendar {
         var adjustment = this.weeksToSVG.getMetrics(weekString, options)
         var week = pG
                     .path( this.weeksToSVG.getD(weekString, options) )
-                    .move( this.inch(this.padding_x)*1.5, this.inch( (n+1)*h)-adjustment.ascender-this.inch(this.padding_y)/2)
+                    .move( this.inchToPx(this.padding_x)*1.5, this.inchToPx( (n+1)*h)-adjustment.ascender-this.inchToPx(this.padding_y)/2)
                     .fill( this.colors.gray.toRgb() )
     }
     writeDays = (pG,days,n,wks) => {
@@ -138,14 +138,14 @@ export default class SVGCalendar {
             // var adjustment = this.digitsToSVG.getMetrics(d, options)
             var day = pG
                         .path(this.digitsToSVG.getD(d, options))
-                        .move( x+this.inch(this.padding_x)/2, y+this.inch(this.padding_y) )
+                        .move( x+this.inchToPx(this.padding_x)/2, y+this.inchToPx(this.padding_y) )
                         .fill( this.colors.darkgray.toRgb() )
         }
         days.forEach((d,j)=>{
             writeDay(
                 dateFns.format(d,'d'),
-                this.inch(this.padding_x)+(j)*this.inch(this.template.width-2*this.padding_x)/7,
-                this.inch(this.template.height)/wks*n
+                this.inchToPx(this.padding_x)+(j)*this.inchToPx(this.template.width-2*this.padding_x)/7,
+                this.inchToPx(this.template.height)/wks*n
                 )
         })
     }
@@ -157,7 +157,7 @@ export default class SVGCalendar {
             var textMetrics = this.textToSVG.getMetrics(text, options)
             var wDay = pG
                         .path( textSVG )
-                        .move( this.inch( (j+1)*(this.template.width-2*this.padding_x)/7 + this.padding_x - this.padding_x/2 ) - textMetrics.width , this.inch( this.padding_y ) )
+                        .move( this.inchToPx( (j+1)*(this.template.width-2*this.padding_x)/7 + this.padding_x - this.padding_x/2 ) - textMetrics.width , this.inchToPx( this.padding_y ) )
                         .fill( this.colors.lightgray.toRgb() )
         })
     }
@@ -169,13 +169,13 @@ export default class SVGCalendar {
         var month = pG
                     .path( textSVG )
                     //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
-                    .move( this.inch( this.padding_x+this.padding_x/2 ) , this.inch( this.template.height / wks ) - textMetrics.ascender + 5 )
+                    .move( this.inchToPx( this.padding_x+this.padding_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + 5 )
                     .fill( this.colors.lightgray.toRgb() )
     }
     drawCropMarks = (svg, svgW, svgH) => {
-            const l=this.inch(1/2-this.paper.bleed-1/16)
-            const zeroH= this.inch(this.paper.margin)
-            const zeroY= this.inch(this.paper.margin)
+            const l=this.inchToPx(1/2-this.paper.bleed-1/16)
+            const zeroH= this.inchToPx(this.paper.margin)
+            const zeroY= this.inchToPx(this.paper.margin)
             const t=1
             const corners = [[ 1, 0],[ 0, 0],[ 0, 1],[ 1, 1]]
             const bleed =   [[-1, 1],[ 1, 1],[ 1,-1],[-1,-1]]
@@ -185,32 +185,32 @@ export default class SVGCalendar {
                 var vectorV = c[1]*svgH/svgH-1
                 var h = svg.rect(l, t).attr({ 
                     x: zeroH + c[0]*svgW + vectorH*l,
-                    y: zeroY + c[1]*svgH + bleed[i][1]*this.inch(this.paper.bleed) - t/2
+                    y: zeroY + c[1]*svgH + bleed[i][1]*this.inchToPx(this.paper.bleed) - t/2
                     }).fill('black')
                 var v = svg.rect(t, l).attr({ 
-                    x: zeroH + c[0]*svgW + bleed[i][0]*this.inch(this.paper.bleed), 
+                    x: zeroH + c[0]*svgW + bleed[i][0]*this.inchToPx(this.paper.bleed), 
                     y: zeroY + c[1]*svgH + vectorV*l - t/2
                     }).fill('black')
             })
     }
     drawFoldLines = (svg, pagesCount) => {
         [...Array(pagesCount+1)].forEach((_,i) => {
-            const l=this.inch(1/2-this.paper.bleed-1/16)
-            const zeroH= this.inch(this.paper.margin)
-            const zeroY= this.inch(this.paper.margin)
+            const l=this.inchToPx(1/2-this.paper.bleed-1/16)
+            const zeroH= this.inchToPx(this.paper.margin)
+            const zeroY= this.inchToPx(this.paper.margin)
             const t=1
-            const y=zeroY + i*this.inch(this.template.height) + this.inch(this.paper.bleed) - t/2
+            const y=zeroY + i*this.inchToPx(this.template.height) + this.inchToPx(this.paper.bleed) - t/2
 
             var h1 = svg.rect(l, t).attr({ 
                 x: zeroH - l,
                 y: y
                 }).fill('grey')
             var h2 = svg.rect(l, t).attr({ 
-                x: zeroH + this.inch(this.template.width) + 2*this.inch(this.paper.bleed),
+                x: zeroH + this.inchToPx(this.template.width) + 2*this.inchToPx(this.paper.bleed),
                 y: y
                 }).fill('grey')
             var h3 = svg.rect(l, t).attr({ 
-                x: this.inch(this.paper.width)-l,
+                x: this.inchToPx(this.paper.width)-l,
                 y: y
                 }).fill('grey')
         })
