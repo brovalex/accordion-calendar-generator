@@ -93,6 +93,13 @@ export default class SVGCalendar {
                 .move( (7-weekStartsOn)%7 * dayW -this.inch(this.paper.bleed), -this.inch(this.paper.bleed) )
                 .fill( this.colors.verylightgray.toRgb() )
         }
+        // left "tracker" on Monday starts
+        if (colW == 2) {
+            var h2 = svg
+                .rect( this.inch(this.padding_x) + this.inch(this.paper.bleed), pagesCount * this.inch(this.template.height) + 2*this.inch(this.paper.bleed))
+                .move( -this.inch(this.paper.bleed), -this.inch(this.paper.bleed) )
+                .fill( this.colors.verylightgray.toRgb() )
+        }
     }
     drawDayLines = (svg, pagesCount) => {
         var drawDayLine = (d) => {
