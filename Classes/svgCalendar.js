@@ -46,7 +46,7 @@ export default class SVGCalendar {
             var homeCoord = pageGroup
             .rect( 0,0 )
             .move( 0,0 )
-            .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
+            .fill( this.colors.magenta.toRgb() )
             //
             //per page stuff
             this.writeMonthHeader(pageGroup, dateFns.format(page[0][6],'MMMM'), page.length)
@@ -54,8 +54,6 @@ export default class SVGCalendar {
 
             //per week stuff
             page.forEach( (week, w) => {
-                // week = page[w]
-                // drawWeekline(p,w,page.length)
                 this.drawWeekline(pageGroup, w, page.length)
                 this.writeDays(pageGroup, week, w, page.length)
                 this.writeWeekNumber(pageGroup, dateFns.getISOWeek(week[3]), w, page.length)
@@ -67,7 +65,6 @@ export default class SVGCalendar {
         this.drawFoldLines(printerMarks, calData.pages.length)
         this.drawCropMarks(printerMarks, mainGroup.width(), mainGroup.height())
         this.SVGcode = draw.node.outerHTML
-        // console.log("SVG for this page: ", this.SVGcode)
     }
     inchToPx = (x) => {
         return x*72
@@ -77,10 +74,10 @@ export default class SVGCalendar {
         var homeCoord = svg
         .rect( 0,0 )
         .move( -this.inchToPx(this.paper.bleed),0 )
-        .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
+        .fill( this.colors.magenta.toRgb() )
 
         var colW = (weekStartsOn>0) ? 2 : 1
-        //todo this should be reusable, many other places use this
+        //TODO this should be reusable, many other places use this
         var dayW = this.inchToPx(this.template.width-2*this.padding_x)/7
         var h = svg
                 //todo add bleed
@@ -115,17 +112,16 @@ export default class SVGCalendar {
     drawWeekline = (pG, n, wks) => {
         const h = this.template.height / wks
         const thickness = 1/72
-        // const tip = 1/16 //not sure why needed
         var rect = pG
                     .rect( this.inchToPx(this.template.width - 2*this.padding_x), this.inchToPx(thickness) )
                     .move( this.inchToPx(this.padding_x), this.inchToPx((n+1)*h - thickness/2) )
-                    .fill( this.colors.magenta.toRgb() ) //n+1==wks?'pink':'grey'
+                    .fill( this.colors.magenta.toRgb() )
     }
     writeWeekNumber = (pG, w, n, wks) => {
-        const h = this.template.height / wks // todo: this is repeated, could be isolated
+        const h = this.template.height / wks // TODO: this is repeated, could be isolated
         var options = {fontSize: 6}
         var weekString = (n==0?"": ((n==1?"Week ":"") + w) )
-        // + "---" + [pG, p, w, n, wks].map(e => `${e}`).join(',')
+
         var adjustment = this.weeksToSVG.getMetrics(weekString, options)
         var week = pG
                     .path( this.weeksToSVG.getD(weekString, options) )
@@ -135,7 +131,6 @@ export default class SVGCalendar {
     writeDays = (pG,days,n,wks) => {
         var writeDay = (d,x,y) => {
             var options = {anchor: 'left baseline', fontSize: 12}
-            // var adjustment = this.digitsToSVG.getMetrics(d, options)
             var day = pG
                         .path(this.digitsToSVG.getD(d, options))
                         .move( x+this.inchToPx(this.padding_x)/2, y+this.inchToPx(this.padding_y) )
@@ -215,22 +210,4 @@ export default class SVGCalendar {
                 }).fill('grey')
         })
     }
-    
-    // separate to mechanicals:
-    // ... dayline (vertical, needs bleed), weekends (need bleed)
-    // for each page
-    //     drawMonthFoldLine(p)
-    // drawMonthFoldLine = (m) => {
-    //     thickness = 1
-    //     var rect1 = margins.rect(0.5*72, thickness)
-    //         .move(-(0.5+1/8-1/16)*72, m*page_h-thickness/2)
-    //         .fill('grey')
-    //     var rect2 = margins.rect(0.25*72, thickness)
-    //         .move( (1/2-1/16)*72+page_w, m*page_h-thickness/2)
-    //         .fill('grey')
-    //     // extra line on paper edge on rigth to make scoring easier
-    //     var rect3 = margins.rect(0.25*72, thickness)
-    //         .move( cal.paper_w*72-(1-0.25)*72, m*page_h-thickness/2)
-    //         .fill('grey')
-    // }
 }
