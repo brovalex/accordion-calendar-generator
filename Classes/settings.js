@@ -38,6 +38,6 @@ export default class Settings {
         this.paper.margin = 0.5
         this.paper.bleed = 0.125
         this.paper.availHeight = this.paper.height-2*this.paper.margin
-        this.paper.availWidth = this.paper.height-2*this.paper.margin
+        this.paper.availWidth = this.paper.width-2*this.paper.margin
     }
 }

@@ -6,7 +6,9 @@
     "npm": "^9.8.0",
     "svg.js": "^2.7.1",
     "svgdom": "^0.1.13",
-    "text-to-svg": "^3.1.5"
+    "text-to-svg": "^3.1.5",
+    "pdfkit": "^0.13.0", 
+    "svg-to-pdfkit": "^0.1.8"
   },
   "name": "calendar-svg",
   "description": "Run `node calendar.js` and this will create a `calendar.pdf` print-ready file in the same folder.",

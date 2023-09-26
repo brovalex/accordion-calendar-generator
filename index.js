@@ -3,6 +3,7 @@
 import Settings from './Classes/settings.js'
 import CalendarData from './Classes/calendarData.js'
 import SVGCalendar from './Classes/svgCalendar.js'
+import OutputPDF from './Classes/outputPDF.js'
 
 // TODO major
 // - [ ] Making the SVGs... not sure how to structure right now
@@ -49,6 +50,7 @@ function init() {
     }
     const myCalendarData = new CalendarData(settings)
     const myCalendar = new SVGCalendar(myCalendarData, settings.template)
+    const myPDFfile = new OutputPDF(myCalendar, settings.template)
     
     // console.log(myCalendar.pages)
     // console.log("test\n--------\n", myCalendar)
