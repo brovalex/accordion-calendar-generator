@@ -4,7 +4,7 @@ import SVGtoPDF from 'svg-to-pdfkit'
 
 export default class OutputPDF {
 
-    constructor(cal, template) {
+    constructor(cal, filename) {
         const svgCode = cal.svgCode
         var doc = new PDFDocument({
             size: [cal.paper.width*72, cal.paper.height*72],
@@ -33,7 +33,7 @@ export default class OutputPDF {
                     if( color[0][0]==255 && color[0][1] == 0 && color[0][2] == 255) return [ [ 0, 100, 0, 0 ], 1]
                     else if( color[0][0]==0 && color[0][1] == 0 && color[0][2] == 0) return [ [ 0, 0, 0, 100 ], 1]
                     else if( color[0][0]==64 && color[0][1] == 64 && color[0][2] == 64) return [ [ 0, 0, 0, 75 ], 1]
-                    else if( color[0][0]==128 && color[0][1] == 128 && color[0][2] == 128) return [ [ 0, 0, 0, 5 ], 1]
+                    else if( color[0][0]==128 && color[0][1] == 128 && color[0][2] == 128) return [ [ 0, 0, 0, 50 ], 1]
                     else if( color[0][0]==191 && color[0][1] == 191 && color[0][2] == 191) return [ [ 0, 0, 0, 25 ], 1]
                     else if( color[0][0]==247 && color[0][1] == 247 && color[0][2] == 247) return [ [ 0, 0, 0, 3 ], 1]
                     else return color
@@ -44,7 +44,7 @@ export default class OutputPDF {
                 }
             });
         
-            var filename = 'calendar.pdf' //'calendar-'+template+'-'+start.year+'-'+daysOfWeek[(weekStartsOn==7)?0:weekStartsOn-1]+'-'+cal.paper_w+'x'+cal.paper_h+'.pdf'
+            var filename = filename
             var stream = fs.createWriteStream(filename)
             
             stream.on('finish', function() {

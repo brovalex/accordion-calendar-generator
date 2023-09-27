@@ -5,10 +5,12 @@ export default class Settings {
     constructor (myArgs) {
         const templates = {
             biggin: {
+                name: "biggin", 
                 width: 8.25, 
                 height: 5.75-1/8
             },
             pocket: {
+                name: "pocket", 
                 width: 5.5, 
                 height: 3.5-1/8
             }
