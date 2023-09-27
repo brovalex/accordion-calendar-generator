@@ -48,8 +48,7 @@ export default class SVGCalendar {
             var homeCoord = pageGroup
             .rect( 0,0 )
             .move( 0,0 )
-            .fill( this.colors.magenta )
-             
+            .fill( "white" )
             // per week stuff
             page.forEach( (week, w) => {
                 this.drawWeekline(pageGroup, w, page.length)
@@ -197,7 +196,7 @@ export default class SVGCalendar {
     }
     drawFoldLines = (svg, pagesCount) => {
         [...Array(pagesCount+1)].forEach((_,i) => {
-            const l=this.inchToPx(1/2-this.paper.bleed-1/16)
+            const l=this.inchToPx(1/2)
             const zeroH= this.inchToPx(this.paper.margin)
             const zeroY= this.inchToPx(this.paper.margin)
             const t=1
@@ -206,15 +205,15 @@ export default class SVGCalendar {
             svg.rect(l, t).attr({ 
                 x: zeroH - l,
                 y: y
-                }).fill('grey')
+                }).fill( this.colors.lightgray )
             svg.rect(l, t).attr({ 
                 x: zeroH + this.inchToPx(this.template.width) + 2*this.inchToPx(this.paper.bleed),
                 y: y
-                }).fill('grey')
+                }).fill( this.colors.lightgray )
             svg.rect(l, t).attr({ 
                 x: this.inchToPx(this.paper.width)-l,
                 y: y
-                }).fill('grey')
+                }).fill( this.colors.lightgray )
         })
     }
 }

@@ -17,15 +17,6 @@ export default class OutputPDF {
             }
         })
 
-        // TEMP
-        // fs.writeFile('output.svg', svgCode, (err) => {
-        //     if (err) {
-        //         console.error('Error writing to file:', err);
-        //     } else {
-        //         console.log('Data has been written to the file.');
-        //     }
-        // });
-
         PDFDocument.prototype.addSVG = function(svg, x, y, options) {
             return SVGtoPDF(this, svg, x, y, options), this;
         };
@@ -36,42 +27,21 @@ export default class OutputPDF {
             0, 
             0, 
             {
-                assumePt: true, //TODO: this might need to be false, pdf point is 1.33 pixel
-                // colorCallback: function(color) {
-                //     // pink
-                //     if( color[0][0]==255 && color[0][1]==192 && color[0][2]==203 ) {
-                //         return [[0,100,0,0],1]
-                //         return color
-                //     }
-                //     // black
-                //     else if( color[0][0]==0 && color[0][1]==0 && color[0][2]==0 ) {
-                //         return [[0,0,0,100],1]
-                //         return color
-                //     } 
-                //     // grey
-                //     else if( color[0][0]==128 && color[0][1]==128 && color[0][2]==128 ) {
-                //         return [[0,0,0,50],1]
-                //         return color
-                //     } 
-                //     // lightgrey
-                //     else if( color[0][0]==211 && color[0][1]==211 && color[0][2]==211 ) {
-                //         return [[0,0,0,25],1]
-                //         return color
-                //     } 
-                //     // fake aliceblue 240,248,255 for #eeeee very light grey 
-                //     else if( color[0][0]==240 && color[0][1]==248 && color[0][2]==255 ) {
-                //         return [[0,0,0,3],1]
-                //         return color
-                //     } 
-                //     // fake aqua 0,255,255 for charcoal 
-                //     else if( color[0][0]==0 && color[0][1]==255 && color[0][2]==255 ) {
-                //         return [[0,0,0,75],1]
-                //         return color
-                //     } 
-                //     else {
-                //         return color
-                //     }
-                // }
+                assumePt: true,
+                colorCallback: function(color) {
+                    //TODO: rewrite this to use myColors.js but works for now
+                    if( color[0][0]==255 && color[0][1] == 0 && color[0][2] == 255) return [ [ 0, 100, 0, 0 ], 1]
+                    else if( color[0][0]==0 && color[0][1] == 0 && color[0][2] == 0) return [ [ 0, 0, 0, 100 ], 1]
+                    else if( color[0][0]==64 && color[0][1] == 64 && color[0][2] == 64) return [ [ 0, 0, 0, 75 ], 1]
+                    else if( color[0][0]==128 && color[0][1] == 128 && color[0][2] == 128) return [ [ 0, 0, 0, 5 ], 1]
+                    else if( color[0][0]==191 && color[0][1] == 191 && color[0][2] == 191) return [ [ 0, 0, 0, 25 ], 1]
+                    else if( color[0][0]==247 && color[0][1] == 247 && color[0][2] == 247) return [ [ 0, 0, 0, 3 ], 1]
+                    else return color
+                    // TEMP: I use this in svgCalendar.js to the arrays, keeping it here just in case colors change and I need to update them above
+                    // for (let SVGColor in this.colors.colors) {
+                    //     console.log(this.colors.colors[SVGColor].toRgb(), [this.colors.colors[SVGColor].cmyk().c,this.colors.colors[SVGColor].cmyk().m,this.colors.colors[SVGColor].cmyk().y,this.colors.colors[SVGColor].cmyk().k])
+                    // }
+                }
             });
         
             var filename = 'calendar.pdf' //'calendar-'+template+'-'+start.year+'-'+daysOfWeek[(weekStartsOn==7)?0:weekStartsOn-1]+'-'+cal.paper_w+'x'+cal.paper_h+'.pdf'
