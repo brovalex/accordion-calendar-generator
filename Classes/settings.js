@@ -7,12 +7,48 @@ export default class Settings {
             biggin: {
                 name: "biggin", 
                 width: 8.25, 
-                height: 5.75-1/8
+                height: 5.75-1/8, 
+                fonts: {
+                    WeekNumber: {
+                        size: 10,
+                        yShift: 0
+                    },
+                    Days: {
+                        size: 20, 
+                        yShift: 0
+                    },
+                    DaysOfWeek: {
+                        size: 10, 
+                        yShift: 0
+                    },
+                    MonthHeader: {
+                        size: 40, 
+                        yShift: 5.9
+                    }
+                }
             },
             pocket: {
                 name: "pocket", 
                 width: 5.5, 
-                height: 3.5-1/8
+                height: 3.5-1/8, 
+                fonts: {
+                    WeekNumber: {
+                        size: 6,
+                        yShift: 0
+                    },
+                    Days: {
+                        size: 12, 
+                        yShift: 0
+                    },
+                    DaysOfWeek: {
+                        size: 6, 
+                        yShift: 0
+                    },
+                    MonthHeader: {
+                        size: 25, 
+                        yShift: 3.5
+                    }
+                }
             }
         }
         const paperSizes = {
@@ -31,14 +67,14 @@ export default class Settings {
         }
         // todo: catch errors, eg template name not found
         this.start = {year: myArgs[0], month: myArgs[1]} // 1 = january, I usually start on December the year before, and end on the January the year after
-        this.number_of_months = myArgs[2]        
+        this.number_of_months = myArgs[2]     
         this.week_starts_on = (myArgs[4]%7) //1 = Monday, 7 = Sunday
         this.showMonthTracker = (this.week_starts_on == 1) ? true : false
         this.template = templates[myArgs[3]]
         this.paper = paperSizes[myArgs[5]]
-        if (isNaN(this.paper.height)) this.paper.height = this.template.height*this.number_of_months
         this.paper.margin = 0.5
         this.paper.bleed = 0.125
+        if (isNaN(this.paper.height)) this.paper.height = this.template.height*this.number_of_months+2*this.paper.margin+2*this.paper.bleed
         this.paper.availHeight = this.paper.height-2*this.paper.margin
         this.paper.availWidth = this.paper.width-2*this.paper.margin
     }

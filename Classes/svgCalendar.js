@@ -125,7 +125,7 @@ export default class SVGCalendar {
     }
     writeWeekNumber = (pG, w, n, wks) => {
         const h = this.template.height / wks // TODO: this is repeated, could be isolated
-        var options = {fontSize: 6}
+        var options = {fontSize: this.template.fonts.WeekNumber.size}
         var weekString = (n==0?"": ((n==1?"Week ":"") + w) )
 
         var adjustment = this.weeksToSVG.getMetrics(weekString, options)
@@ -136,7 +136,7 @@ export default class SVGCalendar {
     }
     writeDays = (pG,days,n,wks) => {
         var writeDay = (d,x,y) => {
-            var options = {anchor: 'left baseline', fontSize: 12}
+            var options = {anchor: 'left baseline', fontSize: this.template.fonts.Days.size}
             pG
                 .path(this.digitsToSVG.getD(d, options))
                 .move( x+this.inchToPx(this.spacing_x)/2, y+this.inchToPx(this.spacing_y) )
@@ -151,7 +151,7 @@ export default class SVGCalendar {
         })
     }
     writeDaysOfWeek = (pG, daysOfWeek) => {
-        var options = {anchor: 'right baseline', fontSize: 6}
+        var options = {anchor: 'right baseline', fontSize: this.template.fonts.DaysOfWeek.size}
         daysOfWeek.forEach((d,j)=>{
             var text = d.toUpperCase()
             var textSVG = this.textToSVG.getD(text, options)
@@ -163,14 +163,14 @@ export default class SVGCalendar {
         })
     }
     writeMonthHeader = (pG, mmmm, wks) => {
-        var options = {fontSize: 25}
+        var options = {fontSize: this.template.fonts.MonthHeader.size}
         var text = mmmm
         var textSVG = this.monthToSVG.getD(text, options)
         var textMetrics = this.monthToSVG.getMetrics(text, options)
         pG
             .path( textSVG )
             //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
-            .move( this.inchToPx( this.padding_x+this.spacing_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + 5 )
+            .move( this.inchToPx( this.padding_x+this.spacing_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + this.template.fonts.MonthHeader.yShift )
             .fill( this.colors.lightgray )
     }
     drawCropMarks = (svg, svgW, svgH) => {
