@@ -42,7 +42,9 @@ export default class OutputPDF {
                     //     console.log(this.colors.colors[SVGColor].toRgb(), [this.colors.colors[SVGColor].cmyk().c,this.colors.colors[SVGColor].cmyk().m,this.colors.colors[SVGColor].cmyk().y,this.colors.colors[SVGColor].cmyk().k])
                     // }
                 }
-            });
+            })
+        
+        doc.font('Courier').fillColor([0,0,0,25]).text(filename,72,18)
         
             var filename = filename
             var stream = fs.createWriteStream(filename)

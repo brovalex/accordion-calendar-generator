@@ -6,24 +6,24 @@ export default class Settings {
         const templates = {
             biggin: {
                 name: "biggin", 
-                width: 8.25, 
-                height: 5.75-1/8, 
+                width: 7.75, 
+                height: 5.25-1/8, 
                 fonts: {
                     WeekNumber: {
-                        size: 10,
+                        size: 8,
                         yShift: 0
                     },
                     Days: {
-                        size: 20, 
+                        size: 16, 
                         yShift: 0
                     },
                     DaysOfWeek: {
-                        size: 10, 
+                        size: 8, 
                         yShift: 0
                     },
                     MonthHeader: {
-                        size: 40, 
-                        yShift: 5.9
+                        size: 30, 
+                        yShift: 4.2
                     }
                 }
             },
@@ -53,7 +53,7 @@ export default class Settings {
         }
         const paperSizes = {
             roll: {
-                width: 12.5,
+                width: 12,
                 height: "roll" // TODO a more elegant way is to say null, i.e. there is no height limit
             },
             strip: {
@@ -61,14 +61,25 @@ export default class Settings {
                 height: 42
             },
             letter: {
-                width: 8.5,
-                height: 11
+                width: 11, 
+                height: 8.5
             }
         }
         // todo: catch errors, eg template name not found
         this.start = {year: myArgs[0], month: myArgs[1]} // 1 = january, I usually start on December the year before, and end on the January the year after
-        this.number_of_months = myArgs[2]     
-        this.week_starts_on = (myArgs[4]%7) //1 = Monday, 7 = Sunday
+        this.number_of_months = myArgs[2] 
+        switch(myArgs[4]){
+            case 'mon':
+            case 'monday':
+                this.week_starts_on = 1
+                break
+            case 'sun':
+            case 'sunday':
+                this.week_starts_on = 0
+                break
+            default:
+                this.week_starts_on = (myArgs[4]%7)
+        }
         this.showMonthTracker = (this.week_starts_on == 1) ? true : false
         this.template = templates[myArgs[3]]
         this.paper = paperSizes[myArgs[5]]

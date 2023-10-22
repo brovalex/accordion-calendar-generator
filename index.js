@@ -18,7 +18,7 @@ function init() {
     }
     const myCalendarData = new CalendarData(settings)
     const myCalendar = new SVGCalendar(myCalendarData, settings.template)
-    const filename = 'calendar-'+settings.template.name+'-'+settings.start.year+'-'+settings.start.month+'-'+(settings.week_starts_on==1?"monday":"sunday")+'-'+settings.paper.width+'x'+settings.paper.height+'-'+settings.number_of_months+'months'+'.pdf' //'calendar.pdf' //
+    const filename = 'calendar-'+settings.template.name+'-'+settings.start.year+'-'+settings.start.month+'-'+(settings.week_starts_on==1?"monday":"sunday")+'-'+settings.paper.width+'x'+settings.paper.height+'('+Math.round(settings.paper.width*25.4*100)/100+'x'+Math.round(settings.paper.height*25.4*100)/100+')-'+settings.number_of_months+'months'+'.pdf' //'calendar.pdf' //
     const myPDFfile = new OutputPDF(myCalendar, filename)
 }
 init()
