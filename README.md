@@ -1,5 +1,5 @@
 # Usage
-Run `node calendar.js` and this will create a `calendar.pdf` print-ready file in the same folder. 
+Run `node index.js` and this will create a `calendar.pdf` print-ready file in the same folder. (Run `npm install` first obvi.)
 
 Settings are adjusted at the top of the `calendar.js` file. 
 
