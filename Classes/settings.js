@@ -6,7 +6,7 @@ export default class Settings {
         const templates = {
             biggin: {
                 name: "biggin", 
-                width: 7.75, 
+                width: 7.5, 
                 height: 5.25-1/8, 
                 fonts: {
                     WeekNumber: {
@@ -53,7 +53,7 @@ export default class Settings {
         }
         const paperSizes = {
             roll: {
-                width: 12,
+                width: 8.75,
                 height: "roll" // TODO a more elegant way is to say null, i.e. there is no height limit
             },
             strip: {
