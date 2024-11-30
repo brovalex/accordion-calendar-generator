@@ -17,13 +17,14 @@ export default class SVGCalendar {
         this.spacing_y = 1/16
         this.padding_x = 2*this.spacing_x //margins in the design
         this.paper = calData.paper
+        this.fonts = calData.fonts
         this.effectiveWidth = this.template.width-2*this.padding_x
 
         // outlining fonts
-        this.textToSVG = TextToSVG.loadSync('fonts/nimbus bold 724726a7-b3d6-4c01-ac68-73ef3673e3e1.ttf');
-        this.monthToSVG = TextToSVG.loadSync('fonts/nimbus 1 - dc9d32c4-6c53-4bb1-8bef-4cd396bee3ce.ttf');
-        this.digitsToSVG = TextToSVG.loadSync('fonts/nimbus mono d7dfb1f6-0918-41e9-a9d2-bf7241c11fae.ttf');
-        this.weeksToSVG = TextToSVG.loadSync('fonts/nimbus regular a70c1179-4a1d-4887-8eb1-d4f6ce17cfb4.ttf');
+        this.textToSVG = TextToSVG.loadSync(calData.fonts.textFont.file);
+        this.monthToSVG = TextToSVG.loadSync(calData.fonts.monthFont.file);
+        this.digitsToSVG = TextToSVG.loadSync(calData.fonts.digitsFont.file);
+        this.weeksToSVG = TextToSVG.loadSync(calData.fonts.weeksFont.file);
 
         this.colors = new MyColors()
         const window = createSVGWindow()
@@ -170,7 +171,7 @@ export default class SVGCalendar {
         pG
             .path( textSVG )
             //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
-            .move( this.inchToPx( this.padding_x+this.spacing_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + this.template.fonts.MonthHeader.yShift )
+            .move( this.inchToPx( this.padding_x+this.spacing_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + this.template.fonts.MonthHeader.yShift + this.fonts.monthFont.yShift)
             .fill( this.colors.lightgray )
     }
     drawCropMarks = (svg, svgW, svgH) => {
@@ -211,7 +212,7 @@ export default class SVGCalendar {
                 y: y
                 }).fill( this.colors.lightgray )
             svg.rect(l, t).attr({ 
-                x: this.inchToPx(this.paper.width)-l,
+                x: this.inchToPx(this.paper.sizes.width)-l,
                 y: y
                 }).fill( this.colors.lightgray )
         })

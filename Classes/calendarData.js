@@ -43,5 +43,6 @@ export default class CalendarData {
         this.weekStartsOn = settings.week_starts_on
         this.pages = calPages
         this.paper = settings.paper
+        this.fonts = settings.fonts
     }
 }

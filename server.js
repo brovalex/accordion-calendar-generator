@@ -1,6 +1,4 @@
-// run: 
-// nodemon start
-// for hot reloading on node v20+
+// npx nodemon start
 
 import express from "express"
 const app = express()
@@ -15,12 +13,12 @@ app.listen(3000, () => {
 
 app.get("/", (req, res) => {
 
-  var settings = new Settings(["2024","1","12","biggin","sunday","roll"])
+  var settings = new Settings(["2024","1","12","pocket","sunday","strip"])
 
   const myCalendarData = new CalendarData(settings)
   // console.log(settings.template)
   const myCalendar = new SVGCalendar(myCalendarData, settings.template)
   //TODO: add colours
-  res.send("<html><body><style>body {margin:0} svg {width:"+(settings.paper.width)*72+"px;height:"+(settings.paper.height+2*settings.paper.margin)*72+"px;border:10px solid aqua;}</style></body></html>"+myCalendar.svgCode);
-  // res.send("hello");
+  console.log(settings.paper.sizes.width, settings.paper.sizes.height)
+  res.send("<html><body><style>body {margin:0} svg {width:"+(settings.paper.sizes.width)*72+"px;height:"+(settings.paper.sizes.height+2*settings.paper.margin)*72+"px;border:10px solid aqua;}</style></body></html>"+myCalendar.svgCode);
 });

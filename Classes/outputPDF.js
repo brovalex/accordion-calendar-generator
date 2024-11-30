@@ -7,7 +7,7 @@ export default class OutputPDF {
     constructor(cal, filename) {
         const svgCode = cal.svgCode
         var doc = new PDFDocument({
-            size: [cal.paper.width*72, cal.paper.height*72],
+            size: [cal.paper.sizes.width*72, cal.paper.sizes.height*72],
             autoFirstPage: false,
             margins : { // by default, all are 72
                 top:    0,
