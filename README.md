@@ -27,9 +27,9 @@ node index.js <start_year> <start_month> <number_of_months> <template> <week_sta
 - `<start_year>`: The starting year of the calendar (e.g., 2023).
 - `<start_month>`: The starting month of the calendar (1 for January, 12 for December, etc.). Note that the calendar will calculate the correct first day for the calendar given the `<week_starts_on>` parameter. 
 - `<number_of_months>`: The number of months to generate (e.g., 12 for a full year).
-- `<template>`: The design template for the calendar, currently offered in two sizes on the website (`pocket` and `purse`). These are specified in [`default.json`](./config/default.js). 
+- `<template>`: The design template for the calendar, currently offered in two sizes on the website (`pocket` and `purse`). These are specified in [`default.json`](./config/default.json). 
 - `<week_starts_on>`: The day the week starts on (0 for Sunday, 1 for Monday, etc.).
-- `<paper_size>`: The paper size for the output. Options I use are (`roll`, `strip`, and `letter`). These are specified in [`default.json`](./config/default.js). 
+- `<paper_size>`: The paper size for the output. Options I use are (`roll`, `strip`, and `letter`). These are specified in [`default.json`](./config/default.json). 
 
 ### Example command
 
