@@ -39,6 +39,10 @@ To generate a pocket calendar starting from January 2023 for 12 months, with wee
 node index.js 2023 1 12 pocket 1 strip
 ```
 
+### Custom configuration settings
+
+You can override config settings with a `local.json` file in the [`config`](./config/) folder. 
+
 ### Server mode
 
 When I'm working on visual tweaks, it's convenient to have the SVG generated in the browser, and to watch for file changes automatically. You can run a server on localhost with the following command (assuming `npx` is installed, obvi): 

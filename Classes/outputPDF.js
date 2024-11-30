@@ -44,7 +44,7 @@ export default class OutputPDF {
                 }
             })
         
-        doc.font('Courier').fillColor([0,0,0,25]).text(filename,72,18)
+        doc.font('Courier').fontSize(8).fillColor([0,0,0,25]).text(filename, 72, 18)
         
             var filename = filename
             var stream = fs.createWriteStream(filename)
