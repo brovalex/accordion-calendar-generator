@@ -4,6 +4,8 @@ This is the code used to generate Accordion Calendars (see [accordioncalendar.co
 
 A calendar can is first generated in SVG, then a PDF output file is created. 
 
+![Accordion Calendar Screenshot](https://github.com/brovalex/accordion-calendar-generator/blob/main/assets/calendar-screenshot.png?raw=true)
+
 ## Features
 
 - Generates print-ready mechanicals, including bleed, crop marks, fold marks, and outlined fonts
