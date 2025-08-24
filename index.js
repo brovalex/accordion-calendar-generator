@@ -72,7 +72,7 @@ function init() {
                 throw new Error('week-start must be a day name (sunday-saturday), abbreviation (sun-sat), or number (0-6)');
             }
         })
-        .requiredOption('--paper-size <size>', 'paper size', (value) => {
+        .requiredOption('--paper-size <size>', 'paper size (roll, strip, letter, maxroll)', (value) => {
             const paperSizes = config.get('paperSizes');
             if (!paperSizes[value]) {
                 throw new Error(`paper-size must be one of: ${Object.keys(paperSizes).join(', ')}`);
