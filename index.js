@@ -11,7 +11,6 @@ function init() {
     program
         .name('calendar-svg')
         .description('Generate calendar SVG and PDF files')
-        .version('1.0.0')
         .requiredOption('--start-year <year>', 'year to start on (e.g., 2025)', (value) => {
             const year = parseInt(value);
             if (isNaN(year) || year < 1900 || year > 2100) {
@@ -86,7 +85,8 @@ function init() {
                 throw new Error('number-of-months must be between 1 and 60');
             }
             return count;
-        });
+        })
+        .option('--comment <comment>', 'add comment to filename in parentheses');
 
     program.parse();
     const options = program.opts();
@@ -112,7 +112,8 @@ function init() {
     const myCalendarData = new CalendarData(settings)
     const myCalendar = new SVGCalendar(myCalendarData, settings.template)
     const dayNamesLower = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const filename = './output/calendar-'+settings.template.name+'-'+settings.start.year+'-'+settings.start.month+'-'+dayNamesLower[settings.week_starts_on]+'-'+settings.paper.sizes.width+'x'+settings.paper.sizes.height+'('+Math.round(settings.paper.sizes.width*25.4*100)/100+'x'+Math.round(settings.paper.sizes.height*25.4*100)/100+')-'+settings.number_of_months+'months'+'.pdf' //'calendar.pdf' //
+    const commentPart = options.comment ? `(${options.comment})` : '';
+    const filename = './output/calendar-'+settings.template.name+'-'+settings.start.year+'-'+settings.start.month+'-'+dayNamesLower[settings.week_starts_on]+'-'+settings.paper.sizes.width+'x'+settings.paper.sizes.height+'('+Math.round(settings.paper.sizes.width*25.4*100)/100+'x'+Math.round(settings.paper.sizes.height*25.4*100)/100+')-'+settings.number_of_months+'months'+commentPart+'.pdf' //'calendar.pdf' //
     const myPDFfile = new OutputPDF(myCalendar, filename)
 }
 init()
