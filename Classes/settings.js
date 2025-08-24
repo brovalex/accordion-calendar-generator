@@ -27,7 +27,8 @@ export default class Settings {
         this.paper.sizes = paperSizes[myArgs[5]]
         this.paper.margin = 0.5
         this.paper.bleed = 0.125
-        if (isNaN(this.paper.sizes.height)) this.paper.sizes.height = this.template.height*this.number_of_months+2*this.paper.margin+2*this.paper.bleed
+        this.paper.sizes = {...this.paper.sizes}; // Create a new object to avoid mutating config
+        if (this.paper.sizes.height === null) this.paper.sizes.height = this.template.height*this.number_of_months+2*this.paper.margin+2*this.paper.bleed
         this.paper.availHeight = this.paper.sizes.height-2*this.paper.margin
         this.paper.availWidth = this.paper.sizes.width-2*this.paper.margin
         this.fonts = fonts
