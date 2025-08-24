@@ -31,8 +31,8 @@ export default class CalendarData {
                 // Check if any day in the current week contains the first day of a month
                 var hasFirstOfMonth = weeks[i].some(day => dateFns.isFirstDayOfMonth(day))
                 
-                // if week contains 1st of month (except for very first week), OR if last week but not first or last week... then next page
-                if( (i!=0 && hasFirstOfMonth) || (isLastWeek && i!=0 && i!=weeks.length-1)) {
+                // if week contains 1st of month (except for very first week and very last week), OR if last week but not first or last week... then next page
+                if( (i!=0 && hasFirstOfMonth && i!=weeks.length-1) || (isLastWeek && i!=0 && i!=weeks.length-1)) {
                     j+=1
                     calPages[j]=[]
                 }
