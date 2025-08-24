@@ -1,6 +1,6 @@
 {
     "templates": {
-        "biggin": {
+        "purse": {
             "name": "purse", 
             "width": 7.5, 
             "height": 5.125, 
@@ -45,6 +45,29 @@
                     "yShift": 3.5
                 }
             }
+        },
+        "mathias": {
+            "name": "mathias", 
+            "width": 11.75, 
+            "height": 8, 
+            "fonts": {
+                "WeekNumber": {
+                    "size": 12,
+                    "yShift": 0
+                },
+                "Days": {
+                    "size": 24, 
+                    "yShift": 0
+                },
+                "DaysOfWeek": {
+                    "size": 12, 
+                    "yShift": 0
+                },
+                "MonthHeader": {
+                    "size": 36, 
+                    "yShift": 5
+                }
+            }
         }
     },
     "paperSizes": {
@@ -59,6 +82,10 @@
         "letter": {
             "width": 11,
             "height": 8.5
+        },
+        "maxroll": {
+            "width": 12.5,
+            "height": null
         }
     },
     "fonts": {
