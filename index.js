@@ -86,6 +86,13 @@ function init() {
             }
             return count;
         })
+        .option('--paper-margin <margin>', 'paper margin in inches', '0.5', (value) => {
+            const margin = parseFloat(value);
+            if (isNaN(margin) || margin < 0 || margin > 2) {
+                throw new Error('paper-margin must be a number between 0 and 2');
+            }
+            return margin;
+        })
         .option('--comment <comment>', 'add comment to filename in parentheses');
 
     program.parse();
@@ -97,7 +104,8 @@ function init() {
         numberOfMonths: options.numberOfMonths,
         template: options.template,
         weekStart: options.weekStart,
-        paperSize: options.paperSize
+        paperSize: options.paperSize,
+        margin: options.paperMargin
     });
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
