@@ -1,4 +1,5 @@
 import config from 'config';
+import { resolvePreset } from './presets.js'
 
 const templates = config.get('templates');
 const paperSizes = config.get('paperSizes');
@@ -9,6 +10,8 @@ export default class Settings {
         this.start = {year: options.startYear, month: options.startMonth}
         this.number_of_months = options.numberOfMonths
         this.week_starts_on = options.weekStart
+        this.preset = resolvePreset(options.preset ?? 'classic', options.set ?? [])
+        this.pages = options.pages // optional explicit page count (planner layouts)
         this.showMonthTracker = (this.week_starts_on == 1) ? true : false
         this.template = templates[options.template]
         this.paper = {};
@@ -16,9 +19,16 @@ export default class Settings {
         this.paper.margin = options.margin ?? 0.5
         this.paper.bleed = 0.125
         this.paper.sizes = {...this.paper.sizes}; // Create a new object to avoid mutating config
+        this.paper.autoHeight = this.paper.sizes.height === null
         if (this.paper.sizes.height === null) this.paper.sizes.height = this.template.height*this.number_of_months+2*this.paper.margin+2*this.paper.bleed
         this.paper.availHeight = this.paper.sizes.height-2*this.paper.margin
         this.paper.availWidth = this.paper.sizes.width-2*this.paper.margin
         this.fonts = fonts
+    }
+    // roll-style paper is as long as the calendar; layouts that decide their own page count call this
+    fitPaperToPages (pageCount) {
+        if (!this.paper.autoHeight) return
+        this.paper.sizes.height = this.template.height*pageCount+2*this.paper.margin+2*this.paper.bleed
+        this.paper.availHeight = this.paper.sizes.height-2*this.paper.margin
     }
 }

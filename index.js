@@ -1,8 +1,8 @@
 import { Command } from 'commander';
 import inquirer from 'inquirer';
 import Settings from './Classes/settings.js'
-import CalendarData from './Classes/calendarData.js'
-import SVGCalendar from './Classes/svgCalendar.js'
+import { buildCalendar } from './Classes/layouts.js'
+import { presetNames } from './Classes/presets.js'
 import OutputPDF from './Classes/outputPDF.js'
 import config from 'config';
 
@@ -18,8 +18,8 @@ function getDefaultYear() {
 }
 
 function getDefaultPaperSize(template) {
-    // If template is pocket, default to strip, otherwise roll
-    return template === 'pocket' ? 'strip' : 'roll';
+    // If template is pocket (or pocket-portrait), default to strip, otherwise roll
+    return template.startsWith('pocket') ? 'strip' : 'roll';
 }
 
 // Validation functions
@@ -172,7 +172,7 @@ async function init() {
             }
             return result;
         })
-        .option('--template <template>', 'calendar template (pocket, purse, mathias)', (value) => {
+        .option('--template <template>', `calendar template (${Object.keys(config.get('templates')).join(', ')})`, (value) => {
             const templates = config.get('templates');
             if (!templates[value]) {
                 throw new Error(`template must be one of: ${Object.keys(templates).join(', ')}`);
@@ -206,6 +206,20 @@ async function init() {
                 throw new Error('paper-margin must be a number between 0 and 2');
             }
             return margin;
+        })
+        .option('--preset <name>', `layout preset (${presetNames().join(', ')}); define your own in config/local.json`, (value) => {
+            if (!presetNames().includes(value)) {
+                throw new Error(`preset must be one of: ${presetNames().join(', ')}`);
+            }
+            return value;
+        })
+        .option('--set <key=value>', 'override one preset value, e.g. --set bands.stripes=true (repeatable)', (value, previous) => previous.concat(value), [])
+        .option('--pages <count>', 'number of pages, for presets that choose their own (e.g. 12 or 14 instead of the whole year)', (value) => {
+            const count = parseInt(value);
+            if (isNaN(count) || count < 1 || count > 200) {
+                throw new Error('pages must be between 1 and 200');
+            }
+            return count;
         })
         .option('--comment <comment>', 'add comment to filename in parentheses');
 
@@ -249,7 +263,17 @@ async function init() {
         });
     }
     
-    if (!options.weekStart) {
+    if (!options.preset) {
+        prompts.push({
+            type: 'list',
+            name: 'preset',
+            message: 'Layout preset:',
+            choices: presetNames(),
+            default: 'classic'
+        });
+    }
+    
+    if (options.weekStart === undefined) {
         prompts.push({
             type: 'list',
             name: 'weekStart',
@@ -311,7 +335,7 @@ async function init() {
         });
     }
     
-    if (!options.paperMargin) {
+    if (options.paperMargin === undefined) {
         prompts.push({
             type: 'input',
             name: 'paperMargin',
@@ -342,7 +366,7 @@ async function init() {
     if (!options.numberOfMonths) {
         options.numberOfMonths = 12;
     }
-    if (!options.paperMargin) {
+    if (options.paperMargin === undefined) {
         options.paperMargin = 0.5;
     }
 
@@ -353,8 +377,13 @@ async function init() {
         template: options.template,
         weekStart: options.weekStart,
         paperSize: options.paperSize,
-        margin: options.paperMargin
+        margin: options.paperMargin,
+        preset: options.preset,
+        set: options.set,
+        pages: options.pages
     });
+
+    const { data: myCalendarData, svg: myCalendar } = buildCalendar(settings)
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     console.log("\n=== Calendar Generation Settings ===");
@@ -362,15 +391,17 @@ async function init() {
                 "\nMonth to start on: ", settings.start.month,
                 "\nNumber of months: ", settings.number_of_months,
                 "\nTemplate: ", settings.template.name,
+                "\nPreset: ", settings.preset.name,
                 "\nWeek starts on: ", dayNames[settings.week_starts_on],
                 "\nPaper: ", settings.paper.sizes.width + 'x' + settings.paper.sizes.height
                 );
 
-    const myCalendarData = new CalendarData(settings)
-    const myCalendar = new SVGCalendar(myCalendarData, settings.template)
+    myCalendarData.notes?.forEach((note) => console.log("Note:", note))
     const dayNamesLower = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const commentPart = options.comment ? `(${options.comment})` : '';
-    const filename = './output/calendar-'+settings.template.name+'-'+settings.start.year+'-'+settings.start.month+'-'+dayNamesLower[settings.week_starts_on]+'-'+settings.paper.sizes.width+'x'+settings.paper.sizes.height+'('+Math.round(settings.paper.sizes.width*25.4*100)/100+'x'+Math.round(settings.paper.sizes.height*25.4*100)/100+')-'+settings.number_of_months+'months'+commentPart+'.pdf'
+    const presetPart = settings.preset.name === 'classic' ? '' : settings.preset.name+'-';
+    const lengthPart = settings.preset.layout === 'grid' ? settings.number_of_months+'months' : myCalendarData.pages.length+'pages';
+    const filename = './output/calendar-'+settings.template.name+'-'+presetPart+settings.start.year+'-'+settings.start.month+'-'+dayNamesLower[settings.week_starts_on]+'-'+settings.paper.sizes.width+'x'+settings.paper.sizes.height+'('+Math.round(settings.paper.sizes.width*25.4*100)/100+'x'+Math.round(settings.paper.sizes.height*25.4*100)/100+')-'+lengthPart+commentPart+'.pdf'
     const myPDFfile = new OutputPDF(myCalendar, filename)
     
     console.log("\n✅ Calendar generated successfully!");

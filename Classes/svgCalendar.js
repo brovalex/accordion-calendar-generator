@@ -1,42 +1,19 @@
-import { createSVGWindow } from 'svgdom'
-import { SVG, registerWindow } from '@svgdotjs/svg.js'
 import * as dateFns from 'date-fns'
-import TextToSVG from 'text-to-svg'
-import MyColors from './myColors.js'
+import SVGBase from './svgBase.js'
 
 console.log("-------------------------------------------")
 
-export default class SVGCalendar {
-    // intention: object containing printable pages (not calendar pages)
-    // I'm combining calendar pages with printed pages because of bleed
-
+// Classic layout: vertical flow, week grain, one month per page, seven day columns per week row
+export default class SVGCalendar extends SVGBase {
     constructor (calData, template) {
-        this.template = template
+        super(calData, template)
         // Settings specfic to visual design
         this.spacing_x = 1/8 //default spacing
         this.spacing_y = 1/16
         this.padding_x = 2*this.spacing_x //margins in the design
-        this.paper = calData.paper
-        this.fonts = calData.fonts
         this.effectiveWidth = this.template.width-2*this.padding_x
 
-        // outlining fonts
-        this.textToSVG = TextToSVG.loadSync(calData.fonts.textFont.file);
-        this.monthToSVG = TextToSVG.loadSync(calData.fonts.monthFont.file);
-        this.digitsToSVG = TextToSVG.loadSync(calData.fonts.digitsFont.file);
-        this.weeksToSVG = TextToSVG.loadSync(calData.fonts.weeksFont.file);
-
-        this.colors = new MyColors()
-        const window = createSVGWindow()
-        const document = window.document
-        
-        // register window and document
-        registerWindow(window, document)
-        
-        // create canvas
-        const draw = SVG(document.documentElement)
-        const mainGroup = draw.group()
-        const printerMarks = draw.group()
+        const mainGroup = this.mainGroup
 
         // note: elements order in svg follows the order they appear in the document
         this.drawWeekend(mainGroup, calData.weekStartsOn, calData.pages.length)
@@ -64,18 +41,7 @@ export default class SVGCalendar {
             pageGroup.move( 0, this.inchToPx(this.template.height*p) )
         })
         
-        mainGroup.move( this.inchToPx(calData.paper.margin), this.inchToPx(calData.paper.margin))
-        this.drawFoldLines(printerMarks, calData.pages.length)
-        this.drawCropMarks(printerMarks, mainGroup.width(), mainGroup.height())
-        this.svgCode = this.cleanSVG(draw.node.outerHTML) //note: svg.js create parser <svg> node inside the <svg> which then breaks svg-to-pdfkit, so I'm taking it out here
-    }
-    inchToPx = (x) => {
-        return x*72
-    }
-    cleanSVG = (data) => {
-        var returndata = data.replace(/(<svg.*?>)<svg.*?>(.*?)<\/svg>/g, '$1')
-        // main.clear()
-        return returndata
+        this.finish(calData.pages.length)
     }
     drawWeekend = (svg, weekStartsOn, pagesCount) => {
         //TODO fix this otherwise
@@ -173,48 +139,5 @@ export default class SVGCalendar {
             //TODO: not sure why ascender height needs to be adjusted by 5, that may break for other fonts
             .move( this.inchToPx( this.padding_x+this.spacing_x/2 ) , this.inchToPx( this.template.height / wks ) - textMetrics.ascender + this.template.fonts.MonthHeader.yShift + this.fonts.monthFont.yShift)
             .fill( this.colors.lightgray )
-    }
-    drawCropMarks = (svg, svgW, svgH) => {
-            const l=this.inchToPx(1/2-this.paper.bleed-1/16)
-            const zeroH= this.inchToPx(this.paper.margin)
-            const zeroY= this.inchToPx(this.paper.margin)
-            const t=1
-            const corners = [[ 1, 0],[ 0, 0],[ 0, 1],[ 1, 1]]
-            const bleed =   [[-1, 1],[ 1, 1],[ 1,-1],[-1,-1]]
-
-            corners.forEach((c,i) => {
-                var vectorH = c[0]*svgW/svgW-1
-                var vectorV = c[1]*svgH/svgH-1
-                svg.rect(l, t).attr({ 
-                    x: zeroH + c[0]*svgW + vectorH*l,
-                    y: zeroY + c[1]*svgH + bleed[i][1]*this.inchToPx(this.paper.bleed) - t/2
-                    }).fill('black')
-                svg.rect(t, l).attr({ 
-                    x: zeroH + c[0]*svgW + bleed[i][0]*this.inchToPx(this.paper.bleed), 
-                    y: zeroY + c[1]*svgH + vectorV*l - t/2
-                    }).fill('black')
-            })
-    }
-    drawFoldLines = (svg, pagesCount) => {
-        [...Array(pagesCount+1)].forEach((_,i) => {
-            const l=this.inchToPx(1/2)
-            const zeroH= this.inchToPx(this.paper.margin)
-            const zeroY= this.inchToPx(this.paper.margin)
-            const t=1
-            const y=zeroY + i*this.inchToPx(this.template.height) + this.inchToPx(this.paper.bleed) - t/2
-
-            svg.rect(l, t).attr({ 
-                x: zeroH - l,
-                y: y
-                }).fill( this.colors.lightgray )
-            svg.rect(l, t).attr({ 
-                x: zeroH + this.inchToPx(this.template.width) + 2*this.inchToPx(this.paper.bleed),
-                y: y
-                }).fill( this.colors.lightgray )
-            svg.rect(l, t).attr({ 
-                x: this.inchToPx(this.paper.sizes.width)-l,
-                y: y
-                }).fill( this.colors.lightgray )
-        })
     }
 }

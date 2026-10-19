@@ -41,6 +41,49 @@ To generate a pocket calendar starting from January 2023 for 12 months, with wee
 node index.js 2023 1 12 pocket 1 strip
 ```
 
+### Layout presets
+
+A layout is a *flow* (which way the pages fill up), a *grain* (the unit along that flow) and what the other axis holds. A **preset** bundles every setting for one layout, and presets can `extend` each other. Pick one with `--preset`; the default is `classic`.
+
+| preset | flow / grain | what it is |
+| --- | --- | --- |
+| `classic` | vertical / week | the original: one month per page, a row per week |
+| `planner` | horizontal / day | one thin portrait column per day; each month is split over 2 pages (15 + 16 days) |
+| `planner-fixed` | horizontal / day | same, but every page holds 14 days, starting with the week that contains the 1st of the start month |
+| `planner-month` | horizontal / day | a whole month on one page, with smaller type to fit 31 columns |
+| `planner-hours` | horizontal / day | fixed pages with 12 striped hour bands and hour labels instead of shaded weekends |
+
+Use a portrait template with the planner presets: `pocket-portrait`, `purse-portrait` or `mathias-portrait`.
+
+```
+node index.js --start-year 2027 --start-month 1 --template purse-portrait --week-start 1 --paper-size roll \
+  --number-of-months 12 --preset planner-fixed --pages 14 --comment demo
+```
+
+`--pages` sets the page count outright, for example 12 pages instead of the whole year, or 14 to run a few weeks over. Keep it even if the first and last pages need to fold shut like a cover. Without it, fixed pagination rounds up to whole pages and the extra days simply continue into the next month.
+
+Any value can be overridden on the fly with `--set`, and you can make your own presets in `config/local.json`:
+
+```
+--set bands.stripes=true --set labels.weekNumbers=true --set labels.weekday=letter
+```
+
+```json
+{ "presets": { "my-planner": { "extends": "planner-fixed", "bands": { "hairlines": true }, "labels": { "weekdayBottom": true } } } }
+```
+
+Planner settings (see `planner` in [`default.json`](./config/default.json) for the defaults):
+
+- `pagination.mode`: `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). In monthly mode each page stretches its columns to fill the width; in fixed mode all columns are the same.
+- `weekend.shade`: shade Saturday and Sunday. Not combined with striped bands (weekends stay unshaded if you ask for both).
+- `weekDivider` / `columnLines`: darker line where a new week starts (set by `--week-start`) and light lines between the other days.
+- `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`; `first` hour and `perBand` hours).
+- `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayBottom`, `weekNumbers`, `digitsTop`, `digitsBottom`. Bottom text reads bottom to top.
+- `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `hours`). Nothing is resized automatically, so narrow columns need smaller sizes.
+- `padding`: `x`, `top`, `bottom` in inches.
+
+Only the `classic` (vertical/week) and planner (horizontal/day) combinations are drawn so far; other combinations of `flow` and `grain` are rejected with an error.
+
 ### Custom configuration settings
 
 You can override config settings with a `local.json` file in the [`config`](./config/) folder. 
