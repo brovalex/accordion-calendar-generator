@@ -2,48 +2,57 @@
 
 This is the code used to generate Accordion Calendars (see [accordioncalendar.com](http://www.accordioncalendar.com)) 
 
-A calendar can is first generated in SVG, then a PDF output file is created. 
+A calendar is first generated in SVG, then a PDF output file is created. 
 
 ![Accordion Calendar Screenshot](https://github.com/brovalex/accordion-calendar-generator/blob/main/assets/calendar-screenshot.png?raw=true)
 
 ## Features
 
 - Generates print-ready mechanicals, including bleed, crop marks, fold marks, and outlined fonts
-- Highly configurable: width, height, start date, and number of months.
-- Calculates the appropriate page breaks for the first row of every page to start on the 1st of the month. 
-- Adjusts layout depending on week start day. 
-- Preconfigured templates for layouts and physical paper sizes. 
-- Adjusts output to based on physical paper size available
-- Automatically adjusts the height of rows to the number of weeks per month. 
+- Four templates: the original month-per-page calendar, a yearly planner, a project planner with fiscal quarters and cycles, and a weekly planner with hourly rows and moon phases
+- Highly configurable: templates, paper size, start date, number of months, week start day, and any layout setting via `--set`
+- Calculates the appropriate page breaks (for the original calendar, the first row of every page starts on the 1st of the month; the planners can open on ISO week 1)
+- Adjusts layout depending on week start day
+- Preconfigured templates for layouts and physical paper sizes
+- Adjusts output based on the physical paper size available
+- Automatically adjusts the height of rows to the number of weeks per month (original calendar)
 
 ## Usage
 
-Run following command will create a `calendar.pdf` print-ready file in the current folder. (Run `npm install` first obvi.)
+Run `npm install` first, then:
 
 ```
-node index.js <start_year> <start_month> <number_of_months> <template> <week_starts_on> <paper_size>
+node index.js [options]
 ```
 
-### Parameters:
+Any option you leave out is asked for interactively (`--set` and `--pages` excepted), so a script needs all of the others, even `--comment`; press Enter at the comment prompt to skip it. The PDF is written to the `output` folder, named after the template, start date, paper size and page count, with your `--comment` in brackets at the end.
 
-- `<start_year>`: The starting year of the calendar (e.g., 2023).
-- `<start_month>`: The starting month of the calendar (1 for January, 12 for December, etc.). Note that the calendar will calculate the correct first day for the calendar given the `<week_starts_on>` parameter. 
-- `<number_of_months>`: The number of months to generate (e.g., 12 for a full year).
-- `<template>`: The design template for the calendar, currently offered in two sizes on the website (`pocket` and `purse`). These are specified in [`default.json`](./config/default.json). 
-- `<week_starts_on>`: The day the week starts on (0 for Sunday, 1 for Monday, etc.).
-- `<paper_size>`: The paper size for the output. Options I use are (`roll`, `strip`, and `letter`). These are specified in [`default.json`](./config/default.json). 
+### Options
+
+- `--start-year <year>`: the year to start on (e.g. 2027).
+- `--start-month <month>`: the month to start on, `1`-`12` or a name (`jan`, `january`, ...). The calendar works out the correct first day given `--week-start`.
+- `--number-of-months <count>`: the number of months to generate (1-60, e.g. 12 for a full year).
+- `--template <name>`: the page size and type sizes: `pocket`, `purse` or `mathias` (landscape), or `pocket-portrait`, `purse-portrait` or `mathias-portrait` (portrait). `pocket` and `purse` are the two sizes offered on the website. They are specified in [`default.json`](./config/default.json).
+- `--preset <name>`: the layout: `classic` (preselected in the prompt), `planner-yearly`, `planner-project` or `planner-weekly`. See [Templates](#templates).
+- `--week-start <day>`: the day the week starts on (`sunday`/`sun`/`0`, `monday`/`mon`/`1`, and so on).
+- `--paper-size <size>`: the paper for the output: `roll`, `strip`, `letter` or `maxroll`. These are specified in [`default.json`](./config/default.json).
+- `--paper-margin <inches>`: the margin around the artwork, 0 to 2. Without it you are asked, so pass it in scripts (the examples use `0.5`).
+- `--pages <count>`: the number of pages, for presets that choose their own (the planners).
+- `--set <key=value>`: override one preset value, e.g. `--set bands.stripes=true`. Repeatable. See [Overriding settings](#overriding-settings).
+- `--comment <text>`: added to the file name in brackets.
 
 ### Example command
 
-To generate a pocket calendar starting from January 2023 for 12 months, with weeks starting on Monday (1), in a strip layout:
+To generate a pocket calendar starting from January 2027 for 12 months, with weeks starting on Monday, on a strip:
 
 ```
-node index.js 2023 1 12 pocket 1 strip
+node index.js --start-year 2027 --start-month 1 --template pocket --week-start 1 --paper-size strip \
+  --number-of-months 12 --paper-margin 0.5 --preset classic --comment example
 ```
 
 ### Templates
 
-There are four calendar templates. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`; the default is `classic`.
+There are four calendar templates. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`.
 
 | preset | what it is |
 | --- | --- |
@@ -56,11 +65,11 @@ The planners lay their pages out left to right, so the paper is turned sideways:
 
 #### Classic
 
-`classic` is the original layout and the default: one month per page, a row per week, seven day columns, with the pages stacked down the roll or strip. Rows resize to the number of weeks in the month, a magenta line closes each week, weekends are shaded, and the week number sits at the left of each row. Use a landscape template (`pocket`, `purse` or `mathias`); it has no planner options, only the template, paper and start settings.
+`classic` is the original layout: one month per page, a row per week, seven day columns, with the pages stacked down the roll or strip. Rows resize to the number of weeks in the month, a magenta line closes each week, weekends are shaded, and the week number sits at the left of each row. Use a landscape template (`pocket`, `purse` or `mathias`); it has no planner options, only the template, paper and start settings.
 
 ```
 node index.js --start-year 2027 --start-month 1 --template pocket --week-start 1 --paper-size strip \
-  --number-of-months 12 --preset classic --comment classic
+  --number-of-months 12 --paper-margin 0.5 --preset classic --comment classic
 ```
 
 #### Yearly planner
@@ -71,7 +80,7 @@ A full year, Monday weeks, on a roll:
 
 ```
 node index.js --start-year 2027 --start-month 1 --template pocket-portrait --week-start 1 --paper-size roll \
-  --number-of-months 12 --preset planner-yearly --comment yearly
+  --number-of-months 12 --paper-margin 0.5 --preset planner-yearly --comment yearly
 ```
 
 That makes 24 pages on an 82.25 × 8.75 in strip. Tweaks that work well with `--set`:
@@ -98,7 +107,7 @@ Four months, Monday weeks, on a roll (`--pages 10` keeps the page count even so 
 
 ```
 node index.js --start-year 2027 --start-month 1 --template pocket-portrait --week-start 1 --paper-size roll \
-  --number-of-months 4 --pages 10 --preset planner-project --comment project
+  --number-of-months 4 --pages 10 --paper-margin 0.5 --preset planner-project --comment project
 ```
 
 A full year is `--number-of-months 12`: 26 pages on an 89 × 8.75 in strip.
@@ -118,10 +127,10 @@ The phases come from Meeus' algorithm (the `astronomia` package) and were checke
 
 ```
 node index.js --start-year 2027 --start-month 1 --template purse --week-start 1 --paper-size roll \
-  --number-of-months 12 --preset planner-weekly --comment weekly
+  --number-of-months 12 --paper-margin 0.5 --preset planner-weekly --comment weekly
 ```
 
-That makes about 52 pages of 7.5 in each, so a long strip (`purse` pages fit the 8.75 in roll). Change the hours with `--set bands.count=12 --set bands.hours.first=8`, or give every row two hours with `--set bands.hours.perBand=2`. Add `--set bands.hairlines=true` for a line between rows. `bands.hours.labels=inside` puts the hours in the first column; the other values (`left`, `right`, `both`) use the side padding, which needs `--set flush=false`.
+That makes 52 pages of 7.5 in each: a strip 391 in long (`purse` pages fit the 8.75 in roll). That is longer than the 200 in some PDF software and printers accept, so for printing make it in sections, for example `--number-of-months 6` or `--pages 26`. Change the hours with `--set bands.count=12 --set bands.hours.first=8`, or give every row two hours with `--set bands.hours.perBand=2`. Add `--set bands.hairlines=true` for a line between rows. `bands.hours.labels=inside` puts the hours in the first column; the other values (`left`, `right`, `both`) use the side padding, which needs `--set flush=false`.
 
 #### Tinkering with type and baselines
 
@@ -137,34 +146,44 @@ Nothing resizes automatically, so the planners are tuned by eye. A few things wo
 
 `planner`, `planner-across`, `planner-fixed`, `planner-month` and `planner-hours` are the building blocks the planners are made from, and they stay available for experiments or as a base for your own preset: `planner` is a thin column per day with each month split over two stacked pages, `planner-across` lays those pages side by side, `planner-fixed` uses 14-day pages starting with the week that contains the 1st, `planner-month` fits a whole month on one page, and `planner-hours` adds 12 striped hour bands with hour labels. Only the `classic` (vertical/week) and planner (horizontal/day) combinations of `flow` and `grain` are drawn; other combinations are rejected with an error.
 
-`--pages` sets the page count outright, for example 12 pages instead of the whole year, or 14 to run a few weeks over. Keep it even if the first and last pages need to fold shut like a cover. Without it, fixed pagination rounds up to whole pages and the extra days simply continue into the next month.
+### Overriding settings
 
-Any value can be overridden on the fly with `--set`, and you can make your own presets in `config/local.json`:
+Any preset value can be overridden on the fly with `--set`, using a dotted path:
 
 ```
 --set bands.stripes=true --set labels.weekNumbers=true --set labels.weekday=letter
 ```
 
+`--pages` sets the page count outright, for example 12 pages instead of the whole year, or 14 to run a few weeks over. Keep it even if the first and last pages need to fold shut like a cover. Without it, fixed pagination rounds up to whole pages and the extra days simply continue into the next month.
+
+To keep your own settings, make a preset in `config/local.json` (a `local.json` in the [`config`](./config/) folder overrides [`default.json`](./config/default.json)). It only needs to list what it changes:
+
 ```json
 { "presets": { "my-planner": { "extends": "planner-fixed", "bands": { "hairlines": true }, "labels": { "weekdayBottom": true } } } }
 ```
 
-Planner settings (see `planner` in [`default.json`](./config/default.json) for the defaults):
+### Planner settings
 
-- `pagination.mode`: `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). Fixed pagination can also set `startAt: "week1"` to open on the first day of ISO week 1 (Monday weeks, starting in January), which may skip the first days of January (4 Jan 2027); `planner-project` does this. In monthly mode, pages of one month share a column width, so a 15-day page leaves one slot empty above a 16-day page; in fixed mode all columns are the same. With `arrange: across` each page fills its own width instead.
+See the presets in [`default.json`](./config/default.json) for the defaults.
+
+- `pagination`: `mode` is `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). Fixed pagination can also set `startAt: "week1"` to open on the first day of ISO week 1 (Monday weeks, starting in January), which may skip the first days of January (4 Jan 2027); `planner-project` and `planner-weekly` do this. In monthly mode, pages of one month share a column width, so a 15-day page leaves one slot empty above a 16-day page; in fixed mode all columns are the same. With `arrange: across` each page fills its own width instead.
 - `arrange`: `across` puts the pages side by side (the paper turns sideways); the default stacks them down the roll.
 - `flush`: no side padding, so day columns run edge to edge. A column line is drawn at every fold.
-- `clearMonthHeader`: column lines and weekend shading start under the header labels (year, quarter, cycles, month) instead of running behind them.
-- `weekend.shade`: shade Saturday and Sunday. Not combined with striped bands (weekends stay unshaded if you ask for both) unless `weekend.overStripes` is set, which draws the weekend shading under the stripes, with the stripes a step darker across weekend columns.
+- `clearMonthHeader`: column lines and weekend shading start under the header labels (year, quarter, cycles, month, week number) instead of running behind them.
+- `weekend`: `shade` shades Saturday and Sunday. It is not combined with striped bands (weekends stay unshaded if you ask for both) unless `overStripes` is set, which draws the weekend shading under the stripes, with the stripes a step darker across weekend columns.
 - `weekDivider` / `columnLines`: darker line where a new week starts (set by `--week-start`) and light lines between the other days.
-- `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded, with `invert` to shade the first band instead of the second), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`, or `inside` for the first column of each page, with `pad` for a leading zero; `first` hour and `perBand` hours).
-- `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayTop`, `weekdayBottom`, `weekNumbers`, `year` and `quarter` (labels along the top, on the first column and where a year or quarter starts; the year follows the quarter on the same line, e.g. "Q1 2027", and only gets a row of its own when there is no quarter label; `quarter` is `weeks` for 13-week fiscal quarters starting at weeks 1, 14, 27 and 40, with the year turning over at week 1, or `months` for calendar quarters starting on the 1st of Jan, Apr, Jul and Oct), `cycles` (optional, off unless set; used by `planner-project`: `{ "weeks": 6, "cooldown": 2 }` draws a line from the start to the end of each 6-week cycle, then a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip), `monthWatermark` (a big, pale month name running left to right across the days, starting at the column of the 1st and of the first column, just under the header; size via `fontSizes.monthWatermark`, or relative to the template's month size with `monthWatermarkScale`; `monthWatermarkOffset` moves it down from the top of the body, in points; with hour rows its baseline snaps down onto the nearest row line), `moon` (optional, off unless set: `{}` shows the principal moon phases next to the day number in the inline day header, with `utcOffset` and `southern`), `weekNumberBottom` ("Week N" in the footer), `weekNumberBottomLeft` ("Week N" at the bottom left of each page, under the body), `weekNumberPrefix` (text before the week number, e.g. `Week `), `dayHeader` (`inline` puts the day number and the weekday after it on one top row), `monthEveryPage` (name the month at the start of a page that opens mid-month), `digitsTop`, `digitsBottom`, `digitsBottomColor`. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
+- `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded, and `invert` to shade the first band instead of the second), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`, or `inside` for the first column of each page; `first` hour, `perBand` hours, `pad` for a leading zero, `color`).
+- `labels`:
+  - `month`: `auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`. `monthEveryPage` also names the month at the start of a page that opens mid-month.
+  - `weekday`: `short` is three letters, or `letter`, `none`. `weekdayTop` and `weekdayBottom` choose where it goes; `dayHeader: "inline"` puts the day number and the weekday after it on one top row.
+  - `digitsTop`, `digitsBottom`, `digitsBottomColor`: the day numbers. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
+  - `weekNumbers` (a top row), `weekNumberBottom` ("Week N" in the footer), `weekNumberBottomLeft` ("Week N" at the bottom left of each page, under the body) and `weekNumberPrefix` (text before the number, e.g. `Week `).
+  - `year` and `quarter`: labels along the top, on the first column and where a year or quarter starts. The year follows the quarter on the same line, e.g. "Q1 2027", and only gets a row of its own when there is no quarter label. `quarter` is `weeks` for 13-week fiscal quarters starting at weeks 1, 14, 27 and 40 (the year turns over at week 1), or `months` for calendar quarters.
+  - `cycles`: optional, off unless set (used by `planner-project`). `{ "weeks": 6, "cooldown": 2 }` draws a line from the start to the end of each 6-week cycle, then a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip.
+  - `monthWatermark`: a big, pale month name running left to right across the days, starting at the column of the 1st and of the first column. Size it with `fontSizes.monthWatermark`, or relative to the template's month size with `monthWatermarkScale`; `monthWatermarkOffset` moves it down from the top of the body, in points; with hour rows its baseline snaps down onto the nearest row line.
+  - `moon`: optional, off unless set (used by `planner-weekly`). `{}` shows the principal moon phases next to the day number in the inline day header; `utcOffset` and `southern` adjust the day and the hemisphere.
 - `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `monthWatermark`, `year`, `quarter`, `cycle`, `hours`). Defaults come from the template's `fonts`. Nothing is resized automatically, so narrow columns need smaller sizes.
 - `padding`: `x`, `top`, `bottom` in inches.
-
-### Custom configuration settings
-
-You can override config settings with a `local.json` file in the [`config`](./config/) folder. 
 
 ### Server mode
 
@@ -190,6 +209,8 @@ npx nodemon server.js
 ## Notes:
 
 - Had to hack colour names in the CMYK colour conversion package, because an issue in the package itself doesn't allow for passing custom colours properly
+- Colours are turned into CMYK by value in `Classes/outputPDF.js`, so a new gray added to `Classes/myColors.js` needs a matching line there or it prints as RGB
+- The weekly planner's moon phases use [`astronomia`](https://github.com/commenthol/astronomia) (MIT), an implementation of Meeus' *Astronomical Algorithms*
 
 ## Credits
 
