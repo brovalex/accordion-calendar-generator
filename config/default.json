@@ -262,7 +262,7 @@
             },
             "labels": {
                 "year": true,
-                "quarter": true,
+                "quarter": "weeks",
                 "month": "vertical",
                 "weekdayTop": false,
                 "weekdayBottom": true,

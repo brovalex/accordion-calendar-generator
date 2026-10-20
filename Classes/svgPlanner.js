@@ -90,6 +90,22 @@ export default class SVGPlanner extends SVGBase {
         if (this.weekStartsOn === 1) return dateFns.getISOWeek(day)
         return dateFns.getWeek(day, { weekStartsOn: this.weekStartsOn, firstWeekContainsDate: 1 })
     }
+    weekYear = (day) => {
+        if (this.weekStartsOn === 1) return dateFns.getISOWeekYear(day)
+        return dateFns.getWeekYear(day, { weekStartsOn: this.weekStartsOn, firstWeekContainsDate: 1 })
+    }
+    // Year and quarter a day belongs to, and whether it starts one. Quarters are 13-week blocks counted from week 1,
+    // so they begin on the first day of a week (weeks 1, 14, 27, 40) and the year turns over at week 1.
+    // labels.quarter: 'months' uses calendar quarters (starting on the 1st of Jan, Apr, Jul, Oct) instead.
+    period = (day) => {
+        if (this.o.labels.quarter === 'months') {
+            const first = dateFns.isFirstDayOfMonth(day)
+            return { year: day.getFullYear(), quarter: dateFns.getQuarter(day), startsQuarter: first && day.getMonth() % 3 === 0, startsYear: first && day.getMonth() === 0 }
+        }
+        const week = this.weekNumber(day)
+        const weekStart = dateFns.getDay(day) === this.weekStartsOn
+        return { year: this.weekYear(day), quarter: Math.min(4, Math.ceil(week / 13)), startsQuarter: weekStart && [1, 14, 27, 40].includes(week), startsYear: weekStart && week === 1 }
+    }
     textWidth = (font, text, fontSize) => font.getMetrics(text, { fontSize }).width
 
     // footer reads bottom to top: weekday, then digit, then month. Its height is the same on every page.
@@ -224,11 +240,12 @@ export default class SVGPlanner extends SVGBase {
                 const x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - width) : colX(i) + 2 // the last label must not run off the strip
                 this.text(g, font, str, x, rows[key].top + rows[key].height*0.75, size, 'left', color)
             }
-            if (rows.year && (opening || (dateFns.isFirstDayOfMonth(day) && day.getMonth() === 0))) {
-                label('year', String(day.getFullYear()), this.monthToSVG, this.size.year, this.colors.gray)
+            const period = (rows.year || rows.quarter) ? this.period(day) : null
+            if (rows.year && (opening || period.startsYear)) {
+                label('year', String(period.year), this.monthToSVG, this.size.year, this.colors.gray)
             }
-            if (rows.quarter && (opening || (dateFns.isFirstDayOfMonth(day) && day.getMonth() % 3 === 0))) {
-                label('quarter', `Q${dateFns.getQuarter(day)}`, this.textToSVG, this.size.quarter, this.colors.gray)
+            if (rows.quarter && (opening || period.startsQuarter)) {
+                label('quarter', `Q${period.quarter}`, this.textToSVG, this.size.quarter, this.colors.gray)
             }
             if (rows.weekNumber && (i === 0 || dateFns.getDay(day) === this.weekStartsOn)) {
                 this.text(g, this.weeksToSVG, String(this.weekNumber(day)), colX(i) + 2,
