@@ -41,7 +41,7 @@ export default class SVGPlanner extends SVGBase {
             year: sizes.year ?? fonts.MonthHeader.size/2,
             quarter: sizes.quarter ?? fonts.Days.size,
             cycle: sizes.cycle ?? fonts.WeekNumber.size,
-            monthWatermark: sizes.monthWatermark ?? fonts.MonthHeader.size*1.5,
+            monthWatermark: sizes.monthWatermark ?? fonts.MonthHeader.size*1.25,
             monthVertical: sizes.monthVertical ?? fonts.MonthVertical?.size ?? fonts.Days.size,
             hours: sizes.hours ?? fonts.Hours?.size ?? fonts.WeekNumber.size
         }
@@ -252,7 +252,7 @@ export default class SVGPlanner extends SVGBase {
                 const size = this.size.monthWatermark
                 const width = this.textWidth(this.monthToSVG, name, size)
                 const x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - width) : colX(i) + 2
-                this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, bodyTop + 4 + CAP_HEIGHT*size, size, 'left', this.colors.palegray) })
+                this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, bodyTop + 1 + CAP_HEIGHT*size, size, 'left', this.colors.palegray) })
             })
         }
 

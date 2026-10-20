@@ -16,6 +16,6 @@ export default class MyColors {
         // very light gray (fake aliceblue)
         this.verylightgray = new SVGcolor({ c: 0, m: 0, y: 0, k:0.03 })
         // pale gray: between very light and light, still visible over the weekend shading
-        this.palegray = new SVGcolor({ c: 0, m: 0, y: 0, k:0.10 })
+        this.palegray = new SVGcolor({ c: 0, m: 0, y: 0, k:0.15 })
     }
 }
