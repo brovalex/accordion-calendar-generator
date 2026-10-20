@@ -242,6 +242,10 @@
         "planner-yearly": {
             "extends": "planner-across",
             "clearMonthHeader": true,
+            "labels": {
+                "weekNumberBottom": true,
+                "digitsBottomColor": "gray"
+            },
             "weekend": {
                 "shade": false
             },

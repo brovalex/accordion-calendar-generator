@@ -100,6 +100,7 @@ export default class SVGPlanner extends SVGBase {
             items.push({ key: 'weekday', length: longest })
         }
         if (labels.digitsBottom) items.push({ key: 'digits', length: this.textWidth(this.digitsToSVG, '88', this.size.digits) })
+        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, '88', this.size.weekNumber) })
         if (this.monthMode === 'vertical') {
             const longest = Math.max(...[...Array(12)].map((_, m) => this.textWidth(this.textToSVG, dateFns.format(new Date(2000, m, 1), 'MMMM'), this.size.monthVertical)))
             items.push({ key: 'month', length: longest })
@@ -226,7 +227,10 @@ export default class SVGPlanner extends SVGBase {
             // footer, from the bottom edge upwards
             const footerStart = H - this.pad.bottom
             if (this.footer.digits) {
-                this.verticalText(g, this.digitsToSVG, dateFns.format(day, 'd'), centerX, footerStart - this.footer.digits.offset, this.size.digits, this.colors.darkgray)
+                this.verticalText(g, this.digitsToSVG, dateFns.format(day, 'd'), centerX, footerStart - this.footer.digits.offset, this.size.digits, this.colors[o.labels.digitsBottomColor ?? 'darkgray'])
+            }
+            if (this.footer.weekNumber && dateFns.getDay(day) === this.weekStartsOn) {
+                this.verticalText(g, this.weeksToSVG, String(this.weekNumber(day)), centerX, footerStart - this.footer.weekNumber.offset, this.size.weekNumber, this.colors.gray)
             }
             if (this.footer.weekday) {
                 this.verticalText(g, this.textToSVG, this.weekdayLabel(day), centerX, footerStart - this.footer.weekday.offset, this.size.weekday, this.colors.gray)
