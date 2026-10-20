@@ -196,7 +196,7 @@ export default class SVGPlanner extends SVGBase {
         const rows = {}
         let y = this.pad.top
         const addRow = (key, height) => { rows[key] = { top: y, height }; y += height }
-        if (o.labels.year) addRow('year', this.size.year*1.4)
+        if (o.labels.year && !o.labels.quarter) addRow('year', this.size.year*1.4)
         if (o.labels.quarter) addRow('quarter', this.size.quarter*1.4)
         if (o.labels.cycles) addRow('cycles', this.size.cycle*2.6)
         if (this.monthMode === 'top') addRow('month', this.size.month*1.4)
@@ -273,18 +273,22 @@ export default class SVGPlanner extends SVGBase {
             const centerX = colX(i) + colW/2
             // year and quarter labels sit on the column that starts them, and on the very first column so the strip opens labelled
             const opening = p === 0 && i === 0
-            const label = (key, str, font, size, color) => {
-                const width = this.textWidth(font, str, size)
-                const x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - width) : colX(i) + 2 // the last label must not run off the strip
-                this.text(g, font, str, x, rows[key].top + rows[key].height*0.75, size, 'left', color)
-            }
+            // the year follows the quarter on the same baseline ("Q1 2027"); with no quarter row it gets a row of its own
+            const parts = []
             const period = (rows.year || rows.quarter) ? this.period(day) : null
-            if (rows.year && (opening || period.startsYear)) {
-                label('year', String(period.year), this.monthToSVG, this.size.year, this.colors.gray)
-            }
             if (rows.quarter && (opening || period.startsQuarter)) {
-                label('quarter', `Q${period.quarter}`, this.textToSVG, this.size.quarter, this.colors.gray)
+                parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter })
             }
+            if (o.labels.year && (opening || period.startsYear)) {
+                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(period.year), font: this.monthToSVG, size: this.size.year })
+            }
+            const gap = 3
+            const total = parts.reduce((sum, part, k) => sum + this.textWidth(part.font, part.str, part.size) + (k ? gap : 0), 0)
+            let x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - total) : colX(i) + 2 // the last label must not run off the strip
+            parts.forEach((part) => {
+                this.text(g, part.font, part.str, x, rows[part.row].top + rows[part.row].height*0.75, part.size, 'left', this.colors.gray)
+                x += this.textWidth(part.font, part.str, part.size) + gap
+            })
             if (rows.weekNumber && (i === 0 || dateFns.getDay(day) === this.weekStartsOn)) {
                 this.text(g, this.weeksToSVG, String(this.weekNumber(day)), colX(i) + 2,
                     rows.weekNumber.top + rows.weekNumber.height*0.75, this.size.weekNumber, 'left', this.colors.gray)
