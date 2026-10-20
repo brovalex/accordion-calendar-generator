@@ -309,7 +309,7 @@
                 "month": "none",
                 "monthWatermark": true,
                 "monthWatermarkScale": 1.05,
-                "monthWatermarkOffset": 8,
+                "monthWatermarkOffset": 18,
                 "dayHeader": "inline",
                 "weekNumberBottomLeft": true,
                 "weekNumberPrefix": "Week ",
