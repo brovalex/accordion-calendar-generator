@@ -41,26 +41,21 @@ To generate a pocket calendar starting from January 2023 for 12 months, with wee
 node index.js 2023 1 12 pocket 1 strip
 ```
 
-### Layout presets
+### Templates
 
-A layout is a *flow* (which way the pages fill up), a *grain* (the unit along that flow) and what the other axis holds. A **preset** bundles every setting for one layout, and presets can `extend` each other. Pick one with `--preset`; the default is `classic`.
+There are three calendar templates. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`; the default is `classic`.
 
-| preset | flow / grain | what it is |
-| --- | --- | --- |
-| `classic` | vertical / week | the original: one month per page, a row per week |
-| `planner` | horizontal / day | one thin portrait column per day; each month is split over 2 pages (15 + 16 days) |
-| `planner-fixed` | horizontal / day | same, but every page holds 14 days, starting with the week that contains the 1st of the start month |
-| `planner-month` | horizontal / day | a whole month on one page, with smaller type to fit 31 columns |
-| `planner-hours` | horizontal / day | fixed pages with 12 striped hour bands and hour labels instead of shaded weekends |
-| `planner-across` | horizontal / day | like `planner`, but the pages sit side by side along a landscape strip, with day columns running edge to edge across the folds |
-| `planner-yearly` | horizontal / day | the year on one strip: striped bands, no weekend shading, darker week dividers, month names clear of the lines, and "Week N" in the footer |
-| `planner-project` | horizontal / day | fixed pages of 14 days (two weeks) side by side, starting at week 1, with year and quarter labels along the top; each column's footer reads weekday, day number and, on the 1st, the month name |
+| preset | what it is |
+| --- | --- |
+| `classic` | the original: one month per page, a row per week, pages stacked down the roll |
+| `planner-yearly` | the year on one sideways strip: a thin column per day, two pages per month, striped bands, darker week dividers |
+| `planner-project` | a project planner on a sideways strip: two-week pages from week 1, fiscal quarters, 6-week cycles with a cool-down |
 
-Use a portrait template with the planner presets: `pocket-portrait`, `purse-portrait` or `mathias-portrait`.
+The two planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with them: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
 
 #### Yearly planner
 
-`planner-yearly` lays the pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs. Each month takes two pages (15 + 16 days), the day columns run flush across the folds, and the footer carries the day number (in a lighter gray) with "Week N" above it at the start of each week.
+`planner-yearly` gives each month two pages (15 + 16 days), with the day columns flush across the folds. Weekends are not shaded; a darker line marks each week start and light horizontal stripes run across the body. The month name sits above the 1st and the column lines start below it. The footer carries the day number (in a lighter gray) with a small "Week N" above it at the start of each week.
 
 A full year, Monday weeks, on a roll:
 
@@ -69,9 +64,7 @@ node index.js --start-year 2027 --start-month 1 --template pocket-portrait --wee
   --number-of-months 12 --preset planner-yearly --comment yearly
 ```
 
-That makes 24 pages on an 82.25 × 8.75 in strip. The `pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly. The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type sizes are small; adjust them with `--set fontSizes.weekNumber=6` and similar.
-
-Tweaks that work well with `--set`:
+That makes 24 pages on an 82.25 × 8.75 in strip. Tweaks that work well with `--set`:
 
 ```
 --set weekend.shade=true --set bands.stripes=false   # shaded weekends instead of striped bands
@@ -80,10 +73,29 @@ Tweaks that work well with `--set`:
 --set flush=false                                   # keep the side padding (padding.x) at the folds
 ```
 
+#### Project planner
+
+`planner-project` is built for planning in two-week pages that follow the fiscal calendar:
+
+- **Pages:** fixed 14-day pages side by side. With Monday weeks and a January start it opens on the first day of ISO week 1, which can skip the first days of January (Monday 4 January 2027), so the strip starts exactly at week 1.
+- **Quarters:** a big quarter label with the year small beside it ("Q1 2027") at the first column and wherever a quarter starts. Quarters are 13-week blocks starting at weeks 1, 14, 27 and 40, and the year turns over at week 1. Use `--set labels.quarter=months` for calendar quarters instead.
+- **Cycles:** under the quarter, a line runs from the start to the end of each 6-week cycle (with end bars and a "Cycle N" label), followed by a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip. They do not realign at year end, so they will not line up with quarters. Change the lengths with `--set labels.cycles.weeks=4 --set labels.cycles.cooldown=1`, or turn the row off with `--set labels.cycles=false`.
+- **Days:** the weekday and day number run along the top, weekends are shaded and a darker line marks each week start. The column lines and shading start below the header block.
+- **Footer:** reading bottom to top, weekday, day number and, on the 1st, the month name.
+- **Month watermark:** a large, pale month name runs left to right across the days, just under the day numbers, starting at the column of the 1st (and at the first column, so the opening month is named even when it starts after the 1st). Size it with `--set fontSizes.monthWatermark=24`, or turn it off with `--set labels.monthWatermark=false`.
+
+Four months, Monday weeks, on a roll (`--pages 10` keeps the page count even so the ends can fold shut like a cover):
+
 ```
-node index.js --start-year 2027 --start-month 1 --template purse-portrait --week-start 1 --paper-size roll \
-  --number-of-months 12 --preset planner-fixed --pages 14 --comment demo
+node index.js --start-year 2027 --start-month 1 --template pocket-portrait --week-start 1 --paper-size roll \
+  --number-of-months 4 --pages 10 --preset planner-project --comment project
 ```
+
+A full year is `--number-of-months 12`: 26 pages on an 89 × 8.75 in strip.
+
+#### Other presets
+
+`planner`, `planner-across`, `planner-fixed`, `planner-month` and `planner-hours` are the building blocks the two planners are made from, and they stay available for experiments or as a base for your own preset: `planner` is a thin column per day with each month split over two stacked pages, `planner-across` lays those pages side by side, `planner-fixed` uses 14-day pages starting with the week that contains the 1st, `planner-month` fits a whole month on one page, and `planner-hours` adds 12 striped hour bands with hour labels. Only the `classic` (vertical/week) and planner (horizontal/day) combinations of `flow` and `grain` are drawn; other combinations are rejected with an error.
 
 `--pages` sets the page count outright, for example 12 pages instead of the whole year, or 14 to run a few weeks over. Keep it even if the first and last pages need to fold shut like a cover. Without it, fixed pagination rounds up to whole pages and the extra days simply continue into the next month.
 
@@ -109,8 +121,6 @@ Planner settings (see `planner` in [`default.json`](./config/default.json) for t
 - `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayTop`, `weekdayBottom`, `weekNumbers`, `year` and `quarter` (labels along the top, on the first column and where a year or quarter starts; the year follows the quarter on the same line, e.g. "Q1 2027", and only gets a row of its own when there is no quarter label; `quarter` is `weeks` for 13-week fiscal quarters starting at weeks 1, 14, 27 and 40, with the year turning over at week 1, or `months` for calendar quarters starting on the 1st of Jan, Apr, Jul and Oct), `cycles` (optional, off unless set; used by `planner-project`: `{ "weeks": 6, "cooldown": 2 }` draws a line from the start to the end of each 6-week cycle, then a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip), `monthWatermark` (a big, pale month name running left to right across the days, starting at the column of the 1st and of the first column, just under the header; size via `fontSizes.monthWatermark`), `weekNumberBottom` ("Week N" in the footer), `digitsTop`, `digitsBottom`, `digitsBottomColor`. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
 - `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `monthWatermark`, `year`, `quarter`, `cycle`, `hours`). Nothing is resized automatically, so narrow columns need smaller sizes.
 - `padding`: `x`, `top`, `bottom` in inches.
-
-Only the `classic` (vertical/week) and planner (horizontal/day) combinations are drawn so far; other combinations of `flow` and `grain` are rejected with an error.
 
 ### Custom configuration settings
 
