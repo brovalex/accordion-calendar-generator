@@ -26,7 +26,7 @@ export default class SVGPlanner extends SVGBase {
         this.pageH = this.inchToPx(template.height)
         this.bleedPx = this.inchToPx(this.paper.bleed)
         this.pad = {
-            x: this.inchToPx(o.padding.x),
+            x: o.flush ? 0 : this.inchToPx(o.padding.x), // flush: columns run edge to edge, so days meet across the fold
             top: this.inchToPx(o.padding.top),
             bottom: this.inchToPx(o.padding.bottom)
         }
@@ -62,7 +62,8 @@ export default class SVGPlanner extends SVGBase {
             .fill('none')
 
         this.measureFooter(calData.pages)
-        // pages of one month sit on top of each other, so they share one column width (set by the longest of them)
+        // pages of one month sit on top of each other, so they share one column width (set by the longest of them);
+        // pages side by side never line up with each other, so each one just fills its own width
         const monthKey = (page) => dateFns.format(page.days[0], 'yyyy-MM')
         const longestInMonth = {}
         calData.pages.forEach((page) => {
@@ -70,7 +71,7 @@ export default class SVGPlanner extends SVGBase {
         })
         calData.pages.forEach((page, p) => {
             const pageGroup = this.mainGroup.group()
-            this.drawPage(pageGroup, page, p, calData.pages.length, this.o.pagination.mode === 'monthly' ? longestInMonth[monthKey(page)] : page.days.length)
+            this.drawPage(pageGroup, page, p, calData.pages.length, (!this.across && this.o.pagination.mode === 'monthly') ? longestInMonth[monthKey(page)] : page.days.length)
             pageGroup.transform({ translate: this.across ? [p*this.pageW, 0] : [0, p*this.pageH] })
         })
 

@@ -236,7 +236,8 @@
         },
         "planner-across": {
             "extends": "planner",
-            "arrange": "across"
+            "arrange": "across",
+            "flush": true
         },
         "planner-fixed": {
             "extends": "planner",
