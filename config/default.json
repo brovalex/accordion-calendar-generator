@@ -308,7 +308,7 @@
             "labels": {
                 "month": "none",
                 "monthWatermark": true,
-                "monthWatermarkScale": 1.2,
+                "monthWatermarkScale": 1.05,
                 "monthWatermarkOffset": 8,
                 "dayHeader": "inline",
                 "weekNumberBottomLeft": true,

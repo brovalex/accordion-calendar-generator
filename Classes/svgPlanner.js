@@ -265,9 +265,16 @@ export default class SVGPlanner extends SVGBase {
                 const size = this.size.monthWatermark
                 const width = this.textWidth(this.monthToSVG, name, size)
                 // in the first column the hour labels come first, so the name starts after them
-                const startX = colX(i) + 2 + ((i === 0 && o.bands.hours.labels === 'inside') ? this.textWidth(this.weeksToSVG, '88', this.size.hours) + 6 : 0)
+                const startX = colX(i) + 2 + ((i === 0 && o.bands.hours.labels === 'inside') ? this.textWidth(this.weeksToSVG, '88', this.size.hours) + 10 : 0)
                 const x = (p === pageCount - 1) ? Math.min(startX, W - width) : startX
-                this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, bodyTop + (o.labels.monthWatermarkOffset ?? 3) + CAP_HEIGHT*size, size, 'left', this.colors.palegray) })
+                // with hour labels the baseline snaps down to the nearest hour label's baseline, so name and hour sit on the same line
+                let baseline = bodyTop + (o.labels.monthWatermarkOffset ?? 3) + CAP_HEIGHT*size
+                if (o.bands.hours.labels !== 'none') {
+                    const bandH = bodyHeight / o.bands.count
+                    const first = this.size.hours*1.2
+                    baseline = bodyTop + first + Math.max(0, Math.ceil((baseline - bodyTop - first) / bandH)) * bandH
+                }
+                this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, baseline, size, 'left', this.colors.palegray) })
             })
         }
 
