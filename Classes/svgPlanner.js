@@ -251,26 +251,28 @@ export default class SVGPlanner extends SVGBase {
         const labelRows = ['year', 'quarter', 'cycles', 'month', 'weekNumber'].filter(k => rows[k])
         const lineTop = (o.clearMonthHeader && labelRows.length) ? Math.max(...labelRows.map(k => rows[k].top + rows[k].height)) : top
 
-        // 1. stripes: alternate bands, edge to edge
-        if (o.bands.stripes) {
-            const stripe = this.colors[o.bands.stripeColor ?? 'verylightgray']
-            const bandH = bodyHeight / o.bands.count
-            for (let b = o.bands.invert ? 0 : 1; b < o.bands.count; b += 2) { // invert: shade the first band, not the second
-                this.rect(g, left, bodyTop + b*bandH, right - left, bandH, stripe)
-            }
-        }
-
-        // 2. weekend shading: runs of weekend columns become one rect, reaching into the bleed at the page edges
+        // 1. weekend shading: runs of weekend columns become one rect, reaching into the bleed at the page edges.
+        // It goes first, so stripes can sit over it.
+        const weekendRuns = []
         if (this.shadeWeekends) {
             const weekend = (i) => [0, 6].includes(dateFns.getDay(days[i]))
             for (let i = 0; i < n; i++) {
                 if (!weekend(i)) continue
                 let j = i
                 while (j + 1 < n && weekend(j + 1)) j++
-                const x0 = i === 0 ? left : colX(i)
-                const x1 = (j === n - 1 && n === slots) ? right : colX(j + 1)
-                this.rect(g, x0, lineTop, x1 - x0, bottom - lineTop, this.colors.verylightgray)
+                weekendRuns.push({ x0: i === 0 ? left : colX(i), x1: (j === n - 1 && n === slots) ? right : colX(j + 1) })
                 i = j
+            }
+            weekendRuns.forEach(({ x0, x1 }) => this.rect(g, x0, lineTop, x1 - x0, bottom - lineTop, this.colors.verylightgray))
+        }
+
+        // 2. stripes: alternate bands, edge to edge. Over a weekend column they are a slightly darker gray, so both patterns show
+        if (o.bands.stripes) {
+            const stripe = this.colors[o.bands.stripeColor ?? 'verylightgray']
+            const bandH = bodyHeight / o.bands.count
+            for (let b = o.bands.invert ? 0 : 1; b < o.bands.count; b += 2) { // invert: shade the first band, not the second
+                this.rect(g, left, bodyTop + b*bandH, right - left, bandH, stripe)
+                weekendRuns.forEach(({ x0, x1 }) => this.rect(g, x0, bodyTop + b*bandH, x1 - x0, bandH, this.colors.stripegray))
             }
         }
 
