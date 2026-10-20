@@ -36,6 +36,7 @@ export default class OutputPDF {
                     else if( color[0][0]==128 && color[0][1] == 128 && color[0][2] == 128) return [ [ 0, 0, 0, 50 ], 1]
                     else if( color[0][0]==191 && color[0][1] == 191 && color[0][2] == 191) return [ [ 0, 0, 0, 25 ], 1]
                     else if( color[0][0]==247 && color[0][1] == 247 && color[0][2] == 247) return [ [ 0, 0, 0, 3 ], 1]
+                    else if( color[0][0]==230 && color[0][1] == 230 && color[0][2] == 230) return [ [ 0, 0, 0, 10 ], 1]
                     else return color
                     // TEMP: I use this in svgCalendar.js to the arrays, keeping it here just in case colors change and I need to update them above
                     // for (let SVGColor in this.colors.colors) {

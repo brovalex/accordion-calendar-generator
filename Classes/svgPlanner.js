@@ -41,6 +41,7 @@ export default class SVGPlanner extends SVGBase {
             year: sizes.year ?? fonts.MonthHeader.size/2,
             quarter: sizes.quarter ?? fonts.Days.size,
             cycle: sizes.cycle ?? fonts.WeekNumber.size,
+            monthWatermark: sizes.monthWatermark ?? fonts.MonthHeader.size*1.5,
             monthVertical: sizes.monthVertical ?? fonts.MonthVertical?.size ?? fonts.Days.size,
             hours: sizes.hours ?? fonts.Hours?.size ?? fonts.WeekNumber.size
         }
@@ -233,6 +234,20 @@ export default class SVGPlanner extends SVGBase {
                 this.rect(g, x0, lineTop, x1 - x0, bottom - lineTop, this.colors.verylightgray)
                 i = j
             }
+        }
+
+        // 2b. month watermark: a big, pale month name turned along the column of the 1st (and of the first column, so the
+        // strip's opening month is named even when it starts after the 1st). It is wider than a column, so it spills over the
+        // neighbouring columns and weekend shading; the column lines are drawn on top of it.
+        if (o.labels.monthWatermark) {
+            days.forEach((day, i) => {
+                if (!(dateFns.isFirstDayOfMonth(day) || (p === 0 && i === 0))) return
+                const name = dateFns.format(day, 'MMMM')
+                const room = bodyBottom - bodyTop - 8
+                const width = this.textWidth(this.monthToSVG, name, this.size.monthWatermark)
+                const size = width > room ? this.size.monthWatermark * room / width : this.size.monthWatermark // never longer than the body
+                this.verticalText(g, this.monthToSVG, name, colX(i) + colW/2, bodyBottom - 4, size, this.colors.palegray)
+            })
         }
 
         // 3. hairlines between bands, including the top and bottom of the body

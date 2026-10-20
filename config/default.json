@@ -271,7 +271,8 @@
                 "month": "vertical",
                 "weekdayTop": true,
                 "weekdayBottom": true,
-                "digitsTop": true
+                "digitsTop": true,
+                "monthWatermark": true
             },
             "fontSizes": {
                 "monthVertical": 5,
