@@ -285,7 +285,7 @@
             }
         },
         "planner-weekly": {
-            "extends": "planner",
+            "extends": "planner-across",
             "clearMonthHeader": true,
             "pagination": {
                 "mode": "fixed",
@@ -299,7 +299,7 @@
                 "count": 16,
                 "stripes": true,
                 "hours": {
-                    "labels": "left",
+                    "labels": "inside",
                     "first": 6,
                     "perBand": 1
                 }
@@ -310,9 +310,6 @@
                 "weekNumbers": true,
                 "weekNumberPrefix": "Week ",
                 "digitsBottom": false
-            },
-            "padding": {
-                "x": 0.35
             }
         },
         "planner-fixed": {

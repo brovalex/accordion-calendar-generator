@@ -50,7 +50,7 @@ export default class SVGPlanner extends SVGBase {
         this.monthMode = labels.month === 'auto' ? (o.pagination.mode === 'monthly' ? 'top' : 'vertical') : labels.month
         if (!['top', 'vertical', 'none'].includes(this.monthMode)) throw new Error(`labels.month must be auto, top, vertical or none (got "${labels.month}")`)
         if (!['short', 'letter', 'none'].includes(labels.weekday)) throw new Error(`labels.weekday must be short, letter or none (got "${labels.weekday}")`)
-        if (!['none', 'left', 'right', 'both'].includes(o.bands.hours.labels)) throw new Error(`bands.hours.labels must be none, left, right or both (got "${o.bands.hours.labels}")`)
+        if (!['none', 'left', 'right', 'both', 'inside'].includes(o.bands.hours.labels)) throw new Error(`bands.hours.labels must be none, left, right, both or inside (got "${o.bands.hours.labels}")`)
 
         this.shadeWeekends = o.weekend.shade
         if (this.shadeWeekends && o.bands.stripes) {
@@ -276,15 +276,21 @@ export default class SVGPlanner extends SVGBase {
         // cycles: a line from the first to the last day of each build cycle, then a lighter one for its cool-down
         if (rows.cycles) this.drawCycles(g, days, colX, rows.cycles)
 
-        // 5. hour labels in the side padding, at the top of each band
+        // 5. hour labels at the top of each band: in the side padding, or (inside) in the first column of the page,
+        // for flush layouts that have no padding
         if (o.bands.hours.labels !== 'none') {
             const bandH = bodyHeight / o.bands.count
             const sides = o.bands.hours.labels === 'both' ? ['left', 'right'] : [o.bands.hours.labels]
             for (let b = 0; b < o.bands.count; b++) {
                 const hour = String((o.bands.hours.first + b*o.bands.hours.perBand) % 24)
+                const baseline = bodyTop + b*bandH + this.size.hours*1.2
+                if (o.bands.hours.labels === 'inside') {
+                    this.text(g, this.weeksToSVG, hour, colX(0) + 3, baseline, this.size.hours, 'left', this.colors.gray)
+                    continue
+                }
                 sides.forEach((side) => {
                     this.text(g, this.weeksToSVG, hour, side === 'left' ? this.pad.x/2 : W - this.pad.x/2,
-                        bodyTop + b*bandH + this.size.hours*1.2, this.size.hours, 'center', this.colors.gray)
+                        baseline, this.size.hours, 'center', this.colors.gray)
                 })
             }
         }

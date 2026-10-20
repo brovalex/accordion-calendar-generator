@@ -50,9 +50,9 @@ There are four calendar templates. A template is a **preset**: it bundles every 
 | `classic` | the original: one month per page, a row per week, pages stacked down the roll |
 | `planner-yearly` | the year on one sideways strip: a thin column per day, two pages per month, striped bands, darker week dividers |
 | `planner-project` | a project planner on a sideways strip: two-week pages from week 1, fiscal quarters, 6-week cycles with a cool-down |
-| `planner-weekly` | a weekly planner: one landscape page per week, a column per day and an hourly row grid, stacked down the roll |
+| `planner-weekly` | a weekly planner: one wide page per week, side by side on the sideways strip, with an hourly row grid |
 
-The yearly and project planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with those two: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
+The planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with the yearly and project planners: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
 
 #### Yearly planner
 
@@ -96,18 +96,18 @@ A full year is `--number-of-months 12`: 26 pages on an 89 × 8.75 in strip.
 
 #### Weekly planner
 
-`planner-weekly` is one week per page, like the yearly planner turned landscape with hours on the rows. Use a landscape template (`pocket`, `purse` or `mathias`); the pages stack down the roll as in the classic layout, so `purse` fits the 8.75 in `roll` exactly.
+`planner-weekly` is one week per page, like the yearly planner but with wider pages and hours on the rows. The pages sit side by side on the sideways strip, so the day columns run edge to edge across the whole calendar with a darker line at each week start. Use a landscape template for the wider page (`pocket` or `purse`; the page size changes, not the strip's orientation).
 
 - **Pages:** one week (7 days) per page, starting at ISO week 1 (Monday 4 January 2027) so the pages match the week numbers. A page that opens mid-month names its month; if the 1st falls inside the week, that month's name sits above its day column as well.
-- **Header:** the month name, a small "Week N", then the weekday and the day number above each column.
-- **Rows:** 16 hourly rows from 6 to 21, alternately shaded, with the hour at the left of each row. Weekends are not shaded.
+- **Header:** the month name, a small "Week N", then the weekday and the day number above each column. The column lines start below the header.
+- **Rows:** 16 hourly rows from 6 to 21, alternately shaded, with the hour at the left of the first column of every page. Weekends are not shaded.
 
 ```
 node index.js --start-year 2027 --start-month 1 --template purse --week-start 1 --paper-size roll \
   --number-of-months 12 --preset planner-weekly --comment weekly
 ```
 
-Change the hours with `--set bands.count=12 --set bands.hours.first=8`, or give every row two hours with `--set bands.hours.perBand=2`. Add `--set bands.hairlines=true` for a line between rows.
+That makes about 52 pages of 7.5 in each, so a long strip (`purse` pages fit the 8.75 in roll). Change the hours with `--set bands.count=12 --set bands.hours.first=8`, or give every row two hours with `--set bands.hours.perBand=2`. Add `--set bands.hairlines=true` for a line between rows. `bands.hours.labels=inside` puts the hours in the first column; the other values (`left`, `right`, `both`) use the side padding, which needs `--set flush=false`.
 
 #### Other presets
 
@@ -133,7 +133,7 @@ Planner settings (see `planner` in [`default.json`](./config/default.json) for t
 - `clearMonthHeader`: column lines and weekend shading start under the header labels (year, quarter, cycles, month) instead of running behind them.
 - `weekend.shade`: shade Saturday and Sunday. Not combined with striped bands (weekends stay unshaded if you ask for both).
 - `weekDivider` / `columnLines`: darker line where a new week starts (set by `--week-start`) and light lines between the other days.
-- `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`; `first` hour and `perBand` hours).
+- `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`, or `inside` for the first column of each page; `first` hour and `perBand` hours).
 - `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayTop`, `weekdayBottom`, `weekNumbers`, `year` and `quarter` (labels along the top, on the first column and where a year or quarter starts; the year follows the quarter on the same line, e.g. "Q1 2027", and only gets a row of its own when there is no quarter label; `quarter` is `weeks` for 13-week fiscal quarters starting at weeks 1, 14, 27 and 40, with the year turning over at week 1, or `months` for calendar quarters starting on the 1st of Jan, Apr, Jul and Oct), `cycles` (optional, off unless set; used by `planner-project`: `{ "weeks": 6, "cooldown": 2 }` draws a line from the start to the end of each 6-week cycle, then a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip), `monthWatermark` (a big, pale month name running left to right across the days, starting at the column of the 1st and of the first column, just under the header; size via `fontSizes.monthWatermark`), `weekNumberBottom` ("Week N" in the footer), `digitsTop`, `digitsBottom`, `digitsBottomColor`. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
 - `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `monthWatermark`, `year`, `quarter`, `cycle`, `hours`). Nothing is resized automatically, so narrow columns need smaller sizes.
 - `padding`: `x`, `top`, `bottom` in inches.
