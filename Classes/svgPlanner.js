@@ -375,7 +375,7 @@ export default class SVGPlanner extends SVGBase {
                 this.text(g, this.digitsToSVG, digits, colX(i) + 3, baseline, this.size.digits, 'left', this.colors.darkgray)
                 this.text(g, this.textToSVG, this.weekdayLabel(day), colX(i) + 3 + this.textWidth(this.digitsToSVG, digits, this.size.digits) + 3, baseline, this.size.weekday, 'left', this.colors.gray)
                 const moon = this.moonDays.get(dayKey(day))
-                if (moon) this.drawMoon(g, moon, colX(i) + colW - 3 - this.size.digits*0.3, baseline - CAP_HEIGHT*this.size.digits/2, this.size.digits*0.3) // right aligned, level with the day number
+                if (moon) this.drawMoon(g, moon, colX(i) + colW - 5.5 - this.size.digits*0.3, baseline - CAP_HEIGHT*this.size.digits/2, this.size.digits*0.3) // right aligned, level with the day number
             }
             if (rows.weekday) {
                 this.text(g, this.textToSVG, this.weekdayLabel(day), centerX,
