@@ -297,6 +297,7 @@
             "bands": {
                 "count": 16,
                 "stripes": true,
+                "invert": true,
                 "hours": {
                     "labels": "inside",
                     "first": 6,
@@ -309,7 +310,7 @@
                 "month": "none",
                 "monthWatermark": true,
                 "monthWatermarkScale": 1.05,
-                "monthWatermarkOffset": 18,
+                "monthWatermarkOffset": 8,
                 "dayHeader": "inline",
                 "weekNumberBottomLeft": true,
                 "weekNumberPrefix": "Week ",

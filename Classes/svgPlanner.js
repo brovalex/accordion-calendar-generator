@@ -235,7 +235,7 @@ export default class SVGPlanner extends SVGBase {
         if (o.bands.stripes) {
             const stripe = this.colors[o.bands.stripeColor ?? 'verylightgray']
             const bandH = bodyHeight / o.bands.count
-            for (let b = 1; b < o.bands.count; b += 2) {
+            for (let b = o.bands.invert ? 0 : 1; b < o.bands.count; b += 2) { // invert: shade the first band, not the second
                 this.rect(g, left, bodyTop + b*bandH, right - left, bandH, stripe)
             }
         }
