@@ -51,7 +51,12 @@ export default class PlannerData {
     static fixedPages (settings, pagination, startOfMonth) {
         const perPage = pagination.daysPerPage
         if (!Number.isInteger(perPage) || perPage < 1) throw new Error('pagination.daysPerPage must be a whole number of 1 or more')
-        const first = dateFns.startOfWeek(startOfMonth, { weekStartsOn: settings.week_starts_on })
+        let first = dateFns.startOfWeek(startOfMonth, { weekStartsOn: settings.week_starts_on })
+        // startAt 'week1': open on the first day of ISO week 1, which can skip the first days of January (e.g. 4 Jan 2027).
+        // Other week starts number week 1 as the week holding 1 January, which is already where this begins.
+        if (pagination.startAt === 'week1' && settings.start.month === 1 && settings.week_starts_on === 1) {
+            first = dateFns.startOfISOWeek(new Date(settings.start.year, 0, 4))
+        }
         let count = settings.pages
         if (!count) {
             const last = dateFns.lastDayOfMonth(dateFns.addMonths(startOfMonth, settings.number_of_months - 1))

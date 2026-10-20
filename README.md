@@ -54,7 +54,7 @@ A layout is a *flow* (which way the pages fill up), a *grain* (the unit along th
 | `planner-hours` | horizontal / day | fixed pages with 12 striped hour bands and hour labels instead of shaded weekends |
 | `planner-across` | horizontal / day | like `planner`, but the pages sit side by side along a landscape strip, with day columns running edge to edge across the folds |
 | `planner-yearly` | horizontal / day | the year on one strip: striped bands, no weekend shading, darker week dividers, month names clear of the lines, and "Week N" in the footer |
-| `planner-project` | horizontal / day | fixed pages of 14 days (two weeks) side by side, with year and quarter labels along the top; each column's footer reads weekday, day number and, on the 1st, the month name |
+| `planner-project` | horizontal / day | fixed pages of 14 days (two weeks) side by side, starting at week 1, with year and quarter labels along the top; each column's footer reads weekday, day number and, on the 1st, the month name |
 
 Use a portrait template with the planner presets: `pocket-portrait`, `purse-portrait` or `mathias-portrait`.
 
@@ -99,7 +99,7 @@ Any value can be overridden on the fly with `--set`, and you can make your own p
 
 Planner settings (see `planner` in [`default.json`](./config/default.json) for the defaults):
 
-- `pagination.mode`: `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). In monthly mode, pages of one month share a column width, so a 15-day page leaves one slot empty above a 16-day page; in fixed mode all columns are the same. With `arrange: across` each page fills its own width instead.
+- `pagination.mode`: `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). Fixed pagination can also set `startAt: "week1"` to open on the first day of ISO week 1 (Monday weeks, starting in January), which may skip the first days of January (4 Jan 2027); `planner-project` does this. In monthly mode, pages of one month share a column width, so a 15-day page leaves one slot empty above a 16-day page; in fixed mode all columns are the same. With `arrange: across` each page fills its own width instead.
 - `arrange`: `across` puts the pages side by side (the paper turns sideways); the default stacks them down the roll.
 - `flush`: no side padding, so day columns run edge to edge. A column line is drawn at every fold.
 - `clearMonthHeader`: column lines and weekend shading start under the header labels (year, quarter, cycles, month) instead of running behind them.

@@ -258,7 +258,8 @@
             "clearMonthHeader": true,
             "pagination": {
                 "mode": "fixed",
-                "daysPerPage": 14
+                "daysPerPage": 14,
+                "startAt": "week1"
             },
             "labels": {
                 "year": true,
