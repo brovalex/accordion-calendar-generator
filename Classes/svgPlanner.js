@@ -76,10 +76,16 @@ export default class SVGPlanner extends SVGBase {
         calData.pages.forEach((page) => {
             longestInMonth[monthKey(page)] = Math.max(longestInMonth[monthKey(page)] ?? 0, page.days.length)
         })
+        this.overlays = [] // drawn over every page once all of them exist: { p, draw(group) } in page coordinates
         calData.pages.forEach((page, p) => {
             const pageGroup = this.mainGroup.group()
             this.drawPage(pageGroup, page, p, calData.pages.length, (!this.across && this.o.pagination.mode === 'monthly') ? longestInMonth[monthKey(page)] : page.days.length)
             pageGroup.transform({ translate: this.across ? [p*this.pageW, 0] : [0, p*this.pageH] })
+        })
+        this.overlays.forEach(({ p, draw }) => {
+            const layer = this.mainGroup.group()
+            layer.transform({ translate: this.across ? [p*this.pageW, 0] : [0, p*this.pageH] })
+            draw(layer)
         })
 
         this.finish(calData.pages.length)
@@ -236,17 +242,17 @@ export default class SVGPlanner extends SVGBase {
             }
         }
 
-        // 2b. month watermark: a big, pale month name turned along the column of the 1st (and of the first column, so the
-        // strip's opening month is named even when it starts after the 1st). It is wider than a column, so it spills over the
-        // neighbouring columns and weekend shading; the column lines are drawn on top of it.
+        // 2b. month watermark: a big, pale month name running left to right across the days, starting at the column of the 1st
+        // (and of the first column, so the strip's opening month is named even when it starts after the 1st) just under the
+        // header. It is drawn later, in a layer over the whole strip, so it can run over a page fold without being covered.
         if (o.labels.monthWatermark) {
             days.forEach((day, i) => {
                 if (!(dateFns.isFirstDayOfMonth(day) || (p === 0 && i === 0))) return
                 const name = dateFns.format(day, 'MMMM')
-                const room = bodyBottom - bodyTop - 8
-                const width = this.textWidth(this.monthToSVG, name, this.size.monthWatermark)
-                const size = width > room ? this.size.monthWatermark * room / width : this.size.monthWatermark // never longer than the body
-                this.verticalText(g, this.monthToSVG, name, colX(i) + colW/2, bodyBottom - 4, size, this.colors.palegray)
+                const size = this.size.monthWatermark
+                const width = this.textWidth(this.monthToSVG, name, size)
+                const x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - width) : colX(i) + 2
+                this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, bodyTop + 4 + CAP_HEIGHT*size, size, 'left', this.colors.palegray) })
             })
         }
 
