@@ -8,12 +8,12 @@ console.log("-------------------------------------------")
 //
 //   [month]            monthly pagination: above the 1st of the month
 //   [week number]      optional, on the first column of each week
-//   [weekday]          1 or 3 letters
+//   [weekday]          1 or 3 letters; optional at the top (labels.weekdayTop)
 //   [digit]
 //   ...body: weekend shading and/or hour bands...
-//   [month]            fixed pagination: vertical, in the column of the 1st
+//   [month]            vertical, in the column of the 1st, right after its digit
+//   [digit]            vertical, reading bottom to top: weekday, digit, month
 //   [weekday]          optional, vertical
-//   [digit]            vertical, reading bottom to top
 const CAP_HEIGHT = 0.71 // Roboto digits and capitals, as a fraction of the font size
 
 export default class SVGPlanner extends SVGBase {
@@ -90,16 +90,16 @@ export default class SVGPlanner extends SVGBase {
     }
     textWidth = (font, text, fontSize) => font.getMetrics(text, { fontSize }).width
 
-    // footer reads bottom to top: digit, then weekday, then month. Its height is the same on every page.
+    // footer reads bottom to top: weekday, then digit, then month. Its height is the same on every page.
     measureFooter = (pages) => {
         const labels = this.o.labels
         const gap = 3
         const items = []
-        if (labels.digitsBottom) items.push({ key: 'digits', length: this.textWidth(this.digitsToSVG, '88', this.size.digits) })
         if (labels.weekdayBottom && labels.weekday !== 'none') {
             const longest = Math.max(...pages.flatMap(pg => pg.days.map(d => this.textWidth(this.textToSVG, this.weekdayLabel(d), this.size.weekday))))
             items.push({ key: 'weekday', length: longest })
         }
+        if (labels.digitsBottom) items.push({ key: 'digits', length: this.textWidth(this.digitsToSVG, '88', this.size.digits) })
         if (this.monthMode === 'vertical') {
             const longest = Math.max(...[...Array(12)].map((_, m) => this.textWidth(this.textToSVG, dateFns.format(new Date(2000, m, 1), 'MMMM'), this.size.monthVertical)))
             items.push({ key: 'month', length: longest })
@@ -145,7 +145,7 @@ export default class SVGPlanner extends SVGBase {
         const addRow = (key, height) => { rows[key] = { top: y, height }; y += height }
         if (this.monthMode === 'top') addRow('month', this.size.month*1.4)
         if (o.labels.weekNumbers) addRow('weekNumber', this.size.weekNumber*1.6)
-        if (o.labels.weekday !== 'none') addRow('weekday', this.size.weekday*1.8)
+        if (o.labels.weekday !== 'none' && o.labels.weekdayTop !== false) addRow('weekday', this.size.weekday*1.8)
         if (o.labels.digitsTop) addRow('digits', this.size.digits*1.8)
         const bodyTop = y + (y > this.pad.top ? 2 : 0)
         const footerGap = this.footerHeight ? 3 : 0
@@ -186,10 +186,12 @@ export default class SVGPlanner extends SVGBase {
 
         // 4. column lines, darker where a new week starts
         // side by side, the first column of every page after the first also gets its line, so the rhythm carries over the fold
+        // clearMonthHeader: the lines start under the month label instead of running through it
+        const lineTop = (o.clearMonthHeader && rows.month) ? rows.month.top + rows.month.height : top
         for (let i = (this.across && p > 0) ? 0 : 1; i < n; i++) {
             const newWeek = dateFns.getDay(days[i]) === this.weekStartsOn
-            if (newWeek && o.weekDivider) this.rect(g, colX(i) - 0.5, top, 1, bottom - top, this.colors.gray)
-            else if (o.columnLines) this.rect(g, colX(i) - 0.25, top, 0.5, bottom - top, this.colors.lightgray)
+            if (newWeek && o.weekDivider) this.rect(g, colX(i) - 0.5, lineTop, 1, bottom - lineTop, this.colors.gray)
+            else if (o.columnLines) this.rect(g, colX(i) - 0.25, lineTop, 0.5, bottom - lineTop, this.colors.lightgray)
         }
 
         // 5. hour labels in the side padding, at the top of each band

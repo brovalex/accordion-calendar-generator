@@ -239,6 +239,28 @@
             "arrange": "across",
             "flush": true
         },
+        "planner-yearly": {
+            "extends": "planner-across",
+            "clearMonthHeader": true,
+            "weekend": {
+                "shade": false
+            },
+            "bands": {
+                "stripes": true
+            }
+        },
+        "planner-project": {
+            "extends": "planner-across",
+            "labels": {
+                "month": "vertical",
+                "weekdayTop": false,
+                "weekdayBottom": true,
+                "digitsTop": false
+            },
+            "fontSizes": {
+                "monthVertical": 5
+            }
+        },
         "planner-fixed": {
             "extends": "planner",
             "pagination": {
