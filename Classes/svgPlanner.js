@@ -56,7 +56,8 @@ export default class SVGPlanner extends SVGBase {
 
         // keeps the bounding box at trim size + bleed, which is what the crop marks are measured from
         this.mainGroup
-            .rect(this.pageW + 2*this.bleedPx, calData.pages.length*this.pageH + 2*this.bleedPx)
+            .rect(this.across ? calData.pages.length*this.pageW + 2*this.bleedPx : this.pageW + 2*this.bleedPx,
+                  this.across ? this.pageH + 2*this.bleedPx : calData.pages.length*this.pageH + 2*this.bleedPx)
             .move(-this.bleedPx, -this.bleedPx)
             .fill('none')
 
@@ -70,7 +71,7 @@ export default class SVGPlanner extends SVGBase {
         calData.pages.forEach((page, p) => {
             const pageGroup = this.mainGroup.group()
             this.drawPage(pageGroup, page, p, calData.pages.length, this.o.pagination.mode === 'monthly' ? longestInMonth[monthKey(page)] : page.days.length)
-            pageGroup.transform({ translate: [0, p*this.pageH] })
+            pageGroup.transform({ translate: this.across ? [p*this.pageW, 0] : [0, p*this.pageH] })
         })
 
         this.finish(calData.pages.length)
@@ -131,8 +132,11 @@ export default class SVGPlanner extends SVGBase {
         const colLeft = this.pad.x
         const colW = (W - 2*this.pad.x) / slots // a shorter page leaves its last slot(s) empty rather than stretching its columns
         const colX = (i) => colLeft + i*colW
-        const top = p === 0 ? -bleed : 0
-        const bottom = p === pageCount - 1 ? H + bleed : H
+        // the bleed reaches past the trim only on the outer edges of the whole strip
+        const top = (this.across || p === 0) ? -bleed : 0
+        const bottom = (this.across || p === pageCount - 1) ? H + bleed : H
+        const left = (!this.across || p === 0) ? -bleed : 0
+        const right = (!this.across || p === pageCount - 1) ? W + bleed : W
 
         // header, top down
         const rows = {}
@@ -152,7 +156,7 @@ export default class SVGPlanner extends SVGBase {
             const stripe = this.colors[o.bands.stripeColor ?? 'verylightgray']
             const bandH = bodyHeight / o.bands.count
             for (let b = 1; b < o.bands.count; b += 2) {
-                this.rect(g, -bleed, bodyTop + b*bandH, W + 2*bleed, bandH, stripe)
+                this.rect(g, left, bodyTop + b*bandH, right - left, bandH, stripe)
             }
         }
 
@@ -163,8 +167,8 @@ export default class SVGPlanner extends SVGBase {
                 if (!weekend(i)) continue
                 let j = i
                 while (j + 1 < n && weekend(j + 1)) j++
-                const x0 = i === 0 ? -bleed : colX(i)
-                const x1 = (j === n - 1 && n === slots) ? W + bleed : colX(j + 1)
+                const x0 = i === 0 ? left : colX(i)
+                const x1 = (j === n - 1 && n === slots) ? right : colX(j + 1)
                 this.rect(g, x0, top, x1 - x0, bottom - top, this.colors.verylightgray)
                 i = j
             }
@@ -175,7 +179,7 @@ export default class SVGPlanner extends SVGBase {
             const hairline = this.colors[o.bands.hairlineColor ?? 'lightgray']
             const bandH = bodyHeight / o.bands.count
             for (let b = 0; b <= o.bands.count; b++) {
-                this.rect(g, -bleed, bodyTop + b*bandH - 0.25, W + 2*bleed, 0.5, hairline)
+                this.rect(g, left, bodyTop + b*bandH - 0.25, right - left, 0.5, hairline)
             }
         }
 

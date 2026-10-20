@@ -234,6 +234,10 @@
                 "bottom": 0.2
             }
         },
+        "planner-across": {
+            "extends": "planner",
+            "arrange": "across"
+        },
         "planner-fixed": {
             "extends": "planner",
             "pagination": {

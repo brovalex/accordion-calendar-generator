@@ -19,6 +19,11 @@ export default class Settings {
         this.paper.margin = options.margin ?? 0.5
         this.paper.bleed = 0.125
         this.paper.sizes = {...this.paper.sizes}; // Create a new object to avoid mutating config
+        // pages laid side by side: the paper is turned sideways, so a roll grows along its width instead of its height
+        this.across = this.preset.arrange === 'across'
+        if (this.across) this.paper.sizes = { width: this.paper.sizes.height, height: this.paper.sizes.width }
+        this.paper.autoWidth = this.paper.sizes.width === null
+        if (this.paper.autoWidth) this.paper.sizes.width = this.template.width*this.number_of_months+2*this.paper.margin+2*this.paper.bleed
         this.paper.autoHeight = this.paper.sizes.height === null
         if (this.paper.sizes.height === null) this.paper.sizes.height = this.template.height*this.number_of_months+2*this.paper.margin+2*this.paper.bleed
         this.paper.availHeight = this.paper.sizes.height-2*this.paper.margin
@@ -27,6 +32,12 @@ export default class Settings {
     }
     // roll-style paper is as long as the calendar; layouts that decide their own page count call this
     fitPaperToPages (pageCount) {
+        if (this.across) {
+            if (!this.paper.autoWidth) return
+            this.paper.sizes.width = this.template.width*pageCount+2*this.paper.margin+2*this.paper.bleed
+            this.paper.availWidth = this.paper.sizes.width-2*this.paper.margin
+            return
+        }
         if (!this.paper.autoHeight) return
         this.paper.sizes.height = this.template.height*pageCount+2*this.paper.margin+2*this.paper.bleed
         this.paper.availHeight = this.paper.sizes.height-2*this.paper.margin

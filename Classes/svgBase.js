@@ -11,6 +11,7 @@ export default class SVGBase {
         this.template = template
         this.paper = calData.paper
         this.fonts = calData.fonts
+        this.across = calData.preset?.arrange === 'across' // pages side by side instead of stacked
 
         // outlining fonts
         this.textToSVG = TextToSVG.loadSync(calData.fonts.textFont.file);
@@ -67,7 +68,8 @@ export default class SVGBase {
             })
     }
     drawFoldLines = (svg, pagesCount) => {
-        [...Array(pagesCount+1)].forEach((_,i) => {
+        if (this.across) return this.drawFoldLinesAcross(svg, pagesCount)
+        ;[...Array(pagesCount+1)].forEach((_,i) => {
             const l=this.inchToPx(1/2)
             const zeroH= this.inchToPx(this.paper.margin)
             const zeroY= this.inchToPx(this.paper.margin)
@@ -86,6 +88,20 @@ export default class SVGBase {
                 x: this.inchToPx(this.paper.sizes.width)-l,
                 y: y
                 }).fill( this.colors.lightgray )
+        })
+    }
+    // same marks turned a quarter: pages sit side by side, so the folds are vertical ticks above and below the artwork
+    drawFoldLinesAcross = (svg, pagesCount) => {
+        [...Array(pagesCount+1)].forEach((_,i) => {
+            const l=this.inchToPx(1/2)
+            const zeroH= this.inchToPx(this.paper.margin)
+            const zeroY= this.inchToPx(this.paper.margin)
+            const t=1
+            const x=zeroH + i*this.inchToPx(this.template.width) + this.inchToPx(this.paper.bleed) - t/2
+
+            svg.rect(t, l).attr({ x: x, y: zeroY - l }).fill( this.colors.lightgray )
+            svg.rect(t, l).attr({ x: x, y: zeroY + this.inchToPx(this.template.height) + 2*this.inchToPx(this.paper.bleed) }).fill( this.colors.lightgray )
+            svg.rect(t, l).attr({ x: x, y: this.inchToPx(this.paper.sizes.height)-l }).fill( this.colors.lightgray )
         })
     }
 }
