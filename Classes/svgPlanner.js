@@ -38,6 +38,8 @@ export default class SVGPlanner extends SVGBase {
             weekday: sizes.weekday ?? fonts.DaysOfWeek.size,
             weekNumber: sizes.weekNumber ?? fonts.WeekNumber.size,
             month: sizes.month ?? fonts.MonthHeader.size,
+            year: sizes.year ?? fonts.MonthHeader.size/2,
+            quarter: sizes.quarter ?? fonts.Days.size,
             monthVertical: sizes.monthVertical ?? fonts.MonthVertical?.size ?? fonts.Days.size,
             hours: sizes.hours ?? fonts.Hours?.size ?? fonts.WeekNumber.size
         }
@@ -145,6 +147,8 @@ export default class SVGPlanner extends SVGBase {
         const rows = {}
         let y = this.pad.top
         const addRow = (key, height) => { rows[key] = { top: y, height }; y += height }
+        if (o.labels.year) addRow('year', this.size.year*1.4)
+        if (o.labels.quarter) addRow('quarter', this.size.quarter*1.6)
         if (this.monthMode === 'top') addRow('month', this.size.month*1.4)
         if (o.labels.weekNumbers) addRow('weekNumber', this.size.weekNumber*1.6)
         if (o.labels.weekday !== 'none' && o.labels.weekdayTop !== false) addRow('weekday', this.size.weekday*1.8)
@@ -189,7 +193,8 @@ export default class SVGPlanner extends SVGBase {
         // 4. column lines, darker where a new week starts
         // side by side, the first column of every page after the first also gets its line, so the rhythm carries over the fold
         // clearMonthHeader: the lines start under the month label instead of running through it
-        const lineTop = (o.clearMonthHeader && rows.month) ? rows.month.top + rows.month.height : top
+        const labelRows = ['year', 'quarter', 'month'].filter(k => rows[k])
+        const lineTop = (o.clearMonthHeader && labelRows.length) ? Math.max(...labelRows.map(k => rows[k].top + rows[k].height)) : top
         for (let i = (this.across && p > 0) ? 0 : 1; i < n; i++) {
             const newWeek = dateFns.getDay(days[i]) === this.weekStartsOn
             if (newWeek && o.weekDivider) this.rect(g, colX(i) - 0.5, lineTop, 1, bottom - lineTop, this.colors.gray)
@@ -212,6 +217,19 @@ export default class SVGPlanner extends SVGBase {
         // 6. text
         days.forEach((day, i) => {
             const centerX = colX(i) + colW/2
+            // year and quarter labels sit on the column that starts them, and on the very first column so the strip opens labelled
+            const opening = p === 0 && i === 0
+            const label = (key, str, font, size, color) => {
+                const width = this.textWidth(font, str, size)
+                const x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - width) : colX(i) + 2 // the last label must not run off the strip
+                this.text(g, font, str, x, rows[key].top + rows[key].height*0.75, size, 'left', color)
+            }
+            if (rows.year && (opening || (dateFns.isFirstDayOfMonth(day) && day.getMonth() === 0))) {
+                label('year', String(day.getFullYear()), this.monthToSVG, this.size.year, this.colors.gray)
+            }
+            if (rows.quarter && (opening || (dateFns.isFirstDayOfMonth(day) && day.getMonth() % 3 === 0))) {
+                label('quarter', `Q${dateFns.getQuarter(day)}`, this.textToSVG, this.size.quarter, this.colors.gray)
+            }
             if (rows.weekNumber && (i === 0 || dateFns.getDay(day) === this.weekStartsOn)) {
                 this.text(g, this.weeksToSVG, String(this.weekNumber(day)), colX(i) + 2,
                     rows.weekNumber.top + rows.weekNumber.height*0.75, this.size.weekNumber, 'left', this.colors.gray)

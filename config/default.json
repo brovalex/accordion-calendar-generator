@@ -255,14 +255,23 @@
         },
         "planner-project": {
             "extends": "planner-across",
+            "clearMonthHeader": true,
+            "pagination": {
+                "mode": "fixed",
+                "daysPerPage": 14
+            },
             "labels": {
+                "year": true,
+                "quarter": true,
                 "month": "vertical",
                 "weekdayTop": false,
                 "weekdayBottom": true,
                 "digitsTop": false
             },
             "fontSizes": {
-                "monthVertical": 5
+                "monthVertical": 5,
+                "year": 9,
+                "quarter": 6
             }
         },
         "planner-fixed": {

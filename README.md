@@ -54,7 +54,7 @@ A layout is a *flow* (which way the pages fill up), a *grain* (the unit along th
 | `planner-hours` | horizontal / day | fixed pages with 12 striped hour bands and hour labels instead of shaded weekends |
 | `planner-across` | horizontal / day | like `planner`, but the pages sit side by side along a landscape strip, with day columns running edge to edge across the folds |
 | `planner-yearly` | horizontal / day | the year on one strip: striped bands, no weekend shading, darker week dividers, month names clear of the lines, and "Week N" in the footer |
-| `planner-project` | horizontal / day | like `planner-across` without the header rows; each column's footer reads weekday, day number and, on the 1st, the month name |
+| `planner-project` | horizontal / day | fixed pages of 14 days (two weeks) side by side, with year and quarter labels along the top; each column's footer reads weekday, day number and, on the 1st, the month name |
 
 Use a portrait template with the planner presets: `pocket-portrait`, `purse-portrait` or `mathias-portrait`.
 
@@ -102,12 +102,12 @@ Planner settings (see `planner` in [`default.json`](./config/default.json) for t
 - `pagination.mode`: `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). In monthly mode, pages of one month share a column width, so a 15-day page leaves one slot empty above a 16-day page; in fixed mode all columns are the same. With `arrange: across` each page fills its own width instead.
 - `arrange`: `across` puts the pages side by side (the paper turns sideways); the default stacks them down the roll.
 - `flush`: no side padding, so day columns run edge to edge. A column line is drawn at every fold.
-- `clearMonthHeader`: column lines start under the month label instead of running through it.
+- `clearMonthHeader`: column lines start under the year, quarter and month labels instead of running through them.
 - `weekend.shade`: shade Saturday and Sunday. Not combined with striped bands (weekends stay unshaded if you ask for both).
 - `weekDivider` / `columnLines`: darker line where a new week starts (set by `--week-start`) and light lines between the other days.
 - `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`; `first` hour and `perBand` hours).
-- `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayTop`, `weekdayBottom`, `weekNumbers`, `weekNumberBottom` ("Week N" in the footer), `digitsTop`, `digitsBottom`, `digitsBottomColor`. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
-- `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `hours`). Nothing is resized automatically, so narrow columns need smaller sizes.
+- `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayTop`, `weekdayBottom`, `weekNumbers`, `year` and `quarter` (labels along the top, at the start of each year or quarter and on the first column), `weekNumberBottom` ("Week N" in the footer), `digitsTop`, `digitsBottom`, `digitsBottomColor`. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
+- `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `year`, `quarter`, `hours`). Nothing is resized automatically, so narrow columns need smaller sizes.
 - `padding`: `x`, `top`, `bottom` in inches.
 
 Only the `classic` (vertical/week) and planner (horizontal/day) combinations are drawn so far; other combinations of `flow` and `grain` are rejected with an error.
