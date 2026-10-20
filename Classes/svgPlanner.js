@@ -41,7 +41,7 @@ export default class SVGPlanner extends SVGBase {
             year: sizes.year ?? fonts.MonthHeader.size/2,
             quarter: sizes.quarter ?? fonts.Days.size,
             cycle: sizes.cycle ?? fonts.WeekNumber.size,
-            monthWatermark: sizes.monthWatermark ?? fonts.MonthHeader.size*1,
+            monthWatermark: sizes.monthWatermark ?? fonts.MonthHeader.size*(o.labels.monthWatermarkScale ?? 1),
             monthVertical: sizes.monthVertical ?? fonts.MonthVertical?.size ?? fonts.Days.size,
             hours: sizes.hours ?? fonts.Hours?.size ?? fonts.WeekNumber.size
         }
@@ -267,7 +267,7 @@ export default class SVGPlanner extends SVGBase {
                 // in the first column the hour labels come first, so the name starts after them
                 const startX = colX(i) + 2 + ((i === 0 && o.bands.hours.labels === 'inside') ? this.textWidth(this.weeksToSVG, '88', this.size.hours) + 6 : 0)
                 const x = (p === pageCount - 1) ? Math.min(startX, W - width) : startX
-                this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, bodyTop + 3 + CAP_HEIGHT*size, size, 'left', this.colors.palegray) })
+                this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, bodyTop + (o.labels.monthWatermarkOffset ?? 3) + CAP_HEIGHT*size, size, 'left', this.colors.palegray) })
             })
         }
 
