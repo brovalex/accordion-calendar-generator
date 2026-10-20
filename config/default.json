@@ -301,12 +301,12 @@
                     "labels": "inside",
                     "first": 6,
                     "perBand": 1,
-                    "pad": true
+                    "pad": true,
+                    "color": "lightgray"
                 }
             },
             "labels": {
                 "month": "none",
-                "monthEveryPage": true,
                 "monthWatermark": true,
                 "dayHeader": "inline",
                 "weekNumberBottomLeft": true,

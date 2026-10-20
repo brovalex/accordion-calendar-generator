@@ -212,8 +212,7 @@ export default class SVGPlanner extends SVGBase {
         if (o.labels.cycles) addRow('cycles', this.size.cycle*2.6)
         if (this.monthMode === 'top') addRow('month', this.size.month*1.4)
         if (o.labels.weekNumbers) addRow('weekNumber', this.size.weekNumber*1.6)
-        // dayHeader 'inline': weekday and day number share one row, number at the left of the column and weekday at the
-        // right, like the classic layout
+        // dayHeader 'inline': weekday and day number share one row, the weekday right after the number
         const weekdayTop = o.labels.weekday !== 'none' && o.labels.weekdayTop !== false
         if (o.labels.dayHeader === 'inline' && weekdayTop && o.labels.digitsTop) {
             addRow('days', Math.max(this.size.digits, this.size.weekday)*1.8)
@@ -301,7 +300,7 @@ export default class SVGPlanner extends SVGBase {
                 const hour = String((o.bands.hours.first + b*o.bands.hours.perBand) % 24).padStart(o.bands.hours.pad ? 2 : 0, '0')
                 const baseline = bodyTop + b*bandH + this.size.hours*1.2
                 if (o.bands.hours.labels === 'inside') {
-                    this.text(g, this.weeksToSVG, hour, colX(0) + 3, baseline, this.size.hours, 'left', this.colors.gray)
+                    this.text(g, this.weeksToSVG, hour, colX(0) + 3, baseline, this.size.hours, 'left', this.colors[o.bands.hours.color ?? 'gray'])
                     continue
                 }
                 sides.forEach((side) => {
@@ -344,8 +343,9 @@ export default class SVGPlanner extends SVGBase {
             }
             if (rows.days) {
                 const baseline = rows.days.top + (rows.days.height + CAP_HEIGHT*this.size.digits)/2
-                this.text(g, this.digitsToSVG, dateFns.format(day, 'd'), colX(i) + 3, baseline, this.size.digits, 'left', this.colors.darkgray)
-                this.text(g, this.textToSVG, this.weekdayLabel(day), colX(i) + colW - 3, baseline, this.size.weekday, 'right', this.colors.gray)
+                const digits = dateFns.format(day, 'd')
+                this.text(g, this.digitsToSVG, digits, colX(i) + 3, baseline, this.size.digits, 'left', this.colors.darkgray)
+                this.text(g, this.textToSVG, this.weekdayLabel(day), colX(i) + 3 + this.textWidth(this.digitsToSVG, digits, this.size.digits) + 3, baseline, this.size.weekday, 'left', this.colors.gray)
             }
             if (rows.weekday) {
                 this.text(g, this.textToSVG, this.weekdayLabel(day), centerX,
