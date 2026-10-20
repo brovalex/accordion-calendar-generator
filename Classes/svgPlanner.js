@@ -185,7 +185,8 @@ export default class SVGPlanner extends SVGBase {
         }
 
         // 4. column lines, darker where a new week starts
-        for (let i = 1; i < n; i++) {
+        // side by side, the first column of every page after the first also gets its line, so the rhythm carries over the fold
+        for (let i = (this.across && p > 0) ? 0 : 1; i < n; i++) {
             const newWeek = dateFns.getDay(days[i]) === this.weekStartsOn
             if (newWeek && o.weekDivider) this.rect(g, colX(i) - 0.5, top, 1, bottom - top, this.colors.gray)
             else if (o.columnLines) this.rect(g, colX(i) - 0.25, top, 0.5, bottom - top, this.colors.lightgray)
