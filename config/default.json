@@ -284,6 +284,37 @@
                 "top": 0.1
             }
         },
+        "planner-weekly": {
+            "extends": "planner",
+            "clearMonthHeader": true,
+            "pagination": {
+                "mode": "fixed",
+                "daysPerPage": 7,
+                "startAt": "week1"
+            },
+            "weekend": {
+                "shade": false
+            },
+            "bands": {
+                "count": 16,
+                "stripes": true,
+                "hours": {
+                    "labels": "left",
+                    "first": 6,
+                    "perBand": 1
+                }
+            },
+            "labels": {
+                "month": "top",
+                "monthEveryPage": true,
+                "weekNumbers": true,
+                "weekNumberPrefix": "Week ",
+                "digitsBottom": false
+            },
+            "padding": {
+                "x": 0.35
+            }
+        },
         "planner-fixed": {
             "extends": "planner",
             "pagination": {

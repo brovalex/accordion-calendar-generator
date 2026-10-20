@@ -216,7 +216,7 @@ export default class SVGPlanner extends SVGBase {
         const bodyHeight = bodyBottom - bodyTop
 
         // clearMonthHeader: lines and weekend shading start under the header labels instead of running behind them
-        const labelRows = ['year', 'quarter', 'cycles', 'month'].filter(k => rows[k])
+        const labelRows = ['year', 'quarter', 'cycles', 'month', 'weekNumber'].filter(k => rows[k])
         const lineTop = (o.clearMonthHeader && labelRows.length) ? Math.max(...labelRows.map(k => rows[k].top + rows[k].height)) : top
 
         // 1. stripes: alternate bands, edge to edge
@@ -313,7 +313,7 @@ export default class SVGPlanner extends SVGBase {
                 x += this.textWidth(part.font, part.str, part.size) + gap
             })
             if (rows.weekNumber && (i === 0 || dateFns.getDay(day) === this.weekStartsOn)) {
-                this.text(g, this.weeksToSVG, String(this.weekNumber(day)), colX(i) + 2,
+                this.text(g, this.weeksToSVG, (o.labels.weekNumberPrefix ?? '') + this.weekNumber(day), colX(i) + 2,
                     rows.weekNumber.top + rows.weekNumber.height*0.75, this.size.weekNumber, 'left', this.colors.gray)
             }
             if (rows.weekday) {
@@ -336,9 +336,13 @@ export default class SVGPlanner extends SVGBase {
             if (this.footer.weekday) {
                 this.verticalText(g, this.textToSVG, this.weekdayLabel(day), centerX, footerStart - this.footer.weekday.offset, this.size.weekday, this.colors.gray)
             }
-            if (dateFns.isFirstDayOfMonth(day)) {
+            const startsMonth = dateFns.isFirstDayOfMonth(day)
+            // monthEveryPage: a page that opens mid-month names its month too, unless the next month's label follows too closely
+            const namesPage = o.labels.monthEveryPage && i === 0 && !startsMonth && !days.some((d, j) =>
+                j > 0 && dateFns.isFirstDayOfMonth(d) && colX(j) < colX(0) + 6 + this.textWidth(this.monthToSVG, dateFns.format(day, 'MMMM'), this.size.month))
+            if (startsMonth || namesPage) {
                 const name = dateFns.format(day, 'MMMM')
-                if (this.footer.month) {
+                if (this.footer.month && startsMonth) {
                     this.verticalText(g, this.textToSVG, name, centerX, footerStart - this.footer.month.offset, this.size.monthVertical, this.colors.gray)
                 }
                 if (rows.month) {

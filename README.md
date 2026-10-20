@@ -43,15 +43,16 @@ node index.js 2023 1 12 pocket 1 strip
 
 ### Templates
 
-There are three calendar templates. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`; the default is `classic`.
+There are four calendar templates. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`; the default is `classic`.
 
 | preset | what it is |
 | --- | --- |
 | `classic` | the original: one month per page, a row per week, pages stacked down the roll |
 | `planner-yearly` | the year on one sideways strip: a thin column per day, two pages per month, striped bands, darker week dividers |
 | `planner-project` | a project planner on a sideways strip: two-week pages from week 1, fiscal quarters, 6-week cycles with a cool-down |
+| `planner-weekly` | a weekly planner: one landscape page per week, a column per day and an hourly row grid, stacked down the roll |
 
-The two planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with them: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
+The yearly and project planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with those two: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
 
 #### Yearly planner
 
@@ -92,6 +93,21 @@ node index.js --start-year 2027 --start-month 1 --template pocket-portrait --wee
 ```
 
 A full year is `--number-of-months 12`: 26 pages on an 89 × 8.75 in strip.
+
+#### Weekly planner
+
+`planner-weekly` is one week per page, like the yearly planner turned landscape with hours on the rows. Use a landscape template (`pocket`, `purse` or `mathias`); the pages stack down the roll as in the classic layout, so `purse` fits the 8.75 in `roll` exactly.
+
+- **Pages:** one week (7 days) per page, starting at ISO week 1 (Monday 4 January 2027) so the pages match the week numbers. A page that opens mid-month names its month; if the 1st falls inside the week, that month's name sits above its day column as well.
+- **Header:** the month name, a small "Week N", then the weekday and the day number above each column.
+- **Rows:** 16 hourly rows from 6 to 21, alternately shaded, with the hour at the left of each row. Weekends are not shaded.
+
+```
+node index.js --start-year 2027 --start-month 1 --template purse --week-start 1 --paper-size roll \
+  --number-of-months 12 --preset planner-weekly --comment weekly
+```
+
+Change the hours with `--set bands.count=12 --set bands.hours.first=8`, or give every row two hours with `--set bands.hours.perBand=2`. Add `--set bands.hairlines=true` for a line between rows.
 
 #### Other presets
 
