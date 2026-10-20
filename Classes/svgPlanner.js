@@ -160,7 +160,7 @@ export default class SVGPlanner extends SVGBase {
             return { cycle: Math.floor(index/length) + 1, pos, cool: pos >= build }
         })
         const lineY = row.top + row.height - 3
-        const tick = 4
+        const tick = 6
         let i = 0
         while (i < days.length) {
             const s = state[i]
@@ -280,13 +280,15 @@ export default class SVGPlanner extends SVGBase {
                 parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter })
             }
             if (o.labels.year && (opening || period.startsYear)) {
-                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(period.year), font: this.monthToSVG, size: this.size.year })
+                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(period.year), font: this.monthToSVG, size: this.size.year, centeredOn: rows.quarter ? this.size.quarter : 0 })
             }
             const gap = 3
             const total = parts.reduce((sum, part, k) => sum + this.textWidth(part.font, part.str, part.size) + (k ? gap : 0), 0)
             let x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - total) : colX(i) + 2 // the last label must not run off the strip
             parts.forEach((part) => {
-                this.text(g, part.font, part.str, x, rows[part.row].top + rows[part.row].height*0.75, part.size, 'left', this.colors.gray)
+                // the year is centred on the quarter's cap height, not sitting on its baseline
+                const baseline = rows[part.row].top + rows[part.row].height*0.75 - (part.centeredOn ? CAP_HEIGHT*(part.centeredOn - part.size)/2 : 0)
+                this.text(g, part.font, part.str, x, baseline, part.size, 'left', this.colors.gray)
                 x += this.textWidth(part.font, part.str, part.size) + gap
             })
             if (rows.weekNumber && (i === 0 || dateFns.getDay(day) === this.weekStartsOn)) {

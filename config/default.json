@@ -276,7 +276,7 @@
                 "monthVertical": 5,
                 "year": 6,
                 "quarter": 12,
-                "cycle": 5
+                "cycle": 6
             },
             "padding": {
                 "top": 0.1
