@@ -40,6 +40,7 @@ export default class SVGPlanner extends SVGBase {
             month: sizes.month ?? fonts.MonthHeader.size,
             year: sizes.year ?? fonts.MonthHeader.size/2,
             quarter: sizes.quarter ?? fonts.Days.size,
+            cycle: sizes.cycle ?? fonts.WeekNumber.size,
             monthVertical: sizes.monthVertical ?? fonts.MonthVertical?.size ?? fonts.Days.size,
             hours: sizes.hours ?? fonts.Hours?.size ?? fonts.WeekNumber.size
         }
@@ -64,6 +65,9 @@ export default class SVGPlanner extends SVGBase {
             .fill('none')
 
         this.measureFooter(calData.pages)
+        // cycles are counted from the first week 1 on the strip (or the first day, if it has none)
+        const allDays = calData.pages.flatMap(pg => pg.days)
+        this.cycleAnchor = allDays.find(d => dateFns.getDay(d) === this.weekStartsOn && this.weekNumber(d) === 1) ?? allDays[0]
         // pages of one month sit on top of each other, so they share one column width (set by the longest of them);
         // pages side by side never line up with each other, so each one just fills its own width
         const monthKey = (page) => dateFns.format(page.days[0], 'yyyy-MM')
@@ -145,6 +149,35 @@ export default class SVGPlanner extends SVGBase {
         turned.path(font.getD(str, { x: 0, y: 0, fontSize, anchor: 'left baseline' })).fill(color)
     }
 
+    // labels.cycles = { weeks, cooldown }: e.g. 6 weeks of work and 2 weeks of cool-down, repeating from the anchor
+    drawCycles = (g, days, colX, row) => {
+        const { weeks, cooldown } = this.o.labels.cycles
+        const build = weeks*7, length = (weeks + cooldown)*7
+        const state = days.map((d) => {
+            const index = dateFns.differenceInCalendarDays(d, this.cycleAnchor)
+            if (index < 0) return null // before the first cycle
+            const pos = index % length
+            return { cycle: Math.floor(index/length) + 1, pos, cool: pos >= build }
+        })
+        const lineY = row.top + row.height - 3
+        const tick = 4
+        let i = 0
+        while (i < days.length) {
+            const s = state[i]
+            if (!s) { i++; continue }
+            let j = i
+            while (j + 1 < days.length && state[j + 1] && state[j + 1].cool === s.cool && state[j + 1].cycle === s.cycle) j++
+            const color = s.cool ? this.colors.lightgray : this.colors.gray
+            this.rect(g, colX(i), lineY - (s.cool ? 0.25 : 0.5), colX(j + 1) - colX(i), s.cool ? 0.5 : 1, color)
+            const first = s.cool ? build : 0
+            const last = s.cool ? length - 1 : build - 1
+            if (s.pos === first) this.rect(g, colX(i) - 0.5, lineY - tick/2, 1, tick, color)
+            if (state[j].pos === last) this.rect(g, colX(j + 1) - 0.5, lineY - tick/2, 1, tick, color)
+            if (s.pos === first) this.text(g, this.textToSVG, s.cool ? 'Cool-down' : `Cycle ${s.cycle}`, colX(i) + 2, lineY - 3, this.size.cycle, 'left', color)
+            i = j + 1
+        }
+    }
+
     drawPage = (g, page, p, pageCount, slots) => {
         const o = this.o
         const days = page.days
@@ -164,7 +197,8 @@ export default class SVGPlanner extends SVGBase {
         let y = this.pad.top
         const addRow = (key, height) => { rows[key] = { top: y, height }; y += height }
         if (o.labels.year) addRow('year', this.size.year*1.4)
-        if (o.labels.quarter) addRow('quarter', this.size.quarter*1.6)
+        if (o.labels.quarter) addRow('quarter', this.size.quarter*1.4)
+        if (o.labels.cycles) addRow('cycles', this.size.cycle*2.6)
         if (this.monthMode === 'top') addRow('month', this.size.month*1.4)
         if (o.labels.weekNumbers) addRow('weekNumber', this.size.weekNumber*1.6)
         if (o.labels.weekday !== 'none' && o.labels.weekdayTop !== false) addRow('weekday', this.size.weekday*1.8)
@@ -173,6 +207,10 @@ export default class SVGPlanner extends SVGBase {
         const footerGap = this.footerHeight ? 3 : 0
         const bodyBottom = H - this.pad.bottom - this.footerHeight - footerGap
         const bodyHeight = bodyBottom - bodyTop
+
+        // clearMonthHeader: lines and weekend shading start under the header labels instead of running behind them
+        const labelRows = ['year', 'quarter', 'cycles', 'month'].filter(k => rows[k])
+        const lineTop = (o.clearMonthHeader && labelRows.length) ? Math.max(...labelRows.map(k => rows[k].top + rows[k].height)) : top
 
         // 1. stripes: alternate bands, edge to edge
         if (o.bands.stripes) {
@@ -192,7 +230,7 @@ export default class SVGPlanner extends SVGBase {
                 while (j + 1 < n && weekend(j + 1)) j++
                 const x0 = i === 0 ? left : colX(i)
                 const x1 = (j === n - 1 && n === slots) ? right : colX(j + 1)
-                this.rect(g, x0, top, x1 - x0, bottom - top, this.colors.verylightgray)
+                this.rect(g, x0, lineTop, x1 - x0, bottom - lineTop, this.colors.verylightgray)
                 i = j
             }
         }
@@ -208,14 +246,14 @@ export default class SVGPlanner extends SVGBase {
 
         // 4. column lines, darker where a new week starts
         // side by side, the first column of every page after the first also gets its line, so the rhythm carries over the fold
-        // clearMonthHeader: the lines start under the month label instead of running through it
-        const labelRows = ['year', 'quarter', 'month'].filter(k => rows[k])
-        const lineTop = (o.clearMonthHeader && labelRows.length) ? Math.max(...labelRows.map(k => rows[k].top + rows[k].height)) : top
         for (let i = (this.across && p > 0) ? 0 : 1; i < n; i++) {
             const newWeek = dateFns.getDay(days[i]) === this.weekStartsOn
             if (newWeek && o.weekDivider) this.rect(g, colX(i) - 0.5, lineTop, 1, bottom - lineTop, this.colors.gray)
             else if (o.columnLines) this.rect(g, colX(i) - 0.25, lineTop, 0.5, bottom - lineTop, this.colors.lightgray)
         }
+
+        // cycles: a line from the first to the last day of each build cycle, then a lighter one for its cool-down
+        if (rows.cycles) this.drawCycles(g, days, colX, rows.cycles)
 
         // 5. hour labels in the side padding, at the top of each band
         if (o.bands.hours.labels !== 'none') {

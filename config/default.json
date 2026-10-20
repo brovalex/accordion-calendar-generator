@@ -263,6 +263,10 @@
             "labels": {
                 "year": true,
                 "quarter": "weeks",
+                "cycles": {
+                    "weeks": 6,
+                    "cooldown": 2
+                },
                 "month": "vertical",
                 "weekdayTop": false,
                 "weekdayBottom": true,
@@ -270,8 +274,12 @@
             },
             "fontSizes": {
                 "monthVertical": 5,
-                "year": 9,
-                "quarter": 6
+                "year": 6,
+                "quarter": 12,
+                "cycle": 5
+            },
+            "padding": {
+                "top": 0.1
             }
         },
         "planner-fixed": {
