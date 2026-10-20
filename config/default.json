@@ -268,9 +268,9 @@
                     "cooldown": 2
                 },
                 "month": "vertical",
-                "weekdayTop": false,
+                "weekdayTop": true,
                 "weekdayBottom": true,
-                "digitsTop": false
+                "digitsTop": true
             },
             "fontSizes": {
                 "monthVertical": 5,
