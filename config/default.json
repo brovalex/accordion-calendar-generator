@@ -292,7 +292,8 @@
                 "startAt": "week1"
             },
             "weekend": {
-                "shade": false
+                "shade": true,
+                "overStripes": true
             },
             "bands": {
                 "count": 16,
@@ -312,6 +313,7 @@
                 "monthWatermarkScale": 1.05,
                 "monthWatermarkOffset": 8,
                 "dayHeader": "inline",
+                "moon": {},
                 "weekNumberBottomLeft": true,
                 "weekNumberPrefix": "Week ",
                 "digitsBottom": false

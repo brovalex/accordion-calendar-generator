@@ -1,5 +1,6 @@
 import * as dateFns from 'date-fns'
 import SVGBase from './svgBase.js'
+import { phaseDays, dayKey } from './moon.js'
 
 console.log("-------------------------------------------")
 
@@ -53,7 +54,7 @@ export default class SVGPlanner extends SVGBase {
         if (!['none', 'left', 'right', 'both', 'inside'].includes(o.bands.hours.labels)) throw new Error(`bands.hours.labels must be none, left, right, both or inside (got "${o.bands.hours.labels}")`)
 
         this.shadeWeekends = o.weekend.shade
-        if (this.shadeWeekends && o.bands.stripes) {
+        if (this.shadeWeekends && o.bands.stripes && !o.weekend.overStripes) { // overStripes: weekends are shaded over the stripes
             console.warn("Note: striped bands and shaded weekends would clash, so weekends are not shaded")
             this.shadeWeekends = false
         }
@@ -69,6 +70,8 @@ export default class SVGPlanner extends SVGBase {
         // cycles are counted from the first week 1 on the strip (or the first day, if it has none)
         const allDays = calData.pages.flatMap(pg => pg.days)
         this.cycleAnchor = allDays.find(d => dateFns.getDay(d) === this.weekStartsOn && this.weekNumber(d) === 1) ?? allDays[0]
+        // moon: which calendar days hold a new, first quarter, full or last quarter moon (UTC unless labels.moon.utcOffset says otherwise)
+        this.moonDays = o.labels.moon ? phaseDays(allDays, o.labels.moon.utcOffset ?? 0) : new Map()
         // pages of one month sit on top of each other, so they share one column width (set by the longest of them);
         // pages side by side never line up with each other, so each one just fills its own width
         const monthKey = (page) => dateFns.format(page.days[0], 'yyyy-MM')
@@ -154,6 +157,23 @@ export default class SVGPlanner extends SVGBase {
     verticalText = (g, font, str, centerX, startY, fontSize, color) => {
         const turned = g.group().attr('transform', `translate(${centerX + CAP_HEIGHT*fontSize/2} ${startY}) rotate(-90)`)
         turned.path(font.getD(str, { x: 0, y: 0, fontSize, anchor: 'left baseline' })).fill(color)
+    }
+
+    // small moon icon for a principal phase, centred on (cx, cy): new is a ring, full a disc, and the quarters a disc
+    // half lit on the right (first quarter) or the left (last quarter), as seen from the northern hemisphere
+    // (labels.moon.southern flips them)
+    drawMoon = (g, phase, cx, cy, r) => {
+        const color = this.colors.gray
+        const ring = () => g.circle(2*r).center(cx, cy).fill('none').stroke({ color, width: 0.6 })
+        if (phase === 'full') {
+            g.circle(2*r).center(cx, cy).fill(color)
+        } else if (phase === 'new') {
+            ring()
+        } else {
+            const litRight = (phase === 'first') !== !!this.o.labels.moon.southern
+            g.path(`M ${cx} ${cy - r} A ${r} ${r} 0 0 ${litRight ? 1 : 0} ${cx} ${cy + r} Z`).fill(color)
+            ring()
+        }
     }
 
     // monthEveryPage: a page that opens mid-month names its month too, unless the next month's label follows too closely
@@ -352,6 +372,8 @@ export default class SVGPlanner extends SVGBase {
                 const digits = dateFns.format(day, 'd')
                 this.text(g, this.digitsToSVG, digits, colX(i) + 3, baseline, this.size.digits, 'left', this.colors.darkgray)
                 this.text(g, this.textToSVG, this.weekdayLabel(day), colX(i) + 3 + this.textWidth(this.digitsToSVG, digits, this.size.digits) + 3, baseline, this.size.weekday, 'left', this.colors.gray)
+                const moon = this.moonDays.get(dayKey(day))
+                if (moon) this.drawMoon(g, moon, colX(i) + colW - 3 - this.size.digits*0.3, baseline - CAP_HEIGHT*this.size.digits/2, this.size.digits*0.3) // right aligned, level with the day number
             }
             if (rows.weekday) {
                 this.text(g, this.textToSVG, this.weekdayLabel(day), centerX,
