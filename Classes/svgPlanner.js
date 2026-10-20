@@ -61,9 +61,15 @@ export default class SVGPlanner extends SVGBase {
             .fill('none')
 
         this.measureFooter(calData.pages)
+        // pages of one month sit on top of each other, so they share one column width (set by the longest of them)
+        const monthKey = (page) => dateFns.format(page.days[0], 'yyyy-MM')
+        const longestInMonth = {}
+        calData.pages.forEach((page) => {
+            longestInMonth[monthKey(page)] = Math.max(longestInMonth[monthKey(page)] ?? 0, page.days.length)
+        })
         calData.pages.forEach((page, p) => {
             const pageGroup = this.mainGroup.group()
-            this.drawPage(pageGroup, page, p, calData.pages.length)
+            this.drawPage(pageGroup, page, p, calData.pages.length, this.o.pagination.mode === 'monthly' ? longestInMonth[monthKey(page)] : page.days.length)
             pageGroup.transform({ translate: [0, p*this.pageH] })
         })
 
@@ -117,13 +123,13 @@ export default class SVGPlanner extends SVGBase {
         turned.path(font.getD(str, { x: 0, y: 0, fontSize, anchor: 'left baseline' })).fill(color)
     }
 
-    drawPage = (g, page, p, pageCount) => {
+    drawPage = (g, page, p, pageCount, slots) => {
         const o = this.o
         const days = page.days
         const n = days.length
         const W = this.pageW, H = this.pageH, bleed = this.bleedPx
         const colLeft = this.pad.x
-        const colW = (W - 2*this.pad.x) / n // every page fills its own width, so columns differ between pages in monthly mode
+        const colW = (W - 2*this.pad.x) / slots // a shorter page leaves its last slot(s) empty rather than stretching its columns
         const colX = (i) => colLeft + i*colW
         const top = p === 0 ? -bleed : 0
         const bottom = p === pageCount - 1 ? H + bleed : H
@@ -158,7 +164,7 @@ export default class SVGPlanner extends SVGBase {
                 let j = i
                 while (j + 1 < n && weekend(j + 1)) j++
                 const x0 = i === 0 ? -bleed : colX(i)
-                const x1 = j === n - 1 ? W + bleed : colX(j + 1)
+                const x1 = (j === n - 1 && n === slots) ? W + bleed : colX(j + 1)
                 this.rect(g, x0, top, x1 - x0, bottom - top, this.colors.verylightgray)
                 i = j
             }
