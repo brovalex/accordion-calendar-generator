@@ -100,7 +100,7 @@ export default class SVGPlanner extends SVGBase {
             items.push({ key: 'weekday', length: longest })
         }
         if (labels.digitsBottom) items.push({ key: 'digits', length: this.textWidth(this.digitsToSVG, '88', this.size.digits) })
-        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, '88', this.size.weekNumber) })
+        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, 'Week 88', this.size.weekNumber), before: this.size.digits }) // starts one row above the digit's end
         if (this.monthMode === 'vertical') {
             const longest = Math.max(...[...Array(12)].map((_, m) => this.textWidth(this.textToSVG, dateFns.format(new Date(2000, m, 1), 'MMMM'), this.size.monthVertical)))
             items.push({ key: 'month', length: longest })
@@ -108,6 +108,7 @@ export default class SVGPlanner extends SVGBase {
         let offset = 0
         this.footer = {}
         items.forEach((item) => {
+            offset += item.before ?? 0
             this.footer[item.key] = { offset, length: item.length }
             offset += item.length + gap
         })
@@ -230,7 +231,7 @@ export default class SVGPlanner extends SVGBase {
                 this.verticalText(g, this.digitsToSVG, dateFns.format(day, 'd'), centerX, footerStart - this.footer.digits.offset, this.size.digits, this.colors[o.labels.digitsBottomColor ?? 'darkgray'])
             }
             if (this.footer.weekNumber && dateFns.getDay(day) === this.weekStartsOn) {
-                this.verticalText(g, this.weeksToSVG, String(this.weekNumber(day)), centerX, footerStart - this.footer.weekNumber.offset, this.size.weekNumber, this.colors.gray)
+                this.verticalText(g, this.weeksToSVG, `Week ${this.weekNumber(day)}`, centerX, footerStart - this.footer.weekNumber.offset, this.size.weekNumber, this.colors.gray)
             }
             if (this.footer.weekday) {
                 this.verticalText(g, this.textToSVG, this.weekdayLabel(day), centerX, footerStart - this.footer.weekday.offset, this.size.weekday, this.colors.gray)
