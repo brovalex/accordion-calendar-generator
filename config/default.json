@@ -286,7 +286,6 @@
         },
         "planner-weekly": {
             "extends": "planner-across",
-            "clearMonthHeader": true,
             "pagination": {
                 "mode": "fixed",
                 "daysPerPage": 7,
@@ -301,15 +300,22 @@
                 "hours": {
                     "labels": "inside",
                     "first": 6,
-                    "perBand": 1
+                    "perBand": 1,
+                    "pad": true
                 }
             },
             "labels": {
-                "month": "top",
+                "month": "none",
                 "monthEveryPage": true,
-                "weekNumbers": true,
+                "monthWatermark": true,
+                "dayHeader": "inline",
+                "weekNumberBottomLeft": true,
                 "weekNumberPrefix": "Week ",
                 "digitsBottom": false
+            },
+            "fontSizes": {
+                "days": 11,
+                "weekday": 6
             }
         },
         "planner-fixed": {

@@ -156,6 +156,10 @@ export default class SVGPlanner extends SVGBase {
         turned.path(font.getD(str, { x: 0, y: 0, fontSize, anchor: 'left baseline' })).fill(color)
     }
 
+    // monthEveryPage: a page that opens mid-month names its month too, unless the next month's label follows too closely
+    namesMonthAtPageStart = (days, colX, size) => this.o.labels.monthEveryPage && !dateFns.isFirstDayOfMonth(days[0]) && !days.some((d, j) =>
+        j > 0 && dateFns.isFirstDayOfMonth(d) && colX(j) < colX(0) + 6 + this.textWidth(this.monthToSVG, dateFns.format(days[0], 'MMMM'), size))
+
     // labels.cycles = { weeks, cooldown }: e.g. 6 weeks of work and 2 weeks of cool-down, repeating from the anchor
     drawCycles = (g, days, colX, row) => {
         const { weeks, cooldown } = this.o.labels.cycles
@@ -208,11 +212,20 @@ export default class SVGPlanner extends SVGBase {
         if (o.labels.cycles) addRow('cycles', this.size.cycle*2.6)
         if (this.monthMode === 'top') addRow('month', this.size.month*1.4)
         if (o.labels.weekNumbers) addRow('weekNumber', this.size.weekNumber*1.6)
-        if (o.labels.weekday !== 'none' && o.labels.weekdayTop !== false) addRow('weekday', this.size.weekday*1.8)
-        if (o.labels.digitsTop) addRow('digits', this.size.digits*1.8)
+        // dayHeader 'inline': weekday and day number share one row, number at the left of the column and weekday at the
+        // right, like the classic layout
+        const weekdayTop = o.labels.weekday !== 'none' && o.labels.weekdayTop !== false
+        if (o.labels.dayHeader === 'inline' && weekdayTop && o.labels.digitsTop) {
+            addRow('days', Math.max(this.size.digits, this.size.weekday)*1.8)
+        } else {
+            if (weekdayTop) addRow('weekday', this.size.weekday*1.8)
+            if (o.labels.digitsTop) addRow('digits', this.size.digits*1.8)
+        }
         const bodyTop = y + (y > this.pad.top ? 2 : 0)
         const footerGap = this.footerHeight ? 3 : 0
-        const bodyBottom = H - this.pad.bottom - this.footerHeight - footerGap
+        // weekNumberBottomLeft: "Week N" sits under the body at the left of the page
+        const cornerHeight = o.labels.weekNumberBottomLeft ? this.size.weekNumber*1.8 : 0
+        const bodyBottom = H - this.pad.bottom - this.footerHeight - footerGap - cornerHeight
         const bodyHeight = bodyBottom - bodyTop
 
         // clearMonthHeader: lines and weekend shading start under the header labels instead of running behind them
@@ -247,11 +260,14 @@ export default class SVGPlanner extends SVGBase {
         // header. It is drawn later, in a layer over the whole strip, so it can run over a page fold without being covered.
         if (o.labels.monthWatermark) {
             days.forEach((day, i) => {
-                if (!(dateFns.isFirstDayOfMonth(day) || (p === 0 && i === 0))) return
+                const startsPage = i === 0 && (p === 0 || this.namesMonthAtPageStart(days, colX, this.size.monthWatermark))
+                if (!(dateFns.isFirstDayOfMonth(day) || startsPage)) return
                 const name = dateFns.format(day, 'MMMM')
                 const size = this.size.monthWatermark
                 const width = this.textWidth(this.monthToSVG, name, size)
-                const x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - width) : colX(i) + 2
+                // in the first column the hour labels come first, so the name starts after them
+                const startX = colX(i) + 2 + ((i === 0 && o.bands.hours.labels === 'inside') ? this.textWidth(this.weeksToSVG, '88', this.size.hours) + 6 : 0)
+                const x = (p === pageCount - 1) ? Math.min(startX, W - width) : startX
                 this.overlays.push({ p, draw: (og) => this.text(og, this.monthToSVG, name, x, bodyTop + 3 + CAP_HEIGHT*size, size, 'left', this.colors.palegray) })
             })
         }
@@ -282,7 +298,7 @@ export default class SVGPlanner extends SVGBase {
             const bandH = bodyHeight / o.bands.count
             const sides = o.bands.hours.labels === 'both' ? ['left', 'right'] : [o.bands.hours.labels]
             for (let b = 0; b < o.bands.count; b++) {
-                const hour = String((o.bands.hours.first + b*o.bands.hours.perBand) % 24)
+                const hour = String((o.bands.hours.first + b*o.bands.hours.perBand) % 24).padStart(o.bands.hours.pad ? 2 : 0, '0')
                 const baseline = bodyTop + b*bandH + this.size.hours*1.2
                 if (o.bands.hours.labels === 'inside') {
                     this.text(g, this.weeksToSVG, hour, colX(0) + 3, baseline, this.size.hours, 'left', this.colors.gray)
@@ -322,6 +338,15 @@ export default class SVGPlanner extends SVGBase {
                 this.text(g, this.weeksToSVG, (o.labels.weekNumberPrefix ?? '') + this.weekNumber(day), colX(i) + 2,
                     rows.weekNumber.top + rows.weekNumber.height*0.75, this.size.weekNumber, 'left', this.colors.gray)
             }
+            if (o.labels.weekNumberBottomLeft && i === 0) {
+                this.text(g, this.weeksToSVG, (o.labels.weekNumberPrefix ?? '') + this.weekNumber(day), colX(0) + 3,
+                    bodyBottom + cornerHeight*0.75, this.size.weekNumber, 'left', this.colors.gray)
+            }
+            if (rows.days) {
+                const baseline = rows.days.top + (rows.days.height + CAP_HEIGHT*this.size.digits)/2
+                this.text(g, this.digitsToSVG, dateFns.format(day, 'd'), colX(i) + 3, baseline, this.size.digits, 'left', this.colors.darkgray)
+                this.text(g, this.textToSVG, this.weekdayLabel(day), colX(i) + colW - 3, baseline, this.size.weekday, 'right', this.colors.gray)
+            }
             if (rows.weekday) {
                 this.text(g, this.textToSVG, this.weekdayLabel(day), centerX,
                     rows.weekday.top + (rows.weekday.height + CAP_HEIGHT*this.size.weekday)/2, this.size.weekday, 'center', this.colors.gray)
@@ -344,8 +369,7 @@ export default class SVGPlanner extends SVGBase {
             }
             const startsMonth = dateFns.isFirstDayOfMonth(day)
             // monthEveryPage: a page that opens mid-month names its month too, unless the next month's label follows too closely
-            const namesPage = o.labels.monthEveryPage && i === 0 && !startsMonth && !days.some((d, j) =>
-                j > 0 && dateFns.isFirstDayOfMonth(d) && colX(j) < colX(0) + 6 + this.textWidth(this.monthToSVG, dateFns.format(day, 'MMMM'), this.size.month))
+            const namesPage = i === 0 && !startsMonth && this.namesMonthAtPageStart(days, colX, this.size.month)
             if (startsMonth || namesPage) {
                 const name = dateFns.format(day, 'MMMM')
                 if (this.footer.month && startsMonth) {
