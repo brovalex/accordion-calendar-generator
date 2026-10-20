@@ -52,8 +52,33 @@ A layout is a *flow* (which way the pages fill up), a *grain* (the unit along th
 | `planner-fixed` | horizontal / day | same, but every page holds 14 days, starting with the week that contains the 1st of the start month |
 | `planner-month` | horizontal / day | a whole month on one page, with smaller type to fit 31 columns |
 | `planner-hours` | horizontal / day | fixed pages with 12 striped hour bands and hour labels instead of shaded weekends |
+| `planner-across` | horizontal / day | like `planner`, but the pages sit side by side along a landscape strip, with day columns running edge to edge across the folds |
+| `planner-yearly` | horizontal / day | the year on one strip: striped bands, no weekend shading, darker week dividers, month names clear of the lines, and "Week N" in the footer |
+| `planner-project` | horizontal / day | like `planner-across` without the header rows; each column's footer reads weekday, day number and, on the 1st, the month name |
 
 Use a portrait template with the planner presets: `pocket-portrait`, `purse-portrait` or `mathias-portrait`.
+
+#### Yearly planner
+
+`planner-yearly` lays the pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs. Each month takes two pages (15 + 16 days), the day columns run flush across the folds, and the footer carries the day number (in a lighter gray) with "Week N" above it at the start of each week.
+
+A full year, Monday weeks, on a roll:
+
+```
+node index.js --start-year 2027 --start-month 1 --template pocket-portrait --week-start 1 --paper-size roll \
+  --number-of-months 12 --preset planner-yearly --comment yearly
+```
+
+That makes 24 pages on an 82.25 × 8.75 in strip. The `pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly. The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type sizes are small; adjust them with `--set fontSizes.weekNumber=6` and similar.
+
+Tweaks that work well with `--set`:
+
+```
+--set weekend.shade=true --set bands.stripes=false   # shaded weekends instead of striped bands
+--set labels.weekNumberBottom=false                 # no "Week N" in the footer
+--set labels.digitsBottomColor=darkgray             # darker footer day numbers
+--set flush=false                                   # keep the side padding (padding.x) at the folds
+```
 
 ```
 node index.js --start-year 2027 --start-month 1 --template purse-portrait --week-start 1 --paper-size roll \
@@ -74,11 +99,14 @@ Any value can be overridden on the fly with `--set`, and you can make your own p
 
 Planner settings (see `planner` in [`default.json`](./config/default.json) for the defaults):
 
-- `pagination.mode`: `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). In monthly mode each page stretches its columns to fill the width; in fixed mode all columns are the same.
+- `pagination.mode`: `monthly` (with `pagesPerMonth`) or `fixed` (with `daysPerPage`). In monthly mode, pages of one month share a column width, so a 15-day page leaves one slot empty above a 16-day page; in fixed mode all columns are the same. With `arrange: across` each page fills its own width instead.
+- `arrange`: `across` puts the pages side by side (the paper turns sideways); the default stacks them down the roll.
+- `flush`: no side padding, so day columns run edge to edge. A column line is drawn at every fold.
+- `clearMonthHeader`: column lines start under the month label instead of running through it.
 - `weekend.shade`: shade Saturday and Sunday. Not combined with striped bands (weekends stay unshaded if you ask for both).
 - `weekDivider` / `columnLines`: darker line where a new week starts (set by `--week-start`) and light lines between the other days.
 - `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`; `first` hour and `perBand` hours).
-- `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayBottom`, `weekNumbers`, `digitsTop`, `digitsBottom`. Bottom text reads bottom to top.
+- `labels`: `month` (`auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`), `weekday` (`short` is three letters, or `letter`, `none`), `weekdayTop`, `weekdayBottom`, `weekNumbers`, `weekNumberBottom` ("Week N" in the footer), `digitsTop`, `digitsBottom`, `digitsBottomColor`. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
 - `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `hours`). Nothing is resized automatically, so narrow columns need smaller sizes.
 - `padding`: `x`, `top`, `bottom` in inches.
 
