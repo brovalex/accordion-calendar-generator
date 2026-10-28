@@ -312,8 +312,8 @@ export default class SVGPlanner extends SVGBase {
         // side by side, the first column of every page after the first also gets its line, so the rhythm carries over the fold
         for (let i = (this.across && p > 0) ? 0 : 1; i < n; i++) {
             const newWeek = dateFns.getDay(days[i]) === this.weekStartsOn
-            if (newWeek && o.weekDivider) this.rect(g, colX(i) - 0.5, lineTop, 1, bottom - lineTop, this.colors.gray)
-            else if (o.columnLines) this.rect(g, colX(i) - 0.25, lineTop, 0.5, bottom - lineTop, this.colors.lightgray)
+            if (newWeek && o.weekDivider) this.rect(g, colX(i) - 0.5, lineTop, 1, bottom - lineTop, this.colors[o.weekDividerColor ?? 'gray'])
+            else if (o.columnLines) this.rect(g, colX(i) - 0.25, lineTop, 0.5, bottom - lineTop, this.colors[o.columnLineColor ?? 'lightgray'])
         }
 
         // cycles: a line from the first to the last day of each build cycle, then a lighter one for its cool-down

@@ -241,6 +241,8 @@
         },
         "planner-yearly": {
             "extends": "planner-across",
+            "columnLineColor": "magenta",
+            "weekDividerColor": "magenta",
             "clearMonthHeader": true,
             "labels": {
                 "weekNumberBottom": true,
@@ -255,6 +257,8 @@
         },
         "planner-project": {
             "extends": "planner-across",
+            "columnLineColor": "magenta",
+            "weekDividerColor": "magenta",
             "clearMonthHeader": true,
             "pagination": {
                 "mode": "fixed",
@@ -286,6 +290,7 @@
         },
         "planner-weekly": {
             "extends": "planner-across",
+            "weekDividerColor": "magenta",
             "pagination": {
                 "mode": "fixed",
                 "daysPerPage": 7,
