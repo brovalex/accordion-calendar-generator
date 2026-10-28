@@ -267,7 +267,6 @@
                 "year": true,
                 "quarter": "weeks",
                 "quarterColor": "magenta",
-                "cycleColor": "magenta",
                 "cycles": {
                     "weeks": 6,
                     "cooldown": 2
