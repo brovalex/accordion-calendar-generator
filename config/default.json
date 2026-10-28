@@ -241,7 +241,6 @@
         },
         "planner-yearly": {
             "extends": "planner-across",
-            "columnLineColor": "magenta",
             "weekDividerColor": "magenta",
             "clearMonthHeader": true,
             "labels": {
@@ -257,7 +256,6 @@
         },
         "planner-project": {
             "extends": "planner-across",
-            "columnLineColor": "magenta",
             "weekDividerColor": "magenta",
             "clearMonthHeader": true,
             "pagination": {
@@ -268,6 +266,8 @@
             "labels": {
                 "year": true,
                 "quarter": "weeks",
+                "quarterColor": "magenta",
+                "cycleColor": "magenta",
                 "cycles": {
                     "weeks": 6,
                     "cooldown": 2

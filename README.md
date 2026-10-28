@@ -57,11 +57,11 @@ There are four calendar templates. A template is a **preset**: it bundles every 
 | preset | what it is |
 | --- | --- |
 | `classic` | the original: one month per page, a row per week, pages stacked down the roll |
-| `planner-yearly` | the year on one sideways strip: a thin column per day, two pages per month, striped bands, magenta day lines |
-| `planner-project` | a project planner on a sideways strip: two-week pages from week 1, fiscal quarters, 6-week cycles with a cool-down, magenta day lines |
+| `planner-yearly` | the year on one sideways strip: a thin column per day, two pages per month, striped bands, magenta week lines |
+| `planner-project` | a project planner on a sideways strip: two-week pages from week 1, fiscal quarters, 6-week cycles with a cool-down, magenta week lines and quarter and cycle labels |
 | `planner-weekly` | a weekly planner: one wide page per week, side by side on the sideways strip, with an hourly row grid and a magenta week line |
 
-As in the original, the magenta is on the lines that run parallel to the fold edge: the day column lines in the portrait planners (yearly and project), and the week lines in the landscape weekly planner. The planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with the yearly and project planners: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The weekly planner uses a landscape template instead. The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
+As in the original, the magenta is on the lines that run parallel to the fold edge, here the week lines (the yearly, project and weekly planners), plus the quarter and cycle labels in the project planner. The planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with the yearly and project planners: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The weekly planner uses a landscape template instead. The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
 
 #### Classic
 
@@ -74,7 +74,7 @@ node index.js --start-year 2027 --start-month 1 --template pocket --week-start 1
 
 #### Yearly planner
 
-`planner-yearly` gives each month two pages (15 + 16 days), with the day columns flush across the folds. Weekends are not shaded; the day lines are magenta, thicker at each week start, and light horizontal stripes run across the body. The month name sits above the 1st and the column lines start below it. The footer carries the day number (in a lighter gray) with a small "Week N" above it at the start of each week.
+`planner-yearly` gives each month two pages (15 + 16 days), with the day columns flush across the folds. Weekends are not shaded; the week lines are magenta and the day lines gray, and light horizontal stripes run across the body. The month name sits above the 1st and the column lines start below it. The footer carries the day number (in a lighter gray) with a small "Week N" above it at the start of each week.
 
 A full year, Monday weeks, on a roll:
 
@@ -97,9 +97,9 @@ That makes 24 pages on an 82.25 × 8.75 in strip. Tweaks that work well with `--
 `planner-project` is built for planning in two-week pages that follow the fiscal calendar:
 
 - **Pages:** fixed 14-day pages side by side. With Monday weeks and a January start it opens on the first day of ISO week 1, which can skip the first days of January (Monday 4 January 2027), so the strip starts exactly at week 1.
-- **Quarters:** a big quarter label with the year small beside it ("Q1 2027") at the first column and wherever a quarter starts. Quarters are 13-week blocks starting at weeks 1, 14, 27 and 40, and the year turns over at week 1. Use `--set labels.quarter=months` for calendar quarters instead.
-- **Cycles:** under the quarter, a line runs from the start to the end of each 6-week cycle (with end bars and a "Cycle N" label), followed by a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip. They do not realign at year end, so they will not line up with quarters. Change the lengths with `--set labels.cycles.weeks=4 --set labels.cycles.cooldown=1`, or turn the row off with `--set labels.cycles=false`.
-- **Days:** the weekday and day number run along the top, weekends are shaded and the day lines are magenta, thicker at each week start. The column lines and shading start below the header block.
+- **Quarters:** a big magenta quarter label with the year small and gray beside it ("Q1 2027") at the first column and wherever a quarter starts. Quarters are 13-week blocks starting at weeks 1, 14, 27 and 40, and the year turns over at week 1. Use `--set labels.quarter=months` for calendar quarters instead.
+- **Cycles:** under the quarter, a line runs from the start to the end of each 6-week cycle (with end bars and a magenta "Cycle N" label), followed by a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip. They do not realign at year end, so they will not line up with quarters. Change the lengths with `--set labels.cycles.weeks=4 --set labels.cycles.cooldown=1`, or turn the row off with `--set labels.cycles=false`.
+- **Days:** the weekday and day number run along the top, weekends are shaded, the week lines are magenta and the day lines gray. The column lines and shading start below the header block.
 - **Footer:** reading bottom to top, weekday, day number and, on the 1st, the month name.
 - **Month watermark:** a large, pale month name runs left to right across the days, just under the day numbers, starting at the column of the 1st (and at the first column, so the opening month is named even when it starts after the 1st). Size it with `--set fontSizes.monthWatermark=24`, or turn it off with `--set labels.monthWatermark=false`.
 
@@ -171,7 +171,7 @@ See the presets in [`default.json`](./config/default.json) for the defaults.
 - `flush`: no side padding, so day columns run edge to edge. A column line is drawn at every fold.
 - `clearMonthHeader`: column lines and weekend shading start under the header labels (year, quarter, cycles, month, week number) instead of running behind them.
 - `weekend`: `shade` shades Saturday and Sunday. It is not combined with striped bands (weekends stay unshaded if you ask for both) unless `overStripes` is set, which draws the weekend shading under the stripes, with the stripes a step darker across weekend columns.
-- `weekDivider` / `columnLines`: a heavier line where a new week starts (set by `--week-start`) and light lines between the other days. `weekDividerColor` and `columnLineColor` set their colours by name (`magenta`, `gray`, `lightgray`, `darkgray`, ...; the defaults are `gray` and `lightgray`). The yearly and project planners make both magenta and the weekly planner makes the week line magenta, as in the original.
+- `weekDivider` / `columnLines`: a heavier line where a new week starts (set by `--week-start`) and light lines between the other days. `weekDividerColor` and `columnLineColor` set their colours by name (`magenta`, `gray`, `lightgray`, `darkgray`, ...; the defaults are `gray` and `lightgray`). The yearly, project and weekly planners make the week line magenta, as in the original.
 - `bands`: `count` horizontal bands in the body, with `stripes` (alternate bands shaded, and `invert` to shade the first band instead of the second), `hairlines`, and `hours` labels (`none`, `left`, `right`, `both`, or `inside` for the first column of each page; `first` hour, `perBand` hours, `pad` for a leading zero, `color`).
 - `labels`:
   - `month`: `auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`. `monthEveryPage` also names the month at the start of a page that opens mid-month.
@@ -179,6 +179,7 @@ See the presets in [`default.json`](./config/default.json) for the defaults.
   - `digitsTop`, `digitsBottom`, `digitsBottomColor`: the day numbers. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
   - `weekNumbers` (a top row), `weekNumberBottom` ("Week N" in the footer), `weekNumberBottomLeft` ("Week N" at the bottom left of each page, under the body) and `weekNumberPrefix` (text before the number, e.g. `Week `).
   - `year` and `quarter`: labels along the top, on the first column and where a year or quarter starts. The year follows the quarter on the same line, e.g. "Q1 2027", and only gets a row of its own when there is no quarter label. `quarter` is `weeks` for 13-week fiscal quarters starting at weeks 1, 14, 27 and 40 (the year turns over at week 1), or `months` for calendar quarters.
+  - `quarterColor` and `cycleColor`: the colour names for the quarter label and the "Cycle N" label (`gray` unless set; `planner-project` uses `magenta`).
   - `cycles`: optional, off unless set (used by `planner-project`). `{ "weeks": 6, "cooldown": 2 }` draws a line from the start to the end of each 6-week cycle, then a lighter 2-week "Cool-down" line, repeating from the first week 1 on the strip.
   - `monthWatermark`: a big, pale month name running left to right across the days, starting at the column of the 1st and of the first column. Size it with `fontSizes.monthWatermark`, or relative to the template's month size with `monthWatermarkScale`; `monthWatermarkOffset` moves it down from the top of the body, in points; with hour rows its baseline snaps down onto the nearest row line.
   - `moon`: optional, off unless set (used by `planner-weekly`). `{}` shows the principal moon phases next to the day number in the inline day header; `utcOffset` and `southern` adjust the day and the hemisphere.

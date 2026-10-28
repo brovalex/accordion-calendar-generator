@@ -204,7 +204,7 @@ export default class SVGPlanner extends SVGBase {
             const last = s.cool ? length - 1 : build - 1
             if (s.pos === first) this.rect(g, colX(i) - 0.5, lineY - tick/2, 1, tick, color)
             if (state[j].pos === last) this.rect(g, colX(j + 1) - 0.5, lineY - tick/2, 1, tick, color)
-            if (s.pos === first) this.text(g, this.textToSVG, s.cool ? 'Cool-down' : `Cycle ${s.cycle}`, colX(i) + 2, lineY - 3, this.size.cycle, 'left', color)
+            if (s.pos === first) this.text(g, this.textToSVG, s.cool ? 'Cool-down' : `Cycle ${s.cycle}`, colX(i) + 2, lineY - 3, this.size.cycle, 'left', s.cool ? color : this.colors[this.o.labels.cycleColor ?? 'gray'])
             i = j + 1
         }
     }
@@ -347,10 +347,10 @@ export default class SVGPlanner extends SVGBase {
             const parts = []
             const period = (rows.year || rows.quarter) ? this.period(day) : null
             if (rows.quarter && (opening || period.startsQuarter)) {
-                parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter })
+                parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
             }
             if (o.labels.year && (opening || period.startsYear)) {
-                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(period.year), font: this.monthToSVG, size: this.size.year, centeredOn: rows.quarter ? this.size.quarter : 0 })
+                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(period.year), font: this.monthToSVG, size: this.size.year, color: this.colors.gray, centeredOn: rows.quarter ? this.size.quarter : 0 })
             }
             const gap = 3
             const total = parts.reduce((sum, part, k) => sum + this.textWidth(part.font, part.str, part.size) + (k ? gap : 0), 0)
@@ -358,7 +358,7 @@ export default class SVGPlanner extends SVGBase {
             parts.forEach((part) => {
                 // the year is centred on the quarter's cap height, not sitting on its baseline
                 const baseline = rows[part.row].top + rows[part.row].height*0.75 - (part.centeredOn ? CAP_HEIGHT*(part.centeredOn - part.size)/2 : 0)
-                this.text(g, part.font, part.str, x, baseline, part.size, 'left', this.colors.gray)
+                this.text(g, part.font, part.str, x, baseline, part.size, 'left', part.color)
                 x += this.textWidth(part.font, part.str, part.size) + gap
             })
             if (rows.weekNumber && (i === 0 || dateFns.getDay(day) === this.weekStartsOn)) {
