@@ -9,7 +9,7 @@ A calendar is first generated in SVG, then a PDF output file is created.
 ## Features
 
 - Generates print-ready mechanicals, including bleed, crop marks, fold marks, and outlined fonts
-- Four templates: the original month-per-page calendar, a yearly planner, a project planner with fiscal quarters and cycles, and a weekly planner with hourly rows and moon phases
+- Four templates: the original month-per-page calendar, a yearly planner, a project planner (with a fiscal quarters and cycles variant), and a weekly planner with hourly rows and moon phases
 - Highly configurable: templates, paper size, start date, number of months, week start day, and any layout setting via `--set`
 - Calculates the appropriate page breaks (for the original calendar, the first row of every page starts on the 1st of the month; the planners can open on ISO week 1)
 - Adjusts layout depending on week start day
@@ -33,7 +33,7 @@ Any option you leave out is asked for interactively (`--set` and `--pages` excep
 - `--start-month <month>`: the month to start on, `1`-`12` or a name (`jan`, `january`, ...). The calendar works out the correct first day given `--week-start`.
 - `--number-of-months <count>`: the number of months to generate (1-60, e.g. 12 for a full year).
 - `--template <name>`: the page size and type sizes: `pocket`, `purse` or `mathias` (landscape), or `pocket-portrait`, `purse-portrait` or `mathias-portrait` (portrait). `pocket` and `purse` are the two sizes offered on the website. They are specified in [`default.json`](./config/default.json).
-- `--preset <name>`: the layout: `classic` (preselected in the prompt), `planner-yearly`, `planner-project` or `planner-weekly`. See [Templates](#templates).
+- `--preset <name>`: the layout: `classic` (preselected in the prompt), `planner-yearly`, `planner-project`, `planner-project-cycles` or `planner-weekly`. See [Templates](#templates).
 - `--week-start <day>`: the day the week starts on (`sunday`/`sun`/`0`, `monday`/`mon`/`1`, and so on).
 - `--paper-size <size>`: the paper for the output: `roll`, `strip`, `letter` or `maxroll`. These are specified in [`default.json`](./config/default.json).
 - `--paper-margin <inches>`: the margin around the artwork, 0 to 2. Without it you are asked, so pass it in scripts (the examples use `0.5`).
@@ -52,17 +52,17 @@ node index.js --start-year 2027 --start-month 1 --template pocket --week-start 1
 
 ### Templates
 
-There are four calendar templates, and a variant of the project planner. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`.
+There are four calendar templates, and the project planner has a second version with quarters and cycles. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`.
 
 | preset | what it is |
 | --- | --- |
 | `classic` | the original: one month per page, a row per week, pages stacked down the roll |
 | `planner-yearly` | the year on one sideways strip: a thin column per day, two pages per month, striped bands, magenta week lines |
-| `planner-project` | a project planner on a sideways strip: two-week pages from week 1, fiscal quarters with two 6-week cycles and a buffer week each (optional), magenta week lines and quarter labels |
-| `planner-project-months` | the project planner without quarters or cycles: a big magenta month name in the header instead |
+| `planner-project` | a project planner on a sideways strip: two-week pages from week 1, a big magenta month name in the header, magenta week lines |
+| `planner-project-cycles` | the project planner with fiscal quarters (Q1, Q2, ...) in the header and two 6-week cycles plus a buffer week per quarter (the cycle row is optional) |
 | `planner-weekly` | a weekly planner: one wide page per week, side by side on the sideways strip, with an hourly row grid and a magenta week line |
 
-As in the original, the magenta is on the lines that run parallel to the fold edge, here the week lines (the yearly, project and weekly planners), plus the quarter labels in the project planner. The planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with the yearly and project planners: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The weekly planner uses a landscape template instead. The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
+As in the original, the magenta is on the lines that run parallel to the fold edge, here the week lines (the yearly, project and weekly planners), plus the month names in the project planner and the quarter labels in its cycles version. The planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with the yearly and project planners: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The weekly planner uses a landscape template instead. The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
 
 #### Classic
 
@@ -95,14 +95,12 @@ That makes 24 pages on an 82.25 × 8.75 in strip. Tweaks that work well with `--
 
 #### Project planner
 
-`planner-project` is built for planning in two-week pages that follow the fiscal calendar:
+`planner-project` is built for planning in two-week pages:
 
 - **Pages:** fixed 14-day pages side by side. With Monday weeks and a January start it opens on the first day of ISO week 1, which can skip the first days of January (Monday 4 January 2027), so the strip starts exactly at week 1.
-- **Quarters:** a big magenta quarter label with the year small and gray beside it ("Q1 2027") at the first column and wherever a quarter starts. Quarters are 13-week blocks starting at weeks 1, 14, 27 and 40, and the year turns over at week 1. Use `--set labels.quarter=months` for calendar quarters instead.
-- **Cycles (optional):** under the quarter, a line runs from the start to the end of each cycle (with end bars and a "Cycle N" label). A 13-week quarter holds Cycle 1 (6 weeks), Cycle 2 (6 weeks) and a 1-week "Buffer" in a lighter line, so the year adds up to 52 weeks; in a 53-week year the extra week joins the last quarter's buffer. The cycles follow the fiscal quarters (counted from week 1), and a strip that opens mid-quarter names the cycle it opens in. Turn the whole row off with `--set labels.cycles=false` (the header gets shorter), or change the length with `--set labels.cycles.weeks=5`.
-- **Days:** the weekday and day number run along the top, weekends are shaded, the week lines are magenta and the day lines gray. The column lines and shading start below the header block.
+- **Header:** a big magenta month name at each 1st (and on the first column, so the opening month is named even when it starts after the 1st), with the year small and gray beside it each January. There are no quarters or cycles; for those see below.
+- **Days:** the weekday and day number run along the top, weekends are shaded, the week lines are magenta and the day lines gray. The column lines and shading start below the header.
 - **Footer:** reading bottom to top, weekday, day number and, on the 1st, the month name.
-- **Month watermark:** a large, pale month name runs left to right across the days, just under the day numbers, starting at the column of the 1st (and at the first column, so the opening month is named even when it starts after the 1st). Size it with `--set fontSizes.monthWatermark=24`, or turn it off with `--set labels.monthWatermark=false`.
 
 Four months, Monday weeks, on a roll (`--pages 10` keeps the page count even so the ends can fold shut like a cover):
 
@@ -111,9 +109,20 @@ node index.js --start-year 2027 --start-month 1 --template pocket-portrait --wee
   --number-of-months 4 --pages 10 --paper-margin 0.5 --preset planner-project --comment project
 ```
 
-A full year is `--number-of-months 12`: 26 pages on an 89 × 8.75 in strip.
+A full year is `--number-of-months 12`: 26 pages on an 89 × 8.75 in strip. Add `--set labels.monthWatermark=true` for a large, pale month name across the days as well.
 
-A variant, `planner-project-months`, drops the cycle row and the quarters: the big magenta label is the month name at each 1st (and on the first column), with the year small beside it each January, and the pale month watermark is off. Use it the same way with `--preset planner-project-months`; the other settings are the project planner's.
+#### Project planner with cycles
+
+`planner-project-cycles` is the project planner with the fiscal calendar in the header, the way it started. It has the same pages, days and footer, and in place of the month names:
+
+- **Quarters:** a big magenta quarter label with the year small and gray beside it ("Q1 2027") at the first column and wherever a quarter starts. Quarters are 13-week blocks starting at weeks 1, 14, 27 and 40, and the year turns over at week 1. Use `--set labels.quarter=months` for calendar quarters instead.
+- **Cycles (optional):** under the quarter, a line runs from the start to the end of each cycle (with end bars and a "Cycle N" label). A 13-week quarter holds Cycle 1 (6 weeks), Cycle 2 (6 weeks) and a 1-week "Buffer" in a lighter line, so the year adds up to 52 weeks; in a 53-week year the extra week joins the last quarter's buffer. The cycles follow the fiscal quarters (counted from week 1), and a strip that opens mid-quarter names the cycle it opens in. Turn the whole row off with `--set labels.cycles=false` (the header gets shorter), or change the length with `--set labels.cycles.weeks=5`.
+- **Month watermark:** a large, pale month name runs left to right across the days, just under the day numbers, starting at the column of the 1st (and at the first column). Size it with `--set fontSizes.monthWatermark=24`, or turn it off with `--set labels.monthWatermark=false`.
+
+```
+node index.js --start-year 2027 --start-month 1 --template pocket-portrait --week-start 1 --paper-size roll \
+  --number-of-months 4 --pages 10 --paper-margin 0.5 --preset planner-project-cycles --comment cycles
+```
 
 #### Weekly planner
 
@@ -182,8 +191,9 @@ See the presets in [`default.json`](./config/default.json) for the defaults.
   - `digitsTop`, `digitsBottom`, `digitsBottomColor`: the day numbers. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
   - `weekNumbers` (a top row), `weekNumberBottom` ("Week N" in the footer), `weekNumberBottomLeft` ("Week N" at the bottom left of each page, under the body) and `weekNumberPrefix` (text before the number, e.g. `Week `).
   - `year` and `quarter`: labels along the top, on the first column and where a year or quarter starts. The year follows the quarter on the same line, e.g. "Q1 2027", and only gets a row of its own when there is no quarter label. `quarter` is `weeks` for 13-week fiscal quarters starting at weeks 1, 14, 27 and 40 (the year turns over at week 1), or `months` for calendar quarters.
-  - `quarterColor` and `cycleColor`: the colour names for the quarter label and the "Cycle N" label (`gray` unless set; `planner-project` makes the quarter label `magenta`).
-  - `cycles`: optional, off unless set (used by `planner-project`). `{ "weeks": 6, "perQuarter": 2 }` draws a line for each of `perQuarter` cycles of `weeks` weeks in every 13-week fiscal quarter, then a lighter "Buffer" line for the rest of the quarter (6 + 6 + 1 week).
+  - `quarterColor` and `cycleColor`: the colour names for the quarter label (or, with `monthHeader`, the month label) and the "Cycle N" label (`gray` unless set; the project planners make the label `magenta`).
+  - `monthHeader`: the big header label is the month name at each 1st (and on the first column), in place of the quarter, and the year changes on 1 January (used by `planner-project`).
+  - `cycles`: optional, off unless set (used by `planner-project-cycles`). `{ "weeks": 6, "perQuarter": 2 }` draws a line for each of `perQuarter` cycles of `weeks` weeks in every 13-week fiscal quarter, then a lighter "Buffer" line for the rest of the quarter (6 + 6 + 1 week).
   - `monthWatermark`: a big, pale month name running left to right across the days, starting at the column of the 1st and of the first column. Size it with `fontSizes.monthWatermark`, or relative to the template's month size with `monthWatermarkScale`; `monthWatermarkOffset` moves it down from the top of the body, in points; with hour rows its baseline snaps down onto the nearest row line.
   - `moon`: optional, off unless set (used by `planner-weekly`). `{}` shows the principal moon phases next to the day number in the inline day header; `utcOffset` and `southern` adjust the day and the hemisphere.
 - `fontSizes`: optional absolute sizes in points (`days`, `weekday`, `weekNumber`, `month`, `monthVertical`, `monthWatermark`, `year`, `quarter`, `cycle`, `hours`). Defaults come from the template's `fonts`. Nothing is resized automatically, so narrow columns need smaller sizes.

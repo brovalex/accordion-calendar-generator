@@ -254,7 +254,7 @@
                 "stripes": true
             }
         },
-        "planner-project": {
+        "planner-project-cycles": {
             "extends": "planner-across",
             "weekDividerColor": "magenta",
             "clearMonthHeader": true,
@@ -287,8 +287,8 @@
                 "top": 0.1
             }
         },
-        "planner-project-months": {
-            "extends": "planner-project",
+        "planner-project": {
+            "extends": "planner-project-cycles",
             "labels": {
                 "quarter": false,
                 "cycles": false,
