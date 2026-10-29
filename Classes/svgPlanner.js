@@ -179,17 +179,17 @@ export default class SVGPlanner extends SVGBase {
         j > 0 && dateFns.isFirstDayOfMonth(d) && colX(j) < colX(0) + 6 + this.textWidth(this.monthToSVG, dateFns.format(days[0], 'MMMM'), size))
 
     // labels.cycles = { weeks, perQuarter }: each fiscal quarter (13 weeks, counted from week 1) holds `perQuarter` cycles
-    // of `weeks` weeks and the rest is a buffer, so 6 + 6 + 1 buffer week. A 53rd week joins the last quarter's buffer.
+    // of `weeks` weeks and the rest is a cooldown, so 6 + 6 + 1 cooldown week. A 53rd week joins the last quarter's cooldown.
     cycleAt = (day) => {
         const { weeks, perQuarter = 2 } = this.o.labels.cycles
         const week = this.weekNumber(day)
         const quarter = Math.min(4, Math.ceil(week / 13))
         const cycle = Math.ceil((week - (quarter - 1)*13) / weeks)
-        const buffer = cycle > perQuarter
-        return { id: `${this.weekYear(day)}-${quarter}-${buffer ? 'buffer' : cycle}`, label: buffer ? 'Buffer' : `Cycle ${cycle}`, buffer }
+        const cooldown = cycle > perQuarter
+        return { id: `${this.weekYear(day)}-${quarter}-${cooldown ? 'cooldown' : cycle}`, label: cooldown ? 'Cooldown' : `Cycle ${cycle}`, cooldown }
     }
 
-    // a line from the first to the last day of each cycle, and a lighter one for each buffer week; `opening` names the
+    // a line from the first to the last day of each cycle, and a lighter one for each cooldown week; `opening` names the
     // segment on the strip's first column even when it began earlier
     drawCycles = (g, days, colX, row, opening) => {
         const info = days.map((d) => {
@@ -203,11 +203,11 @@ export default class SVGPlanner extends SVGBase {
             const s = info[i]
             let j = i
             while (j + 1 < days.length && info[j + 1].id === s.id) j++
-            const color = s.buffer ? this.colors.lightgray : this.colors.gray
-            this.rect(g, colX(i), lineY - (s.buffer ? 0.25 : 0.5), colX(j + 1) - colX(i), s.buffer ? 0.5 : 1, color)
+            const color = s.cooldown ? this.colors.lightgray : this.colors.gray
+            this.rect(g, colX(i), lineY - (s.cooldown ? 0.25 : 0.5), colX(j + 1) - colX(i), s.cooldown ? 0.5 : 1, color)
             if (s.starts) this.rect(g, colX(i) - 0.5, lineY - tick/2, 1, tick, color)
             if (info[j].ends) this.rect(g, colX(j + 1) - 0.5, lineY - tick/2, 1, tick, color)
-            if (s.starts || (opening && i === 0)) this.text(g, this.textToSVG, s.label, colX(i) + 2, lineY - 3, this.size.cycle, 'left', s.buffer ? color : this.colors[this.o.labels.cycleColor ?? 'gray'])
+            if (s.starts || (opening && i === 0)) this.text(g, this.textToSVG, s.label, colX(i) + 2, lineY - 3, this.size.cycle, 'left', s.cooldown ? color : this.colors[this.o.labels.cycleColor ?? 'gray'])
             i = j + 1
         }
     }
