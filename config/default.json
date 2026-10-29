@@ -269,7 +269,7 @@
                 "quarterColor": "magenta",
                 "cycles": {
                     "weeks": 6,
-                    "cooldown": 2
+                    "perQuarter": 2
                 },
                 "month": "vertical",
                 "weekdayTop": true,

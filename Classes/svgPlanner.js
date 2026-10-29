@@ -67,9 +67,7 @@ export default class SVGPlanner extends SVGBase {
             .fill('none')
 
         this.measureFooter(calData.pages)
-        // cycles are counted from the first week 1 on the strip (or the first day, if it has none)
         const allDays = calData.pages.flatMap(pg => pg.days)
-        this.cycleAnchor = allDays.find(d => dateFns.getDay(d) === this.weekStartsOn && this.weekNumber(d) === 1) ?? allDays[0]
         // moon: which calendar days hold a new, first quarter, full or last quarter moon (UTC unless labels.moon.utcOffset says otherwise)
         this.moonDays = o.labels.moon ? phaseDays(allDays, o.labels.moon.utcOffset ?? 0) : new Map()
         // pages of one month sit on top of each other, so they share one column width (set by the longest of them);
@@ -180,31 +178,36 @@ export default class SVGPlanner extends SVGBase {
     namesMonthAtPageStart = (days, colX, size) => this.o.labels.monthEveryPage && !dateFns.isFirstDayOfMonth(days[0]) && !days.some((d, j) =>
         j > 0 && dateFns.isFirstDayOfMonth(d) && colX(j) < colX(0) + 6 + this.textWidth(this.monthToSVG, dateFns.format(days[0], 'MMMM'), size))
 
-    // labels.cycles = { weeks, cooldown }: e.g. 6 weeks of work and 2 weeks of cool-down, repeating from the anchor
-    drawCycles = (g, days, colX, row) => {
-        const { weeks, cooldown } = this.o.labels.cycles
-        const build = weeks*7, length = (weeks + cooldown)*7
-        const state = days.map((d) => {
-            const index = dateFns.differenceInCalendarDays(d, this.cycleAnchor)
-            if (index < 0) return null // before the first cycle
-            const pos = index % length
-            return { cycle: Math.floor(index/length) + 1, pos, cool: pos >= build }
+    // labels.cycles = { weeks, perQuarter }: each fiscal quarter (13 weeks, counted from week 1) holds `perQuarter` cycles
+    // of `weeks` weeks and the rest is a buffer, so 6 + 6 + 1 buffer week. A 53rd week joins the last quarter's buffer.
+    cycleAt = (day) => {
+        const { weeks, perQuarter = 2 } = this.o.labels.cycles
+        const week = this.weekNumber(day)
+        const quarter = Math.min(4, Math.ceil(week / 13))
+        const cycle = Math.ceil((week - (quarter - 1)*13) / weeks)
+        const buffer = cycle > perQuarter
+        return { id: `${this.weekYear(day)}-${quarter}-${buffer ? 'buffer' : cycle}`, label: buffer ? 'Buffer' : `Cycle ${cycle}`, buffer }
+    }
+
+    // a line from the first to the last day of each cycle, and a lighter one for each buffer week; `opening` names the
+    // segment on the strip's first column even when it began earlier
+    drawCycles = (g, days, colX, row, opening) => {
+        const info = days.map((d) => {
+            const c = this.cycleAt(d)
+            return { ...c, starts: this.cycleAt(dateFns.addDays(d, -1)).id !== c.id, ends: this.cycleAt(dateFns.addDays(d, 1)).id !== c.id }
         })
         const lineY = row.top + row.height - 3
         const tick = 6
         let i = 0
         while (i < days.length) {
-            const s = state[i]
-            if (!s) { i++; continue }
+            const s = info[i]
             let j = i
-            while (j + 1 < days.length && state[j + 1] && state[j + 1].cool === s.cool && state[j + 1].cycle === s.cycle) j++
-            const color = s.cool ? this.colors.lightgray : this.colors.gray
-            this.rect(g, colX(i), lineY - (s.cool ? 0.25 : 0.5), colX(j + 1) - colX(i), s.cool ? 0.5 : 1, color)
-            const first = s.cool ? build : 0
-            const last = s.cool ? length - 1 : build - 1
-            if (s.pos === first) this.rect(g, colX(i) - 0.5, lineY - tick/2, 1, tick, color)
-            if (state[j].pos === last) this.rect(g, colX(j + 1) - 0.5, lineY - tick/2, 1, tick, color)
-            if (s.pos === first) this.text(g, this.textToSVG, s.cool ? 'Cool-down' : `Cycle ${s.cycle}`, colX(i) + 2, lineY - 3, this.size.cycle, 'left', s.cool ? color : this.colors[this.o.labels.cycleColor ?? 'gray'])
+            while (j + 1 < days.length && info[j + 1].id === s.id) j++
+            const color = s.buffer ? this.colors.lightgray : this.colors.gray
+            this.rect(g, colX(i), lineY - (s.buffer ? 0.25 : 0.5), colX(j + 1) - colX(i), s.buffer ? 0.5 : 1, color)
+            if (s.starts) this.rect(g, colX(i) - 0.5, lineY - tick/2, 1, tick, color)
+            if (info[j].ends) this.rect(g, colX(j + 1) - 0.5, lineY - tick/2, 1, tick, color)
+            if (s.starts || (opening && i === 0)) this.text(g, this.textToSVG, s.label, colX(i) + 2, lineY - 3, this.size.cycle, 'left', s.buffer ? color : this.colors[this.o.labels.cycleColor ?? 'gray'])
             i = j + 1
         }
     }
@@ -317,7 +320,7 @@ export default class SVGPlanner extends SVGBase {
         }
 
         // cycles: a line from the first to the last day of each build cycle, then a lighter one for its cool-down
-        if (rows.cycles) this.drawCycles(g, days, colX, rows.cycles)
+        if (rows.cycles) this.drawCycles(g, days, colX, rows.cycles, p === 0)
 
         // 5. hour labels at the top of each band: in the side padding, or (inside) in the first column of the page,
         // for flush layouts that have no padding
