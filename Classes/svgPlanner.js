@@ -230,8 +230,8 @@ export default class SVGPlanner extends SVGBase {
         const rows = {}
         let y = this.pad.top
         const addRow = (key, height) => { rows[key] = { top: y, height }; y += height }
-        if (o.labels.year && !o.labels.quarter) addRow('year', this.size.year*1.4)
-        if (o.labels.quarter) addRow('quarter', this.size.quarter*1.4)
+        if (o.labels.year && !o.labels.quarter && !o.labels.monthHeader) addRow('year', this.size.year*1.4)
+        if (o.labels.quarter || o.labels.monthHeader) addRow('quarter', this.size.quarter*1.4) // the big label row: a quarter, or with monthHeader a month
         if (o.labels.cycles) addRow('cycles', this.size.cycle*2.6)
         if (this.monthMode === 'top') addRow('month', this.size.month*1.4)
         if (o.labels.weekNumbers) addRow('weekNumber', this.size.weekNumber*1.6)
@@ -348,12 +348,19 @@ export default class SVGPlanner extends SVGBase {
             const opening = p === 0 && i === 0
             // the year follows the quarter on the same baseline ("Q1 2027"); with no quarter row it gets a row of its own
             const parts = []
-            const period = (rows.year || rows.quarter) ? this.period(day) : null
-            if (rows.quarter && (opening || period.startsQuarter)) {
+            // monthHeader: the big label is the month at each 1st (and on the first column), in place of the quarter, and the
+            // year changes on 1 January; otherwise the quarter and year follow the fiscal weeks
+            const monthHeader = !!o.labels.monthHeader
+            const startsMonthHere = dateFns.isFirstDayOfMonth(day)
+            const period = (!monthHeader && (rows.year || rows.quarter)) ? this.period(day) : null
+            if (monthHeader && rows.quarter && (opening || startsMonthHere)) {
+                parts.push({ row: 'quarter', str: dateFns.format(day, 'MMMM'), font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
+            }
+            if (!monthHeader && rows.quarter && (opening || period.startsQuarter)) {
                 parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
             }
-            if (o.labels.year && (opening || period.startsYear)) {
-                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(period.year), font: this.monthToSVG, size: this.size.year, color: this.colors.gray, centeredOn: rows.quarter ? this.size.quarter : 0 })
+            if (o.labels.year && (opening || (monthHeader ? startsMonthHere && day.getMonth() === 0 : period.startsYear))) {
+                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(monthHeader ? day.getFullYear() : period.year), font: this.monthToSVG, size: this.size.year, color: this.colors.gray, centeredOn: rows.quarter ? this.size.quarter : 0 })
             }
             const gap = 3
             const total = parts.reduce((sum, part, k) => sum + this.textWidth(part.font, part.str, part.size) + (k ? gap : 0), 0)

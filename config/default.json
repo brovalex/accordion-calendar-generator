@@ -287,6 +287,15 @@
                 "top": 0.1
             }
         },
+        "planner-project-months": {
+            "extends": "planner-project",
+            "labels": {
+                "quarter": false,
+                "cycles": false,
+                "monthHeader": true,
+                "monthWatermark": false
+            }
+        },
         "planner-weekly": {
             "extends": "planner-across",
             "weekDividerColor": "magenta",

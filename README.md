@@ -52,13 +52,14 @@ node index.js --start-year 2027 --start-month 1 --template pocket --week-start 1
 
 ### Templates
 
-There are four calendar templates. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`.
+There are four calendar templates, and a variant of the project planner. A template is a **preset**: it bundles every layout setting, and presets can `extend` each other. Pick one with `--preset`.
 
 | preset | what it is |
 | --- | --- |
 | `classic` | the original: one month per page, a row per week, pages stacked down the roll |
 | `planner-yearly` | the year on one sideways strip: a thin column per day, two pages per month, striped bands, magenta week lines |
 | `planner-project` | a project planner on a sideways strip: two-week pages from week 1, fiscal quarters with two 6-week cycles and a buffer week each (optional), magenta week lines and quarter labels |
+| `planner-project-months` | the project planner without quarters or cycles: a big magenta month name in the header instead |
 | `planner-weekly` | a weekly planner: one wide page per week, side by side on the sideways strip, with an hourly row grid and a magenta week line |
 
 As in the original, the magenta is on the lines that run parallel to the fold edge, here the week lines (the yearly, project and weekly planners), plus the quarter labels in the project planner. The planners lay their pages out left to right, so the paper is turned sideways: a `roll` is 8.75 in tall and as long as the calendar needs, and the day columns run edge to edge across the folds. Use a portrait template with the yearly and project planners: `pocket-portrait`, `purse-portrait` or `mathias-portrait` (`pocket-portrait` panels are 3.375 × 5.5 in; `purse-portrait` fits an 8.75 in roll exactly). The weekly planner uses a landscape template instead. The `strip` paper size is also turned sideways (42 × 7 in), so it holds fewer pages. Day columns are narrow, so type is small; adjust it with `--set fontSizes.weekNumber=6` and similar.
@@ -111,6 +112,8 @@ node index.js --start-year 2027 --start-month 1 --template pocket-portrait --wee
 ```
 
 A full year is `--number-of-months 12`: 26 pages on an 89 × 8.75 in strip.
+
+A variant, `planner-project-months`, drops the cycle row and the quarters: the big magenta label is the month name at each 1st (and on the first column), with the year small beside it each January, and the pale month watermark is off. Use it the same way with `--preset planner-project-months`; the other settings are the project planner's.
 
 #### Weekly planner
 
