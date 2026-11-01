@@ -22,6 +22,7 @@ A calendar is first generated in SVG, then a PDF output file is created.
 Run `npm install` first, then:
 
 ```
+# NixOS: run `nix-shell` first so node is available
 node index.js [options]
 ```
 

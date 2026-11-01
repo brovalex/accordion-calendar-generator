@@ -98,15 +98,15 @@ export default class SVGCalendar extends SVGBase {
         var adjustment = this.weeksToSVG.getMetrics(weekString, options)
         pG
             .path( this.weeksToSVG.getD(weekString, options) )
-            .move( this.inchToPx(this.padding_x+this.spacing_x/2), this.inchToPx( (n+1)*h)-adjustment.ascender-this.inchToPx(this.spacing_y)/2)
+            .move( this.inchToPx(this.padding_x+this.spacing_x/2), this.inchToPx( (n+1)*h)-adjustment.ascender-this.inchToPx(this.spacing_y)/2+(this.template.fonts.WeekNumber.yShift ?? 0))
             .fill( this.colors.gray )
     }
     writeDays = (pG,days,n,wks) => {
         var writeDay = (d,x,y) => {
-            var options = {anchor: 'left baseline', fontSize: this.template.fonts.Days.size}
+            var options = {anchor: 'left baseline', fontSize: this.template.fonts.Days.size, tracking: this.fonts.digitsFont.tracking}
             pG
                 .path(this.digitsToSVG.getD(d, options))
-                .move( x+this.inchToPx(this.spacing_x)/2, y+this.inchToPx(this.spacing_y) )
+                .move( x+this.inchToPx(this.spacing_x)/2+(this.template.fonts.Days.xShift ?? 0), y+this.inchToPx(this.spacing_y) )
                 .fill( this.colors.darkgray )
         }
         days.forEach((d,j)=>{
@@ -130,7 +130,7 @@ export default class SVGCalendar extends SVGBase {
         })
     }
     writeMonthHeader = (pG, mmmm, wks) => {
-        var options = {fontSize: this.template.fonts.MonthHeader.size}
+        var options = {fontSize: this.template.fonts.MonthHeader.size, tracking: this.fonts.monthFont.tracking}
         var text = mmmm
         var textSVG = this.monthToSVG.getD(text, options)
         var textMetrics = this.monthToSVG.getMetrics(text, options)
