@@ -21,6 +21,7 @@ A calendar can is first generated in SVG, then a PDF output file is created.
 Run following command will create a `calendar.pdf` print-ready file in the current folder. (Run `npm install` first obvi.)
 
 ```
+# NixOS: run `nix-shell` first so node is available
 node index.js <start_year> <start_month> <number_of_months> <template> <week_starts_on> <paper_size>
 ```
 
