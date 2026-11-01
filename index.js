@@ -249,7 +249,7 @@ async function init() {
         });
     }
     
-    if (!options.weekStart) {
+    if (options.weekStart === undefined) {
         prompts.push({
             type: 'list',
             name: 'weekStart',
