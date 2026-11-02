@@ -167,7 +167,7 @@ Any preset value can be overridden on the fly with `--set`, using a dotted path:
 --set bands.stripes=true --set labels.weekNumbers=true --set labels.weekday=letter
 ```
 
-`--pages` sets the page count outright, for example 12 pages instead of the whole year, or 14 to run a few weeks over. Keep it even if the first and last pages need to fold shut like a cover. Without it, fixed pagination rounds up to whole pages and the extra days simply continue into the next month.
+`--pages` sets the page count outright, for example 12 pages instead of the whole year, or 14 to run a few weeks over. Pages can also run a few days past the last requested month (a year of two-week pages ends in the first days of January); the month names and the month watermark are left off for those extra days. Keep it even if the first and last pages need to fold shut like a cover. Without it, fixed pagination rounds up to whole pages and the extra days simply continue into the next month.
 
 To keep your own settings, make a preset in `config/local.json` (a `local.json` in the [`config`](./config/) folder overrides [`default.json`](./config/default.json)). It only needs to list what it changes:
 

@@ -16,6 +16,8 @@ export default class PlannerData {
         if (settings.pages) pages = pages.slice(0, settings.pages)
 
         this.pages = pages
+        // the months that were asked for; pages can run past the last one, and labels leave those months out
+        this.monthRange = { first: startOfMonth, last: dateFns.addMonths(startOfMonth, settings.number_of_months - 1) }
         this.preset = preset
         this.weekStartsOn = settings.week_starts_on
         this.paper = settings.paper
