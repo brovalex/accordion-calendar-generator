@@ -22,6 +22,7 @@ export default class SVGPlanner extends SVGBase {
         super(calData, template)
         const o = calData.preset
         this.o = o
+        this.monthRange = calData.monthRange
         this.weekStartsOn = calData.weekStartsOn
         this.pageW = this.inchToPx(template.width)
         this.pageH = this.inchToPx(template.height)
@@ -130,7 +131,7 @@ export default class SVGPlanner extends SVGBase {
             items.push({ key: 'weekday', length: longest })
         }
         if (labels.digitsBottom) items.push({ key: 'digits', length: this.textWidth(this.digitsToSVG, '88', this.size.digits) })
-        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, 'Week 88', this.size.weekNumber), before: this.size.digits }) // starts one row above the digit's end
+        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, 'Week 88', this.size.weekNumber), before: labels.weekNumberBottomGap ?? this.size.digits }) // by default starts one row above the digit's end
         if (this.monthMode === 'vertical') {
             const longest = Math.max(...[...Array(12)].map((_, m) => this.textWidth(this.textToSVG, dateFns.format(new Date(2000, m, 1), 'MMMM'), this.size.monthVertical)))
             items.push({ key: 'month', length: longest })
@@ -177,6 +178,14 @@ export default class SVGPlanner extends SVGBase {
     // monthEveryPage: a page that opens mid-month names its month too, unless the next month's label follows too closely
     namesMonthAtPageStart = (days, colX, size) => this.o.labels.monthEveryPage && !dateFns.isFirstDayOfMonth(days[0]) && !days.some((d, j) =>
         j > 0 && dateFns.isFirstDayOfMonth(d) && colX(j) < colX(0) + 6 + this.textWidth(this.monthToSVG, dateFns.format(days[0], 'MMMM'), size))
+
+    // is this day in one of the months that were asked for? Pages can spill into the next month (a year of two-week pages
+    // ends a couple of days into January), and month names are left off for those extra days
+    inRequestedMonths = (day) => {
+        const { first, last } = this.monthRange
+        const month = dateFns.startOfMonth(day)
+        return month >= first && month <= last
+    }
 
     // labels.cycles = { weeks, perQuarter }: each fiscal quarter (13 weeks, counted from week 1) holds `perQuarter` cycles
     // of `weeks` weeks and the rest is a cooldown, so 6 + 6 + 1 cooldown week. A 53rd week joins the last quarter's cooldown.
@@ -285,7 +294,7 @@ export default class SVGPlanner extends SVGBase {
         if (o.labels.monthWatermark) {
             days.forEach((day, i) => {
                 const startsPage = i === 0 && (p === 0 || this.namesMonthAtPageStart(days, colX, this.size.monthWatermark))
-                if (!(dateFns.isFirstDayOfMonth(day) || startsPage)) return
+                if (!(dateFns.isFirstDayOfMonth(day) || startsPage) || !this.inRequestedMonths(day)) return
                 const name = dateFns.format(day, 'MMMM')
                 const size = this.size.monthWatermark
                 const width = this.textWidth(this.monthToSVG, name, size)
@@ -353,13 +362,13 @@ export default class SVGPlanner extends SVGBase {
             const monthHeader = !!o.labels.monthHeader
             const startsMonthHere = dateFns.isFirstDayOfMonth(day)
             const period = (!monthHeader && (rows.year || rows.quarter)) ? this.period(day) : null
-            if (monthHeader && rows.quarter && (opening || startsMonthHere)) {
+            if (monthHeader && rows.quarter && (opening || startsMonthHere) && this.inRequestedMonths(day)) {
                 parts.push({ row: 'quarter', str: dateFns.format(day, 'MMMM'), font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
             }
             if (!monthHeader && rows.quarter && (opening || period.startsQuarter)) {
                 parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
             }
-            if (o.labels.year && (opening || (monthHeader ? startsMonthHere && day.getMonth() === 0 : period.startsYear))) {
+            if (o.labels.year && (!monthHeader || this.inRequestedMonths(day)) && (opening || (monthHeader ? startsMonthHere && day.getMonth() === 0 : period.startsYear))) {
                 parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(monthHeader ? day.getFullYear() : period.year), font: this.monthToSVG, size: this.size.year, color: this.colors.gray, centeredOn: rows.quarter ? this.size.quarter : 0 })
             }
             const gap = 3

@@ -293,7 +293,13 @@
                 "quarter": false,
                 "cycles": false,
                 "monthHeader": true,
-                "monthWatermark": false
+                "monthWatermark": false,
+                "month": "none",
+                "weekNumberBottom": true,
+                "weekNumberBottomGap": 5
+            },
+            "fontSizes": {
+                "weekNumber": 6.5
             }
         },
         "planner-weekly": {
