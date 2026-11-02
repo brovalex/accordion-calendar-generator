@@ -296,7 +296,7 @@
                 "monthWatermark": false,
                 "month": "none",
                 "weekNumberBottom": true,
-                "weekNumberBottomGap": 0
+                "weekNumberBottomGap": 5
             },
             "fontSizes": {
                 "weekNumber": 6.5
