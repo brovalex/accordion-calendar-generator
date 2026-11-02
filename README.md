@@ -101,7 +101,7 @@ That makes 24 pages on an 82.25 × 8.75 in strip. Tweaks that work well with `--
 - **Pages:** fixed 14-day pages side by side. With Monday weeks and a January start it opens on the first day of ISO week 1, which can skip the first days of January (Monday 4 January 2027), so the strip starts exactly at week 1.
 - **Header:** a big magenta month name at each 1st (and on the first column, so the opening month is named even when it starts after the 1st), with the year small and gray beside it each January. There are no quarters or cycles; for those see below.
 - **Days:** the weekday and day number run along the top, weekends are shaded, the week lines are magenta and the day lines gray. The column lines and shading start below the header.
-- **Footer:** reading bottom to top, weekday, day number and, on the 1st, the month name.
+- **Footer:** reading bottom to top, weekday, day number and, on the first day of each week, "Week N" in regular type (6.5 pt). The month name is in the header, so it is not repeated here; `--set labels.month=vertical` brings it back.
 
 Four months, Monday weeks, on a roll (`--pages 10` keeps the page count even so the ends can fold shut like a cover):
 
@@ -190,7 +190,7 @@ See the presets in [`default.json`](./config/default.json) for the defaults.
   - `month`: `auto` is above the 1st for monthly pagination and vertical in the 1st's column for fixed; or `top`, `vertical`, `none`. `monthEveryPage` also names the month at the start of a page that opens mid-month.
   - `weekday`: `short` is three letters, or `letter`, `none`. `weekdayTop` and `weekdayBottom` choose where it goes; `dayHeader: "inline"` puts the day number and the weekday after it on one top row.
   - `digitsTop`, `digitsBottom`, `digitsBottomColor`: the day numbers. Bottom text reads bottom to top: weekday, day number, then the month on the 1st (when `month` is `vertical`), with the week label one row further up.
-  - `weekNumbers` (a top row), `weekNumberBottom` ("Week N" in the footer), `weekNumberBottomLeft` ("Week N" at the bottom left of each page, under the body) and `weekNumberPrefix` (text before the number, e.g. `Week `).
+  - `weekNumbers` (a top row), `weekNumberBottom` ("Week N" in the footer, one row above the day number unless `weekNumberBottomGap` says otherwise, in points; the project planner uses 0 so it follows the day number directly), `weekNumberBottomLeft` ("Week N" at the bottom left of each page, under the body) and `weekNumberPrefix` (text before the number, e.g. `Week `).
   - `year` and `quarter`: labels along the top, on the first column and where a year or quarter starts. The year follows the quarter on the same line, e.g. "Q1 2027", and only gets a row of its own when there is no quarter label. `quarter` is `weeks` for 13-week fiscal quarters starting at weeks 1, 14, 27 and 40 (the year turns over at week 1), or `months` for calendar quarters.
   - `quarterColor` and `cycleColor`: the colour names for the quarter label (or, with `monthHeader`, the month label) and the "Cycle N" label (`gray` unless set; the project planners make the label `magenta`).
   - `monthHeader`: the big header label is the month name at each 1st (and on the first column), in place of the quarter, and the year changes on 1 January (used by `planner-project`).

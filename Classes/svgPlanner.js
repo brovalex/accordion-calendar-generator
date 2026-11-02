@@ -130,7 +130,7 @@ export default class SVGPlanner extends SVGBase {
             items.push({ key: 'weekday', length: longest })
         }
         if (labels.digitsBottom) items.push({ key: 'digits', length: this.textWidth(this.digitsToSVG, '88', this.size.digits) })
-        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, 'Week 88', this.size.weekNumber), before: this.size.digits }) // starts one row above the digit's end
+        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, 'Week 88', this.size.weekNumber), before: labels.weekNumberBottomGap ?? this.size.digits }) // by default starts one row above the digit's end
         if (this.monthMode === 'vertical') {
             const longest = Math.max(...[...Array(12)].map((_, m) => this.textWidth(this.textToSVG, dateFns.format(new Date(2000, m, 1), 'MMMM'), this.size.monthVertical)))
             items.push({ key: 'month', length: longest })
