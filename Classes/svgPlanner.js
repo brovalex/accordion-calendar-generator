@@ -391,7 +391,8 @@ export default class SVGPlanner extends SVGBase {
             if (o.labels.weekNumberHeader && rows.quarter && dateFns.getDay(day) === this.weekStartsOn) {
                 const str = (o.labels.weekNumberPrefix ?? '') + this.weekNumber(day)
                 const labelX = colX(i) + 2
-                const size = this.size.weekNumber
+                // sized from the big label: 0.75 of it makes the week label's cap height (0.711 em) equal the month name's x-height (0.528 em), within 1%
+                const size = o.labels.weekNumberHeaderScale ? this.size.quarter * o.labels.weekNumberHeaderScale : this.size.weekNumber
                 const stripLeft = (this.across ? p*W : 0) + labelX
                 const stripRight = stripLeft + this.textWidth(this.weeksToSVG, str, size)
                 const baseline = rows.quarter.top + rows.quarter.height*0.75

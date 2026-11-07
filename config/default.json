@@ -296,10 +296,8 @@
                 "monthWatermark": false,
                 "month": "none",
                 "weekNumberHeader": true,
+                "weekNumberHeaderScale": 0.75,
                 "weekNumberPrefix": "Week "
-            },
-            "fontSizes": {
-                "weekNumber": 6.5
             }
         },
         "planner-weekly": {
