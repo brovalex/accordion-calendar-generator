@@ -295,8 +295,8 @@
                 "monthHeader": true,
                 "monthWatermark": false,
                 "month": "none",
-                "weekNumberBottom": true,
-                "weekNumberBottomGap": 5
+                "weekNumberHeader": true,
+                "weekNumberPrefix": "Week "
             },
             "fontSizes": {
                 "weekNumber": 6.5
