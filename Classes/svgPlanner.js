@@ -376,7 +376,7 @@ export default class SVGPlanner extends SVGBase {
                 const yearSize = o.labels.yearScale ? this.size.quarter * o.labels.yearScale : this.size.year
                 parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(monthHeader ? day.getFullYear() : period.year), font: this.monthToSVG, size: yearSize, color: this.colors.gray, centeredOn: (rows.quarter && !o.labels.yearScale) ? this.size.quarter : 0 })
             }
-            const gap = 3
+            const gap = o.labels.yearGap ?? 3 // space between the big label and the year after it
             const total = parts.reduce((sum, part, k) => sum + this.textWidth(part.font, part.str, part.size) + (k ? gap : 0), 0)
             let x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - total) : colX(i) + 2 // the last label must not run off the strip
             // x positions on the whole strip (pages side by side share one line), kept so week labels can avoid these
