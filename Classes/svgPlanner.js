@@ -371,7 +371,10 @@ export default class SVGPlanner extends SVGBase {
                 parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
             }
             if (o.labels.year && (!monthHeader || this.inRequestedMonths(day)) && (opening || (monthHeader ? startsMonthHere && day.getMonth() === 0 : period.startsYear))) {
-                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(monthHeader ? day.getFullYear() : period.year), font: this.monthToSVG, size: this.size.year, color: this.colors.gray, centeredOn: rows.quarter ? this.size.quarter : 0 })
+                // yearScale: the year is sized as a multiple of the big label and sits on its baseline, like the week label
+                // (0.75 makes its capitals as tall as the big label's x-height); without it it is centred on the label's cap height
+                const yearSize = o.labels.yearScale ? this.size.quarter * o.labels.yearScale : this.size.year
+                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(monthHeader ? day.getFullYear() : period.year), font: this.monthToSVG, size: yearSize, color: this.colors.gray, centeredOn: (rows.quarter && !o.labels.yearScale) ? this.size.quarter : 0 })
             }
             const gap = 3
             const total = parts.reduce((sum, part, k) => sum + this.textWidth(part.font, part.str, part.size) + (k ? gap : 0), 0)

@@ -297,6 +297,7 @@
                 "month": "none",
                 "weekNumberHeader": true,
                 "weekNumberHeaderScale": 0.75,
+                "yearScale": 0.75,
                 "weekNumberPrefix": "Week "
             }
         },
