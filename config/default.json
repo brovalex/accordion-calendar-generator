@@ -295,11 +295,11 @@
                 "monthHeader": true,
                 "monthWatermark": false,
                 "month": "none",
-                "weekNumberBottom": true,
-                "weekNumberBottomGap": 5
-            },
-            "fontSizes": {
-                "weekNumber": 6.5
+                "weekNumberHeader": true,
+                "weekNumberHeaderScale": 0.75,
+                "yearScale": 0.75,
+                "yearGap": 6,
+                "weekNumberPrefix": "Week "
             }
         },
         "planner-weekly": {
