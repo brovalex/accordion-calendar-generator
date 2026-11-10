@@ -16,12 +16,14 @@ console.log("-------------------------------------------")
 //   [digit]            vertical, reading bottom to top: weekday, digit, month
 //   [weekday]          optional, vertical
 const CAP_HEIGHT = 0.71 // Roboto digits and capitals, as a fraction of the font size
+const WEEK_LABEL_BUFFER = 6 // points of clear space kept between a week label and a month name
 
 export default class SVGPlanner extends SVGBase {
     constructor (calData, template) {
         super(calData, template)
         const o = calData.preset
         this.o = o
+        this.monthRange = calData.monthRange
         this.weekStartsOn = calData.weekStartsOn
         this.pageW = this.inchToPx(template.width)
         this.pageH = this.inchToPx(template.height)
@@ -78,6 +80,7 @@ export default class SVGPlanner extends SVGBase {
             longestInMonth[monthKey(page)] = Math.max(longestInMonth[monthKey(page)] ?? 0, page.days.length)
         })
         this.overlays = [] // drawn over every page once all of them exist: { p, draw(group) } in page coordinates
+        this.headerBoxes = [] // where the big header labels (months) sit, so week labels can stay clear of them: { page, x0, x1 }
         calData.pages.forEach((page, p) => {
             const pageGroup = this.mainGroup.group()
             this.drawPage(pageGroup, page, p, calData.pages.length, (!this.across && this.o.pagination.mode === 'monthly') ? longestInMonth[monthKey(page)] : page.days.length)
@@ -130,7 +133,7 @@ export default class SVGPlanner extends SVGBase {
             items.push({ key: 'weekday', length: longest })
         }
         if (labels.digitsBottom) items.push({ key: 'digits', length: this.textWidth(this.digitsToSVG, '88', this.size.digits) })
-        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, 'Week 88', this.size.weekNumber), before: this.size.digits }) // starts one row above the digit's end
+        if (labels.weekNumberBottom) items.push({ key: 'weekNumber', length: this.textWidth(this.weeksToSVG, 'Week 88', this.size.weekNumber), before: labels.weekNumberBottomGap ?? this.size.digits }) // by default starts one row above the digit's end
         if (this.monthMode === 'vertical') {
             const longest = Math.max(...[...Array(12)].map((_, m) => this.textWidth(this.textToSVG, dateFns.format(new Date(2000, m, 1), 'MMMM'), this.size.monthVertical)))
             items.push({ key: 'month', length: longest })
@@ -177,6 +180,14 @@ export default class SVGPlanner extends SVGBase {
     // monthEveryPage: a page that opens mid-month names its month too, unless the next month's label follows too closely
     namesMonthAtPageStart = (days, colX, size) => this.o.labels.monthEveryPage && !dateFns.isFirstDayOfMonth(days[0]) && !days.some((d, j) =>
         j > 0 && dateFns.isFirstDayOfMonth(d) && colX(j) < colX(0) + 6 + this.textWidth(this.monthToSVG, dateFns.format(days[0], 'MMMM'), size))
+
+    // is this day in one of the months that were asked for? Pages can spill into the next month (a year of two-week pages
+    // ends a couple of days into January), and month names are left off for those extra days
+    inRequestedMonths = (day) => {
+        const { first, last } = this.monthRange
+        const month = dateFns.startOfMonth(day)
+        return month >= first && month <= last
+    }
 
     // labels.cycles = { weeks, perQuarter }: each fiscal quarter (13 weeks, counted from week 1) holds `perQuarter` cycles
     // of `weeks` weeks and the rest is a cooldown, so 6 + 6 + 1 cooldown week. A 53rd week joins the last quarter's cooldown.
@@ -285,7 +296,7 @@ export default class SVGPlanner extends SVGBase {
         if (o.labels.monthWatermark) {
             days.forEach((day, i) => {
                 const startsPage = i === 0 && (p === 0 || this.namesMonthAtPageStart(days, colX, this.size.monthWatermark))
-                if (!(dateFns.isFirstDayOfMonth(day) || startsPage)) return
+                if (!(dateFns.isFirstDayOfMonth(day) || startsPage) || !this.inRequestedMonths(day)) return
                 const name = dateFns.format(day, 'MMMM')
                 const size = this.size.monthWatermark
                 const width = this.textWidth(this.monthToSVG, name, size)
@@ -353,24 +364,46 @@ export default class SVGPlanner extends SVGBase {
             const monthHeader = !!o.labels.monthHeader
             const startsMonthHere = dateFns.isFirstDayOfMonth(day)
             const period = (!monthHeader && (rows.year || rows.quarter)) ? this.period(day) : null
-            if (monthHeader && rows.quarter && (opening || startsMonthHere)) {
+            if (monthHeader && rows.quarter && (opening || startsMonthHere) && this.inRequestedMonths(day)) {
                 parts.push({ row: 'quarter', str: dateFns.format(day, 'MMMM'), font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
             }
             if (!monthHeader && rows.quarter && (opening || period.startsQuarter)) {
                 parts.push({ row: 'quarter', str: `Q${period.quarter}`, font: this.textToSVG, size: this.size.quarter, color: this.colors[o.labels.quarterColor ?? 'gray'] })
             }
-            if (o.labels.year && (opening || (monthHeader ? startsMonthHere && day.getMonth() === 0 : period.startsYear))) {
-                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(monthHeader ? day.getFullYear() : period.year), font: this.monthToSVG, size: this.size.year, color: this.colors.gray, centeredOn: rows.quarter ? this.size.quarter : 0 })
+            if (o.labels.year && (!monthHeader || this.inRequestedMonths(day)) && (opening || (monthHeader ? startsMonthHere && day.getMonth() === 0 : period.startsYear))) {
+                // yearScale: the year is sized as a multiple of the big label and sits on its baseline, like the week label
+                // (0.75 makes its capitals as tall as the big label's x-height); without it it is centred on the label's cap height
+                const yearSize = o.labels.yearScale ? this.size.quarter * o.labels.yearScale : this.size.year
+                parts.push({ row: rows.quarter ? 'quarter' : 'year', str: String(monthHeader ? day.getFullYear() : period.year), font: this.monthToSVG, size: yearSize, color: this.colors.gray, centeredOn: (rows.quarter && !o.labels.yearScale) ? this.size.quarter : 0 })
             }
-            const gap = 3
+            const gap = o.labels.yearGap ?? 3 // space between the big label and the year after it
             const total = parts.reduce((sum, part, k) => sum + this.textWidth(part.font, part.str, part.size) + (k ? gap : 0), 0)
             let x = (p === pageCount - 1) ? Math.min(colX(i) + 2, W - total) : colX(i) + 2 // the last label must not run off the strip
+            // x positions on the whole strip (pages side by side share one line), kept so week labels can avoid these
+            const stripX = (this.across ? p*W : 0) + x
+            if (parts.length) this.headerBoxes.push({ page: this.across ? 0 : p, x0: stripX, x1: stripX + total })
             parts.forEach((part) => {
                 // the year is centred on the quarter's cap height, not sitting on its baseline
                 const baseline = rows[part.row].top + rows[part.row].height*0.75 - (part.centeredOn ? CAP_HEIGHT*(part.centeredOn - part.size)/2 : 0)
                 this.text(g, part.font, part.str, x, baseline, part.size, 'left', part.color)
                 x += this.textWidth(part.font, part.str, part.size) + gap
             })
+            // weekNumberHeader: "Week N" on the header line at each week start, but only where it clears the month name:
+            // no box of a month label (its text width) within WEEK_LABEL_BUFFER points. Drawn with the overlays, once every
+            // page has recorded its month labels, so a name that runs over a page fold is respected too.
+            if (o.labels.weekNumberHeader && rows.quarter && dateFns.getDay(day) === this.weekStartsOn) {
+                const str = (o.labels.weekNumberPrefix ?? '') + this.weekNumber(day)
+                const labelX = colX(i) + 2
+                // sized from the big label: 0.75 of it makes the week label's cap height (0.711 em) equal the month name's x-height (0.528 em), within 1%
+                const size = o.labels.weekNumberHeaderScale ? this.size.quarter * o.labels.weekNumberHeaderScale : this.size.weekNumber
+                const stripLeft = (this.across ? p*W : 0) + labelX
+                const stripRight = stripLeft + this.textWidth(this.weeksToSVG, str, size)
+                const baseline = rows.quarter.top + rows.quarter.height*0.75
+                this.overlays.push({ p, draw: (og) => {
+                    const clear = !this.headerBoxes.some((b) => b.page === (this.across ? 0 : p) && b.x0 < stripRight + WEEK_LABEL_BUFFER && b.x1 > stripLeft - WEEK_LABEL_BUFFER)
+                    if (clear) this.text(og, this.weeksToSVG, str, labelX, baseline, size, 'left', this.colors.gray)
+                } })
+            }
             if (rows.weekNumber && (i === 0 || dateFns.getDay(day) === this.weekStartsOn)) {
                 this.text(g, this.weeksToSVG, (o.labels.weekNumberPrefix ?? '') + this.weekNumber(day), colX(i) + 2,
                     rows.weekNumber.top + rows.weekNumber.height*0.75, this.size.weekNumber, 'left', this.colors.gray)

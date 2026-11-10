@@ -293,7 +293,13 @@
                 "quarter": false,
                 "cycles": false,
                 "monthHeader": true,
-                "monthWatermark": false
+                "monthWatermark": false,
+                "month": "none",
+                "weekNumberHeader": true,
+                "weekNumberHeaderScale": 0.75,
+                "yearScale": 0.75,
+                "yearGap": 6,
+                "weekNumberPrefix": "Week "
             }
         },
         "planner-weekly": {
