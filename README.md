@@ -225,7 +225,7 @@ npx nodemon server.js
 ## Notes:
 
 - Had to hack colour names in the CMYK colour conversion package, because an issue in the package itself doesn't allow for passing custom colours properly
-- Colours are turned into CMYK by value in `Classes/outputPDF.js`, so a new gray added to `Classes/myColors.js` needs a matching line there or it prints as RGB
+- Colours are turned into CMYK by value in `Classes/outputPDF.js`. Greys in `Classes/myColors.js` have exact entries there; any other colour falls back to a plain RGB-to-CMYK conversion (no ICC profile), so add an explicit line for colours where the exact CMYK values matter
 - The weekly planner's moon phases use [`astronomia`](https://github.com/commenthol/astronomia) (MIT), an implementation of Meeus' *Astronomical Algorithms*
 
 ## Credits
